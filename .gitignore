@@ -1,0 +1,17 @@
+# Ignore generated meta data
+**/.DS_Store
+
+# Ignore obsolete directories
+obsolete_*
+
+# Ignore build output
+evdk_workspace_apps/**/build
+evdk_workspace_targets/**/Debug/*
+!evdk_workspace_targets/**/Debug/*.ld
+evdk_workspace_targets/**/Release/*
+!evdk_workspace_targets/**/Release/*.ld
+
+# Ignore user specific settings files
+evdk_workspace_targets/**/.vscode/mcuxpresso-tools.json
+evdk_workspace_targets/**/*.jlink
+evdk_workspace_targets/**/mcux_include.json

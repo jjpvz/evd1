@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"name": "evdk_operators",
+			"path": "../evdk_operators"
+		},
+		{
+			"name": "evdk5_histogram_webcam",
+			"path": "evdk5_histogram_webcam"
+		},
+		{
+			"name": "evdk5_unit_test",
+			"path": "evdk5_unit_test"
+		},
+		{
+			"name": "evdk5_webcam",
+			"path": "evdk5_webcam"
+		}
+	]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "25.3",
+  "toolchainPath": "",
+  "linkedProjects": [],
+  "trustZoneType": "none",
+  "multicoreType": "none",
+  "projectType": "sdk-freestanding",
+  "sdk": {
+    "path": "",
+    "version": "",
+    "boardId": "",
+    "deviceId": "",
+    "coreId": ""
+  }
+}
