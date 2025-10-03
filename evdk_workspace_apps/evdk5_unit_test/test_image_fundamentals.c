@@ -129,7 +129,7 @@ void test_convertUyvyToUint8(void)
         char name[80] = "";
         sprintf(name, "Test case %d of %d", i+1, (uint32_t)(sizeof(testcases) / sizeof(testcase_t)));
 
-#if 1 // Change 0 to 1 to enable printing
+#if 0 // Change 0 to 1 to enable printing
 
     // Print testcase info
         printf("\n---------------------------------------\n");
