@@ -12,6 +12,7 @@ evdk_workspace_targets/**/Release/*
 !evdk_workspace_targets/**/Release/*.ld
 
 # Ignore user specific settings files
-evdk_workspace_targets/**/.vscode/mcuxpresso-tools.json
+evdk_workspace_targets/**/mcuxpresso-tools.json
+evdk_workspace_targets/**/launch.json
 evdk_workspace_targets/**/*.jlink
 evdk_workspace_targets/**/mcux_include.json
