@@ -4,9 +4,9 @@
  * \file      main.c
  * \author    Hugo Arends - HAN Embedded Vision and Machine Learning
  * \author
- * \date      April 2024
+ * \date      October 2025
  *
- * \copyright 2024 HAN University of Applied Sciences. All Rights Reserved.
+ * \copyright 2025 HAN University of Applied Sciences. All Rights Reserved.
  *            \n\n
  *            Permission is hereby granted, free of charge, to any person
  *            obtaining a copy of this software and associated documentation
@@ -179,13 +179,13 @@ int main(void)
     // -------------------------------------------------------------------------
 
     exampleWebcamBgr888();
-//    exampleWebcamUint8();
-//    exampleWebcamBgr888TestPattern();
-//    exampleWebcamUint8TestPattern();
-//    exampleThreshold();
-//    exampleRotate();
-//    exampleTemplate();
-//    exampleFinalAssignment();
+    // exampleWebcamUint8();
+    // exampleWebcamBgr888TestPattern();
+    // exampleWebcamUint8TestPattern();
+    // exampleThreshold();
+    // exampleRotate();
+    // exampleTemplate();
+    // exampleFinalAssignment();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -420,9 +420,9 @@ void exampleWebcamUint8(void)
 
         // Examples, select one!
         copyUint8Image(src, dst);
-//        scale(src, dst);
-//        brightness(src, dst, 100);
-//        contrast(src, dst, 2.0f);
+        // scale(src, dst);
+        // brightness(src, dst, 100);
+        // contrast(src, dst, 2.0f);
 
         // Convert uint8_pixel_t image to bgr888_pixel_t image for USB
         convertUint8ToBgr888(dst, usb);
