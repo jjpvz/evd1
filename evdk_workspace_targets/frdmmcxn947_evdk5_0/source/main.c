@@ -37,6 +37,7 @@
 #include "board.h"
 #include "gpio_input.h"
 #include "gpio_output.h"
+#include "ssd1306.h"
 
 #include "uvc_camera.h"
 
@@ -51,6 +52,11 @@
 // -----------------------------------------------------------------------------
 // Local type definitions
 // -----------------------------------------------------------------------------
+// Set to 1 to enable OLED.
+// Set to 0 to disable OLED.
+// Note. The OLED driver is blocking, so if OLED is enabled, a compatible OLED
+// display (SSD1306) must be connected to the I2C bus.
+#define OLED_ENABLE (0)
 
 // -----------------------------------------------------------------------------
 // Local function prototypes
@@ -323,6 +329,16 @@ void systemInit(void)
     // In UYVY webcam mode, always start the example here. This keeps main nice
     // and clean
     exampleWebcamUyvy();
+#endif
+
+#if (OLED_ENABLE == 1)
+    // -------------------------------------------------------------------------
+    // SSD1306 Oled display
+    ssd1306_init();
+    ssd1306_setorientation(1);
+    ssd1306_clearscreen();
+    ssd1306_drawbitmap(made_by_ese);
+    ssd1306_update();
 #endif
 }
 
@@ -615,6 +631,12 @@ void exampleThreshold(void)
         convertToUint8(cam, src);
 
         threshold(src, dst, 0, 64);
+
+#if (OLED_ENABLE == 1)
+        // Show binary image on OLED display
+        ssd1306_showimage(dst);
+        ssd1306_update();
+#endif
 
         // Convert uint8_pixel_t image to bgr888_pixel_t image for USB
         convertToBgr888(dst, usb);
