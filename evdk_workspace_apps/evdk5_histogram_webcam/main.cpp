@@ -105,10 +105,8 @@ int main(void)
     // -------------------------------------------------------------------------
     int y = 0;
     cv::moveWindow("cam", 0, 0);
-    cv::moveWindow("src", cv::getWindowImageRect("cam").x +
-                          cv::getWindowImageRect("cam").width, 0);
-    cv::moveWindow("dst", cv::getWindowImageRect("src").x +
-                          cv::getWindowImageRect("src").width, 0);
+    cv::moveWindow("src", cv::getWindowImageRect("cam").x + cv::getWindowImageRect("cam").width, 0);
+    cv::moveWindow("dst", cv::getWindowImageRect("src").x + cv::getWindowImageRect("src").width, 0);
 
     y = cv::getWindowImageRect("src").height + 30;
     cv::moveWindow("hst_src", cv::getWindowImageRect("src").x, y);
@@ -119,14 +117,14 @@ int main(void)
     // -------------------------------------------------------------------------
     printf("Press any key to quit\n");
 
-    while(true)
+    while (true)
     {
         // ---------------------------------------------------------------------
         // Capture camera image in BGR format
         // ---------------------------------------------------------------------
         cap.read(cv_cam);
 
-        if(cv_cam.empty())
+        if (cv_cam.empty())
         {
             printf("Video stream probably stopped\n");
             break;
@@ -136,18 +134,16 @@ int main(void)
         // Image processing pipeline
         // ---------------------------------------------------------------------
 
-
         convertBgr888ToUint8(cam, src);
 
         // Examples, select one!
         scale(src, dst);
         // brightness(src, dst, 100);
-        // contrast(src, dst, 2.0f);
+        // contrast(src, dst, 1.0f);
 
         // Draw histograms
         drawHistogram(src, hst_src);
         drawHistogram(dst, hst_dst);
-
 
         // ---------------------------------------------------------------------
         // Show images
@@ -163,7 +159,7 @@ int main(void)
         // ---------------------------------------------------------------------
         char c = (char)cv::waitKey(1);
 
-        if(c != -1)
+        if (c != -1)
         {
             printf("Key press detected\n");
             break;
@@ -195,17 +191,17 @@ void drawHistogram(image_t *src, image_t *dst)
     // Find min and max in the current histogram
     float hist_min = hist[0];
     float hist_max = hist[0];
-    for(uint32_t i=1; i<256; ++i)
+    for (uint32_t i = 1; i < 256; ++i)
     {
         hist_min = (hist[i] < hist_min) ? hist[i] : hist_min;
         hist_max = (hist[i] > hist_max) ? hist[i] : hist_max;
     }
 
     // Single value histogram?
-    if(hist_min == hist_max)
+    if (hist_min == hist_max)
     {
         // Set to center value and update histogram
-        for(uint32_t i=0; i<256; ++i)
+        for (uint32_t i = 0; i < 256; ++i)
         {
             hist[i] = dst->rows / 2;
         }
@@ -216,26 +212,26 @@ void drawHistogram(image_t *src, image_t *dst)
         float factor = (float)(dst->rows - 20) / (float)(hist_max - hist_min);
 
         // Calculate normalization value and update histogram
-        for(uint32_t i=0; i<256; ++i)
+        for (uint32_t i = 0; i < 256; ++i)
         {
             hist[i] = ((hist[i] - hist_min) * factor) + 0.5f;
         }
     }
 
     // Draw the histogram lines (flipped)
-    for(int32_t i=0; i<256; ++i)
+    for (int32_t i = 0; i < 256; ++i)
     {
         // Draw white background
-        point_t from = {.x=i, .y=0};
-        point_t to = {.x=i, .y=dst->rows};
+        point_t from = {.x = i, .y = 0};
+        point_t to = {.x = i, .y = dst->rows};
 
         drawLineUint8(dst, from, to, 255);
 
         // Draw histogram value (if any)
-        if(hist[i] != 0)
+        if (hist[i] != 0)
         {
-            from = {.x=i, .y=dst->rows - (int32_t)hist[i]};
-            to = {.x=i, .y=dst->rows};
+            from = {.x = i, .y = dst->rows - (int32_t)hist[i]};
+            to = {.x = i, .y = dst->rows};
 
             drawLineUint8(dst, from, to, 0);
         }
@@ -246,30 +242,31 @@ void drawHistogram(image_t *src, image_t *dst)
     sprintf(str, "%d", (uint32_t)hist_max);
 
     textSetfont(Dialog_bold_16);
-    textSetxy(0,0);
+    textSetxy(0, 0);
     textSetUint8Colors(255, 0);
     textPutstring(dst, str);
-
 
     // Find min and max gray values in the original histogram
     histogram(src, hist);
     uint8_pixel_t min_gray = 0;
     uint8_pixel_t max_gray = 255;
 
-    int i=0;
-    while(hist[i++] == 0)
-    {}
-    min_gray = i-1;
+    int i = 0;
+    while (hist[i++] == 0)
+    {
+    }
+    min_gray = i - 1;
 
-    i=255;
-    while(hist[i--] == 0)
-    {}
-    max_gray = i+1;
+    i = 255;
+    while (hist[i--] == 0)
+    {
+    }
+    max_gray = i + 1;
 
     sprintf(str, "%d  %d", min_gray, max_gray);
 
     textSetfont(Dialog_bold_16);
-    textSetxy(160,0);
+    textSetxy(160, 0);
     textSetUint8Colors(255, 0);
     textPutstring(dst, str);
 }

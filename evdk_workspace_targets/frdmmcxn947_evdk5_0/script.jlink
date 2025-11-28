@@ -1,0 +1,5 @@
+ExitOnError 1
+r
+h
+loadfile C:\workspace\evdk5-2526\evdk_workspace_targets\frdmmcxn947_evdk5_0\Release\frdmmcxn947_evdk5_0.hex
+qc

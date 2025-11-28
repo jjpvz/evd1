@@ -114,40 +114,40 @@ volatile uint32_t image_available_for_usb = 0;
 
 // Camera configuration settings
 static ov7670_resource_t ov7670_resource =
-{
-    .xclock = kOV7670_InputClock12MHZ,
-    .i2cReceiveFunc = BOARD_Camera_I2C_ReceiveSCCB,
-    .i2cSendFunc = BOARD_Camera_I2C_SendSCCB,
+    {
+        .xclock = kOV7670_InputClock12MHZ,
+        .i2cReceiveFunc = BOARD_Camera_I2C_ReceiveSCCB,
+        .i2cSendFunc = BOARD_Camera_I2C_SendSCCB,
 };
 
 static camera_device_handle_t camera_device_handle =
-{
-    .ops = &ov7670_ops,
-    .resource = &ov7670_resource,
+    {
+        .ops = &ov7670_ops,
+        .resource = &ov7670_resource,
 };
 
 static const camera_config_t camera_config =
-{
-    // uyuv_pixel_t takes 2 bytes per pixel
-    .bytesPerPixel = 2,
-    // Supported frame rates are: 14, 15, 25 and 30 fps
-    .framePerSec = 30,
-    // Although the define says YUYV, the OV7670 camera module is configured as
-    // follows after initialization (also see OV7670 datasheet):
-    // TSLB:  0x08 = 0b0000_1000
-    // COM13: 0x88 = 0b1000_1000
-    // TSLB[3], COM13[0] = 10 => UYVY
-    //
-    // This means pixels are stored in memory as follows (U is LSB, Y is MSB):
-    //  31                                0
-    // |YYYYYYYY VVVVVVVV|YYYYYYYY UUUUUUUU|
-    // |     pixel 1     |     pixel 0     |
-    .pixelFormat = kVIDEO_PixelFormatYUYV,
-    // HSYNC/HREF, VSYNC, and PIXCLK signals are used, which is called Gated
-    // Clock interface
-    .interface = kCAMERA_InterfaceGatedClock,
-    // QQVGA (160x120) is the supported resolution due to memory constraints
-    .resolution = kVIDEO_ResolutionQQVGA,
+    {
+        // uyuv_pixel_t takes 2 bytes per pixel
+        .bytesPerPixel = 2,
+        // Supported frame rates are: 14, 15, 25 and 30 fps
+        .framePerSec = 30,
+        // Although the define says YUYV, the OV7670 camera module is configured as
+        // follows after initialization (also see OV7670 datasheet):
+        // TSLB:  0x08 = 0b0000_1000
+        // COM13: 0x88 = 0b1000_1000
+        // TSLB[3], COM13[0] = 10 => UYVY
+        //
+        // This means pixels are stored in memory as follows (U is LSB, Y is MSB):
+        //  31                                0
+        // |YYYYYYYY VVVVVVVV|YYYYYYYY UUUUUUUU|
+        // |     pixel 1     |     pixel 0     |
+        .pixelFormat = kVIDEO_PixelFormatYUYV,
+        // HSYNC/HREF, VSYNC, and PIXCLK signals are used, which is called Gated
+        // Clock interface
+        .interface = kCAMERA_InterfaceGatedClock,
+        // QQVGA (160x120) is the supported resolution due to memory constraints
+        .resolution = kVIDEO_ResolutionQQVGA,
 };
 
 // -----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ int main(void)
     // -------------------------------------------------------------------------
     // Start webcam mode if SW2 is pressed during startup
     // -------------------------------------------------------------------------
-    if((GPIO0->PDIR & (1<<23)) == 0)
+    if ((GPIO0->PDIR & (1 << 23)) == 0)
     {
         PRINTF("SW2 pressed - starting bgr888 webcam mode\r\n");
         exampleWebcamBgr888();
@@ -184,22 +184,22 @@ int main(void)
     // Select one example
     // -------------------------------------------------------------------------
 
-    exampleWebcamBgr888();
+    // exampleWebcamBgr888();
     // exampleWebcamUint8();
     // exampleWebcamBgr888TestPattern();
-    // exampleWebcamUint8TestPattern();
+    // exampleWebcamUint8TestPattern();``````````````````````````````````````
     // exampleThreshold();
     // exampleRotate();
-    // exampleTemplate();
+    exampleTemplate();
     // exampleFinalAssignment();
 
     // -------------------------------------------------------------------------
     // Should never reach this
     // -------------------------------------------------------------------------
-    PRINTF("Error. Should never reach this when one of the examples is " \
-        "enabled\r\n");
+    PRINTF("Error. Should never reach this when one of the examples is "
+           "enabled\r\n");
 
-    while(1U)
+    while (1U)
     {
         // Intentionally left blank
     }
@@ -234,22 +234,24 @@ void systemInit(void)
     usb = newUyvyImage(EVDK5_WIDTH, EVDK5_HEIGHT);
 #endif
 
-    if(usb == NULL)
+    if (usb == NULL)
     {
         PRINTF("Error. Could not allocate image memory\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
     // -------------------------------------------------------------------------
     // SysTick
-    status = SysTick_Config(SystemCoreClock/1000);
+    status = SysTick_Config(SystemCoreClock / 1000);
 
-    if(status != 0)
+    if (status != 0)
     {
         PRINTF("Error. SysTick not started\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
     // Lowest priority for the SysTick timer
@@ -262,14 +264,15 @@ void systemInit(void)
 
     // -------------------------------------------------------------------------
     // OV7670 camera
-    GPIO1->PCOR = (1<<19); // CAMERA_RST: 0 normal mode; 1 reset mode
+    GPIO1->PCOR = (1 << 19); // CAMERA_RST: 0 normal mode; 1 reset mode
 
     // 10ms settling time for the camera module
-    ms=0;
-    while(ms < 10)
-    {}
+    ms = 0;
+    while (ms < 10)
+    {
+    }
 
-    GPIO1->PSOR = (1<<19); // CAMERA_RST: 0 normal mode; 1 reset mode
+    GPIO1->PSOR = (1 << 19); // CAMERA_RST: 0 normal mode; 1 reset mode
 
     // Set alternative 7 (SmartDMA_PIOn) for all data pins
     PORT1->PCR[4] = PORT_PCR_MUX(7) | PORT_PCR_IBE(1);
@@ -292,18 +295,19 @@ void systemInit(void)
 
     status = CAMERA_DEVICE_Init(&camera_device_handle, &camera_config);
 
-    if(status != kStatus_Success)
+    if (status != kStatus_Success)
     {
         PRINTF("Error. Camera not initialized\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
     // -------------------------------------------------------------------------
     // SmartDMA
     // SmartDMA firmware is copied from FLASH to SRAMX
     SMARTDMA_Init(SMARTDMA_CAMERA_MEM_ADDR, s_smartdmaCameraFirmware,
-        SMARTDMA_CAMERA_FIRMWARE_SIZE);
+                  SMARTDMA_CAMERA_FIRMWARE_SIZE);
 
     // Set the callback function. This function will be called when an entire
     // frame from the camera is available.
@@ -357,13 +361,14 @@ void exampleWebcamBgr888(void)
 {
     PRINTF("%s\r\n", __func__);
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -394,7 +399,7 @@ void exampleWebcamBgr888(void)
         ms2 = ms;
 
         // Print debug info
-        PRINTF("%d | delta: %d ms\r\n", ms1, ms2-ms1);
+        PRINTF("%d | delta: %d ms\r\n", ms1, ms2 - ms1);
     }
 }
 
@@ -408,20 +413,22 @@ void exampleWebcamUint8(void)
     image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
-    if(dst == NULL)
+    if (dst == NULL)
     {
         PRINTF("Could not allocate image memory\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -452,7 +459,7 @@ void exampleWebcamUint8(void)
         ms2 = ms;
 
         // Print debug info
-        PRINTF("%d | delta: %d ms\r\n", ms1, ms2-ms1);
+        PRINTF("%d | delta: %d ms\r\n", ms1, ms2 - ms1);
     }
 }
 
@@ -466,28 +473,29 @@ void exampleWebcamBgr888TestPattern(void)
     image_t *bgr888 = newBgr888Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
     const bgr888_pixel_t colorLut[] =
-    {
-        {.b=0x00, .g=0x00, .r=0xFF}, // Red
-        {.b=0x00, .g=0xFF, .r=0x00}, // Green
-        {.b=0xFF, .g=0x00, .r=0x00}, // Blue
-        {.b=0x00, .g=0xFF, .r=0xFF}, // Yellow
-        {.b=0xFF, .g=0x00, .r=0xFF}, // Magenta
-        {.b=0xFF, .g=0xFF, .r=0x00}, // Cyan
-        {.b=0xFF, .g=0xFF, .r=0xFF}, // White
-        {.b=0x00, .g=0x00, .r=0x00}, // Black
-    };
+        {
+            {.b = 0x00, .g = 0x00, .r = 0xFF}, // Red
+            {.b = 0x00, .g = 0xFF, .r = 0x00}, // Green
+            {.b = 0xFF, .g = 0x00, .r = 0x00}, // Blue
+            {.b = 0x00, .g = 0xFF, .r = 0xFF}, // Yellow
+            {.b = 0xFF, .g = 0x00, .r = 0xFF}, // Magenta
+            {.b = 0xFF, .g = 0xFF, .r = 0x00}, // Cyan
+            {.b = 0xFF, .g = 0xFF, .r = 0xFF}, // White
+            {.b = 0x00, .g = 0x00, .r = 0x00}, // Black
+        };
 
     const uint32_t numberOfColors = sizeof(colorLut) / sizeof(bgr888_pixel_t);
     bgr888_pixel_t color = {0x00, 00, 00};
     uint32_t cnt = 0;
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -495,7 +503,7 @@ void exampleWebcamBgr888TestPattern(void)
         // Image processing pipeline
         // ---------------------------------------------------------------------
         // Change color every second
-        if(ms1 < ms)
+        if (ms1 < ms)
         {
             ms1 = ms + 1000;
 
@@ -503,15 +511,23 @@ void exampleWebcamBgr888TestPattern(void)
             color = colorLut[cnt];
 
             // Calculate next index
-            cnt = (cnt == (numberOfColors-1)) ? 0 : cnt + 1;
+            cnt = (cnt == (numberOfColors - 1)) ? 0 : cnt + 1;
 
             PRINTF("Color: B=0x%02X G=0x%02X R=0x%02X\r\n",
-                color.b, color.g, color.r);
+                   color.b, color.g, color.r);
         }
 
         // \todo Copy-and-paste week 1 code here
 
-
+        // Set all pixels to color
+        bgr888_pixel_t *bgr888_pixel = (bgr888_pixel_t *)bgr888->data;
+        int32_t len = bgr888->rows * bgr888->cols;
+        while (len > 0)
+        {
+            *bgr888_pixel = color;
+            bgr888_pixel++;
+            len--;
+        }
 
         // Convert bgr888_pixel_t image to USB
         copyBgr888Image(bgr888, usb);
@@ -532,13 +548,14 @@ void exampleWebcamUint8TestPattern(void)
     // -------------------------------------------------------------------------
     image_t *img0 = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -546,7 +563,7 @@ void exampleWebcamUint8TestPattern(void)
         // Image processing pipeline
         // ---------------------------------------------------------------------
         // Set test pattern: pixel value is row number
-        for(int r=0; r < img0->rows; r++)
+        for (int r = 0; r < img0->rows; r++)
         {
             memset(img0->data + (r * img0->cols), r, img0->cols);
         }
@@ -571,18 +588,19 @@ void exampleWebcamUyvy(void)
 {
     PRINTF("%s\r\n", __func__);
 
-    while(1U)
+    while (1U)
     {
         // Wait for camera image complete
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         // Reset the flag
         smartdma_camera_image_complete = 0;
 
         // Copy the image. To speed thing up even more, the usb and cam images
         // can be made to point to the same image data buffer.
-        copyUyvyImage(cam,  usb);
+        copyUyvyImage(cam, usb);
 
         // Set flag for USB interface that a new frame is available
         image_available_for_usb = 1;
@@ -604,20 +622,22 @@ void exampleThreshold(void)
     image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
-    if(dst == NULL)
+    if (dst == NULL)
     {
         PRINTF("Could not allocate image memory\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -650,23 +670,23 @@ void exampleThreshold(void)
         image_available_for_usb = 1;
 
         // Print debug info
-        PRINTF("%d | delta: %d ms\r\n", ms1, ms2-ms1);
+        PRINTF("%d | delta: %d ms\r\n", ms1, ms2 - ms1);
     }
 }
-
 
 void exampleRotate(void)
 {
     PRINTF("%s\r\n", __func__);
 
     // Update SysTick to increase precision to 0.01ms (=10us)
-    uint32_t status = SysTick_Config(SystemCoreClock/100000);
+    uint32_t status = SysTick_Config(SystemCoreClock / 100000);
 
-    if(status != 0)
+    if (status != 0)
     {
         PRINTF("SysTick update failed\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
     PRINTF("SysTick updated successfully\r\n");
@@ -677,20 +697,22 @@ void exampleRotate(void)
     image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
-    if(dst == NULL)
+    if (dst == NULL)
     {
         PRINTF("Could not allocate image memory\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -705,7 +727,7 @@ void exampleRotate(void)
         ms1 = ms;
         rotate(src, dst, 3.1415f, (point_t){src->cols / 2, src->rows / 2});
         ms2 = ms;
-        PRINTF("%06d us", (ms2-ms1)*10);
+        PRINTF("%06d us", (ms2 - ms1) * 10);
 
         // Prepare
         copyUint8Image(src, dst);
@@ -713,7 +735,7 @@ void exampleRotate(void)
         ms1 = ms;
         rotate180_c(dst);
         ms2 = ms;
-        PRINTF(" | %03d us", (ms2-ms1)*10);
+        PRINTF(" | %03d us", (ms2 - ms1) * 10);
 
         // Prepare
         copyUint8Image(src, dst);
@@ -721,7 +743,7 @@ void exampleRotate(void)
         ms1 = ms;
         rotate180_arm(dst);
         ms2 = ms;
-        PRINTF(" | %03d us", (ms2-ms1)*10);
+        PRINTF(" | %03d us", (ms2 - ms1) * 10);
 
         // Prepare
         copyUint8Image(src, dst);
@@ -729,7 +751,7 @@ void exampleRotate(void)
         ms1 = ms;
         rotate180_cm33(dst);
         ms2 = ms;
-        PRINTF(" | %03d us", (ms2-ms1)*10);
+        PRINTF(" | %03d us", (ms2 - ms1) * 10);
 
         PRINTF("\r\n");
 
@@ -747,7 +769,7 @@ void exampleTemplate(void)
     PRINTF("%s\r\n", __func__);
 
     // Update SysTick to have better precision
-    SysTick_Config(SystemCoreClock/100000);
+    SysTick_Config(SystemCoreClock / 100000);
 
     // -------------------------------------------------------------------------
     // Local image memory allocation
@@ -755,20 +777,22 @@ void exampleTemplate(void)
     image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
-    if(dst == NULL)
+    if (dst == NULL)
     {
         PRINTF("Could not allocate image memory\r\n");
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 
-    while(1U)
+    while (1U)
     {
         // ---------------------------------------------------------------------
         // Wait for camera image complete
         // ---------------------------------------------------------------------
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -781,11 +805,12 @@ void exampleTemplate(void)
         // Copy timestamp
         ms1 = ms;
 
-        // \todo
         // Use this as a playground for testing image processing functions. As
         // an example, the following function scales the image for better
         // visualization.
-        scale(src, dst);
+        // scaleFast(src, dst);
+        // clearUint8Image(dst); // Measured execution time 0130 us
+        clearUint8Image_cm33(dst); // Measured execution time ... us
 
         // Copy timestamp
         ms2 = ms;
@@ -799,7 +824,7 @@ void exampleTemplate(void)
         image_available_for_usb = 1;
 
         // Print debug info
-        PRINTF("%d | delta: %04d us\r\n", ms1, (ms2-ms1)*10);
+        PRINTF("%d | delta: %04d us\r\n", ms1, (ms2 - ms1) * 10);
     }
 }
 
@@ -816,11 +841,12 @@ void exampleFinalAssignment(void)
     // Flip the characters in the y-axis
     textSetFlipCharacters(1);
 
-    while(1U)
+    while (1U)
     {
         // Wait for camera image complete
-        while(smartdma_camera_image_complete == 0)
-        {}
+        while (smartdma_camera_image_complete == 0)
+        {
+        }
 
         smartdma_camera_image_complete = 0;
 
@@ -842,6 +868,6 @@ void exampleFinalAssignment(void)
         // ---------------------------------------------------------------------
         image_available_for_usb = 1;
 
-        PRINTF("delta: %d ms\r\n", ms2-ms1);
+        PRINTF("delta: %d ms\r\n", ms2 - ms1);
     }
 }

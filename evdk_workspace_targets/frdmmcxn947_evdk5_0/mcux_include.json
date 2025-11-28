@@ -9,10 +9,10 @@
       "displayName": "Debug-env",
       "hidden": true,
       "environment": {
-        "ARMGCC_DIR": "",
-        "SdkRootDirPath": "",
-        "POSTPROCESS_UTILITY": "",
-        "MCUX_VENV_PATH": "",
+        "ARMGCC_DIR": "C:/Users/JulianvanZwol/.mcuxpressotools/arm-gnu-toolchain-14.2.rel1-mingw-w64-x86_64-arm-none-eabi",
+        "SdkRootDirPath": "c:/sdks/frdm_mcxn947",
+        "POSTPROCESS_UTILITY": "C:/Users/JulianvanZwol/.mcuxpressotools/mcux-fixelf-14.2.2/mcux-fixelf.exe",
+        "MCUX_VENV_PATH": "C:/Users/JulianvanZwol/.mcuxpressotools/.venv_3_13/Scripts",
         "PATH": "$env{MCUX_VENV_PATH}${pathListSep}$penv{PATH}",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       },
@@ -23,10 +23,10 @@
       "displayName": "Release-env",
       "hidden": true,
       "environment": {
-        "ARMGCC_DIR": "",
-        "SdkRootDirPath": "",
-        "POSTPROCESS_UTILITY": "",
-        "MCUX_VENV_PATH": "",
+        "ARMGCC_DIR": "C:/Users/JulianvanZwol/.mcuxpressotools/arm-gnu-toolchain-14.2.rel1-mingw-w64-x86_64-arm-none-eabi",
+        "SdkRootDirPath": "c:/sdks/frdm_mcxn947",
+        "POSTPROCESS_UTILITY": "C:/Users/JulianvanZwol/.mcuxpressotools/mcux-fixelf-14.2.2/mcux-fixelf.exe",
+        "MCUX_VENV_PATH": "C:/Users/JulianvanZwol/.mcuxpressotools/.venv_3_13/Scripts",
         "PATH": "$env{MCUX_VENV_PATH}${pathListSep}$penv{PATH}",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       },
