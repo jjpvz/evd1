@@ -36,6 +36,8 @@
 
 #include <string.h>
 #include "image_fundamentals.h"
+#include <stdio.h>
+#include <time.h>
 
 #define MAX_IMAGES (16)
 
@@ -46,7 +48,7 @@
  *        this number allows for more images to be stored, but requires more
  *        memory and more checks every time an image is created or deleted.
  */
-static image_t * imgs[MAX_IMAGES] = {NULL};
+static image_t *imgs[MAX_IMAGES] = {NULL};
 
 // Function prototypes
 uint8_t clip(int32_t val);
@@ -127,7 +129,7 @@ inline bgr888_pixel_t getBgr888Pixel(const image_t *img, const int32_t c, const 
  * \param[in] value New pixel value for coordinate (c,r)
  */
 
-inline void setUint8Pixel(const image_t *img, const int32_t c, const int32_t r, const  uint8_pixel_t value)
+inline void setUint8Pixel(const image_t *img, const int32_t c, const int32_t r, const uint8_pixel_t value)
 {
     *((uint8_pixel_t *)(img->data) + (r * img->cols + c)) = value;
 }
@@ -180,22 +182,22 @@ inline void setBgr888Pixel(const image_t *img, const int32_t c, const int32_t r,
 image_t *newUint8Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
 
     img->data = (uint8_t *)malloc((rows * cols) * sizeof(uint8_pixel_t));
 
-    if(img->data == NULL)
+    if (img->data == NULL)
     {
         // Unable to allocate memory for image data
         free(img);
 
-        ASSERT(1==1, "Unable to allocate memory for image data");
+        ASSERT(1 == 1, "Unable to allocate memory for image data");
 
         return NULL;
     }
@@ -205,12 +207,12 @@ image_t *newUint8Image(const uint32_t cols, const uint32_t rows)
     img->type = IMGTYPE_UINT8;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -218,7 +220,7 @@ image_t *newUint8Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -226,22 +228,22 @@ image_t *newUint8Image(const uint32_t cols, const uint32_t rows)
 image_t *newInt16Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
 
     img->data = (uint8_t *)malloc((rows * cols) * sizeof(int16_pixel_t));
 
-    if(img->data == NULL)
+    if (img->data == NULL)
     {
         // Unable to allocate memory for image data
         free(img);
 
-        ASSERT(1==1, "Unable to allocate memory for image data");
+        ASSERT(1 == 1, "Unable to allocate memory for image data");
 
         return NULL;
     }
@@ -251,12 +253,12 @@ image_t *newInt16Image(const uint32_t cols, const uint32_t rows)
     img->type = IMGTYPE_INT16;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -264,7 +266,7 @@ image_t *newInt16Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -272,22 +274,22 @@ image_t *newInt16Image(const uint32_t cols, const uint32_t rows)
 image_t *newInt32Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
 
     img->data = (uint8_t *)malloc((rows * cols) * sizeof(int32_pixel_t));
 
-    if(img->data == NULL)
+    if (img->data == NULL)
     {
         // Unable to allocate memory for image data
         free(img);
 
-        ASSERT(1==1, "Unable to allocate memory for image data");
+        ASSERT(1 == 1, "Unable to allocate memory for image data");
 
         return NULL;
     }
@@ -297,12 +299,12 @@ image_t *newInt32Image(const uint32_t cols, const uint32_t rows)
     img->type = IMGTYPE_INT32;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -310,7 +312,7 @@ image_t *newInt32Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -318,22 +320,22 @@ image_t *newInt32Image(const uint32_t cols, const uint32_t rows)
 image_t *newFloatImage(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
 
     img->data = (uint8_t *)malloc((rows * cols) * sizeof(float_pixel_t));
 
-    if(img->data == NULL)
+    if (img->data == NULL)
     {
         // Unable to allocate memory for image data
         free(img);
 
-        ASSERT(1==1, "Unable to allocate memory for image data");
+        ASSERT(1 == 1, "Unable to allocate memory for image data");
 
         return NULL;
     }
@@ -343,12 +345,12 @@ image_t *newFloatImage(const uint32_t cols, const uint32_t rows)
     img->type = IMGTYPE_FLOAT;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -356,7 +358,7 @@ image_t *newFloatImage(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -364,22 +366,22 @@ image_t *newFloatImage(const uint32_t cols, const uint32_t rows)
 image_t *newUyvyImage(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
 
     img->data = (uint8_t *)malloc((rows * cols) * sizeof(uyvy_pixel_t));
 
-    if(img->data == NULL)
+    if (img->data == NULL)
     {
         // Unable to allocate memory for image data
         free(img);
 
-        ASSERT(1==1, "Unable to allocate memory for image data");
+        ASSERT(1 == 1, "Unable to allocate memory for image data");
 
         return NULL;
     }
@@ -389,12 +391,12 @@ image_t *newUyvyImage(const uint32_t cols, const uint32_t rows)
     img->type = IMGTYPE_UYVY;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -402,7 +404,7 @@ image_t *newUyvyImage(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -410,22 +412,22 @@ image_t *newUyvyImage(const uint32_t cols, const uint32_t rows)
 image_t *newBgr888Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
 
     img->data = (uint8_t *)malloc((rows * cols) * sizeof(bgr888_pixel_t));
 
-    if(img->data == NULL)
+    if (img->data == NULL)
     {
         // Unable to allocate memory for image data
         free(img);
 
-        ASSERT(1==1, "Unable to allocate memory for image data");
+        ASSERT(1 == 1, "Unable to allocate memory for image data");
 
         return NULL;
     }
@@ -435,12 +437,12 @@ image_t *newBgr888Image(const uint32_t cols, const uint32_t rows)
     img->type = IMGTYPE_BGR888;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -448,7 +450,7 @@ image_t *newBgr888Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -475,10 +477,10 @@ image_t *newBgr888Image(const uint32_t cols, const uint32_t rows)
 image_t *newEmptyUint8Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
@@ -489,12 +491,12 @@ image_t *newEmptyUint8Image(const uint32_t cols, const uint32_t rows)
     img->data = NULL;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -502,7 +504,7 @@ image_t *newEmptyUint8Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -510,10 +512,10 @@ image_t *newEmptyUint8Image(const uint32_t cols, const uint32_t rows)
 image_t *newEmptyInt16Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
@@ -524,12 +526,12 @@ image_t *newEmptyInt16Image(const uint32_t cols, const uint32_t rows)
     img->data = NULL;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -537,7 +539,7 @@ image_t *newEmptyInt16Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -545,10 +547,10 @@ image_t *newEmptyInt16Image(const uint32_t cols, const uint32_t rows)
 image_t *newEmptyInt32Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
@@ -559,12 +561,12 @@ image_t *newEmptyInt32Image(const uint32_t cols, const uint32_t rows)
     img->data = NULL;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -572,7 +574,7 @@ image_t *newEmptyInt32Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -580,10 +582,10 @@ image_t *newEmptyInt32Image(const uint32_t cols, const uint32_t rows)
 image_t *newEmptyFloatImage(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
@@ -594,12 +596,12 @@ image_t *newEmptyFloatImage(const uint32_t cols, const uint32_t rows)
     img->data = NULL;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -607,7 +609,7 @@ image_t *newEmptyFloatImage(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -615,10 +617,10 @@ image_t *newEmptyFloatImage(const uint32_t cols, const uint32_t rows)
 image_t *newEmptyUyvyImage(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
@@ -629,12 +631,12 @@ image_t *newEmptyUyvyImage(const uint32_t cols, const uint32_t rows)
     img->data = NULL;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -642,7 +644,7 @@ image_t *newEmptyUyvyImage(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -650,10 +652,10 @@ image_t *newEmptyUyvyImage(const uint32_t cols, const uint32_t rows)
 image_t *newEmptyBgr888Image(const uint32_t cols, const uint32_t rows)
 {
     image_t *img = (image_t *)malloc(sizeof(image_t));
-    if(img == NULL)
+    if (img == NULL)
     {
         // Unable to allocate memory for new image
-        ASSERT(1==1, "Unable to allocate memory for new image");
+        ASSERT(1 == 1, "Unable to allocate memory for new image");
 
         return NULL;
     }
@@ -664,12 +666,12 @@ image_t *newEmptyBgr888Image(const uint32_t cols, const uint32_t rows)
     img->data = NULL;
 
     // Add image to the images array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == NULL)
+        if (imgs[i] == NULL)
         {
             imgs[i] = img;
-            return(img);
+            return (img);
         }
     }
 
@@ -677,7 +679,7 @@ image_t *newEmptyBgr888Image(const uint32_t cols, const uint32_t rows)
     free(img->data);
     free(img);
 
-    ASSERT(1==1, "Local imgs array is too small, increase MAX_IMAGES");
+    ASSERT(1 == 1, "Local imgs array is too small, increase MAX_IMAGES");
 
     return NULL;
 }
@@ -693,9 +695,9 @@ image_t *newEmptyBgr888Image(const uint32_t cols, const uint32_t rows)
 void deleteUint8Image(image_t *img)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == img)
+        if (imgs[i] == img)
         {
             imgs[i] = NULL;
         }
@@ -708,9 +710,9 @@ void deleteUint8Image(image_t *img)
 void deleteInt16Image(image_t *img)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == img)
+        if (imgs[i] == img)
         {
             imgs[i] = NULL;
         }
@@ -723,9 +725,9 @@ void deleteInt16Image(image_t *img)
 void deleteInt32Image(image_t *img)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == img)
+        if (imgs[i] == img)
         {
             imgs[i] = NULL;
         }
@@ -738,9 +740,9 @@ void deleteInt32Image(image_t *img)
 void deleteFloatImage(image_t *img)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == img)
+        if (imgs[i] == img)
         {
             imgs[i] = NULL;
         }
@@ -753,9 +755,9 @@ void deleteFloatImage(image_t *img)
 void deleteUyvyImage(image_t *img)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == img)
+        if (imgs[i] == img)
         {
             imgs[i] = NULL;
         }
@@ -768,9 +770,9 @@ void deleteUyvyImage(image_t *img)
 void deleteBgr888Image(image_t *img)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] == img)
+        if (imgs[i] == img)
         {
             imgs[i] = NULL;
         }
@@ -783,9 +785,9 @@ void deleteBgr888Image(image_t *img)
 void deleteAllImages(void)
 {
     // Remove image from the array
-    for(uint32_t i = 0; i < MAX_IMAGES; i++)
+    for (uint32_t i = 0; i < MAX_IMAGES; i++)
     {
-        if(imgs[i] != NULL)
+        if (imgs[i] != NULL)
         {
             free(imgs[i]->data);
             free(imgs[i]);
@@ -954,7 +956,7 @@ void clearUint8Image(image_t *img)
     register uint8_pixel_t *d = (uint8_pixel_t *)img->data;
 
     // Loop all pixels and clear
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *d++ = (uint8_pixel_t)0;
     }
@@ -971,7 +973,7 @@ void clearInt16Image(image_t *img)
     register int16_pixel_t *d = (int16_pixel_t *)img->data;
 
     // Loop all pixels and clear
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *d++ = (int16_pixel_t)0;
     }
@@ -988,7 +990,7 @@ void clearInt32Image(image_t *img)
     register int32_pixel_t *d = (int32_pixel_t *)img->data;
 
     // Loop all pixels and clear
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *d++ = (int32_pixel_t)0;
     }
@@ -1005,7 +1007,7 @@ void clearFloatImage(image_t *img)
     register float_pixel_t *d = (float_pixel_t *)img->data;
 
     // Loop all pixels and clear
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *d++ = (float_pixel_t)0.0f;
     }
@@ -1026,16 +1028,49 @@ void clearFloatImage(image_t *img)
  */
 void convertUyvyToUint8(image_t *src, image_t *dst)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: convertUyvyToUint8
+    // Each value in src image contains either an U or V value.
+    // Each value in src image container always a Y value.
+    // Remove from each value the U or V value.
+    // Always keep the Y value.
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)dst;
+    // 64           128
+    // 0x 4 0 8 0
+    // 1100 0100 1101 0111 && 0xFF00
+    // 1111 1111 0000 0000
+    // 1100 0100 0000 0000 -> masking
+    // 0000 0000 1100 0100 -> shifting (>> 8)
+    // 1100 0100           -> casten naar uint_8
+
+    // 1011 = 11 = A
+    // 1100 = 12 = B
+    // 1111 = 15 = F
+    // 0000
+
+    // 0000 0100
+    //
+
+    uint16_t *src_uyvy = (uint16_t *)src->data;
+
+    // Compiler kan beter omgaan met 32 bits
+    // ondanks dat we niet zo'n groot getal nodig hebben
+    uint32_t total_pixels = src->cols * src->rows;
+    // printf("Total pixels: %d\n", total_pixels);
+
+    uint8_t *dst_y_only = (uint8_t *)dst->data;
+
+    for (int i = 0; i < total_pixels; ++i)
+    {
+        uint16_t uyvy_element = src_uyvy[i];
+        // printf("Index: %4d, Value: 0x%04X \n", i, uyvy_element);
+
+        // This uses bit shiting??
+        uint8_t y_value = (uint8_t)(uyvy_element >> 8);
+        // printf("Index: %4d, Value: 0x%04X \n", i, y_value);
+
+        dst_y_only[i] = y_value;
+    }
 
     return;
-    // ********************************************
 }
 
 /*!
@@ -1055,7 +1090,7 @@ void convertUint8ToUyvy(image_t *src, image_t *dst)
     uyvy_pixel_t *uyvy_pixel = (uyvy_pixel_t *)dst->data;
 
     // Loop all pixels and convert
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *uyvy_pixel = ((uyvy_pixel_t)(*uint8_pixel)) << 8;
         *uyvy_pixel |= 0x0080;
@@ -1082,7 +1117,7 @@ void convertUyvyToInt16(image_t *src, image_t *dst)
     int16_pixel_t *int16_pixel = (int16_pixel_t *)dst->data;
 
     // Loop all pixels and convert
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *int16_pixel = (int16_pixel_t)((*uyvy_pixel) >> 8);
 
@@ -1113,7 +1148,7 @@ void convertUyvyToBgr888(image_t *src, image_t *dst)
     uyvy_pixel_t *uyvy_pixel = (uyvy_pixel_t *)src->data;
     bgr888_pixel_t *bgr888_pixel = (bgr888_pixel_t *)dst->data;
 
-    while(i > 0)
+    while (i > 0)
     {
         // Decrement by 2, because the chroma values are stored in two pixels
         i -= 2;
@@ -1219,7 +1254,7 @@ void convertUyvyToBgr888(image_t *src, image_t *dst)
  *
  * This function assigns the uint8_pixel_t to all channels of the
  * bgr888_pixel_t image.
-*
+ *
  * \param[in]  src A pointer to the uint8_pixel_t image
  * \param[out] dst A pointer to the converted bgr888_pixel_t image
  */
@@ -1229,7 +1264,7 @@ void convertUint8ToBgr888(image_t *src, image_t *dst)
     uint8_pixel_t *uint8_pixel = (uint8_pixel_t *)src->data;
     bgr888_pixel_t *bgr888_pixel = (bgr888_pixel_t *)dst->data;
 
-    while(i-- > 0)
+    while (i-- > 0)
     {
         uint8_t val = *uint8_pixel;
 
@@ -1257,7 +1292,7 @@ void convertBgr888ToUint8(image_t *src, image_t *dst)
     bgr888_pixel_t *bgr888_pixel = (bgr888_pixel_t *)src->data;
     uint8_pixel_t *uint8_pixel = (uint8_pixel_t *)dst->data;
 
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *uint8_pixel = (bgr888_pixel->r * 0.299f) +
                        (bgr888_pixel->g * 0.587f) +
@@ -1283,7 +1318,7 @@ void convertBgr888ToInt16(image_t *src, image_t *dst)
     bgr888_pixel_t *bgr888_pixel = (bgr888_pixel_t *)src->data;
     int16_pixel_t *int16_pixel = (int16_pixel_t *)dst->data;
 
-    while(i-- > 0)
+    while (i-- > 0)
     {
         *int16_pixel = (bgr888_pixel->r * 0.299f) +
                        (bgr888_pixel->g * 0.587f) +
@@ -1316,19 +1351,20 @@ void convertToUint8(image_t *src, image_t *dst)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
     ASSERT(src == dst, "src and dst are the same images");
 
-    if(src->type == IMGTYPE_UYVY)
+    if (src->type == IMGTYPE_UYVY)
     {
         convertUyvyToUint8(src, dst);
     }
-    else if(src->type == IMGTYPE_BGR888)
+    else if (src->type == IMGTYPE_BGR888)
     {
         convertBgr888ToUint8(src, dst);
     }
     else
     {
         // Conversion not implemented
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 }
 
@@ -1354,19 +1390,20 @@ void convertToInt16(image_t *src, image_t *dst)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
     ASSERT(src == dst, "src and dst are the same images");
 
-    if(src->type == IMGTYPE_UYVY)
+    if (src->type == IMGTYPE_UYVY)
     {
         convertUyvyToInt16(src, dst);
     }
-    else if(src->type == IMGTYPE_BGR888)
+    else if (src->type == IMGTYPE_BGR888)
     {
         convertBgr888ToInt16(src, dst);
     }
     else
     {
         // Conversion not implemented
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 }
 
@@ -1392,15 +1429,16 @@ void convertToUyvy(image_t *src, image_t *dst)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
     ASSERT(src == dst, "src and dst are the same images");
 
-    if(src->type == IMGTYPE_UINT8)
+    if (src->type == IMGTYPE_UINT8)
     {
         convertUint8ToUyvy(src, dst);
     }
     else
     {
         // Conversion not implemented
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 }
 
@@ -1426,19 +1464,20 @@ void convertToBgr888(image_t *src, image_t *dst)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
     ASSERT(src == dst, "src and dst are the same images");
 
-    if(src->type == IMGTYPE_UINT8)
+    if (src->type == IMGTYPE_UINT8)
     {
         convertUint8ToBgr888(src, dst);
     }
-    else if(src->type == IMGTYPE_UYVY)
+    else if (src->type == IMGTYPE_UYVY)
     {
         convertUyvyToBgr888(src, dst);
     }
     else
     {
         // Conversion not implemented
-        while(1)
-        {}
+        while (1)
+        {
+        }
     }
 }
 
@@ -1465,7 +1504,7 @@ void setSelectedToValue(const image_t *src, image_t *dst,
     // Verify image consistency
     ASSERT(src->cols != dst->cols, "src and dst have different number of columns");
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
-    
+
     uint32_t i = src->rows * src->cols;
     uint8_pixel_t *s = (uint8_pixel_t *)src->data;
     uint8_pixel_t *d = (uint8_pixel_t *)dst->data;
@@ -1476,9 +1515,9 @@ void setSelectedToValue(const image_t *src, image_t *dst,
 
     // Loop all pixels and set selected pixel to value
     // Copy all others
-    while(i-- > 0)
+    while (i-- > 0)
     {
-        if(*s == selected)
+        if (*s == selected)
         {
             *d = value;
         }
@@ -1524,116 +1563,235 @@ uint32_t neighbourCount(const image_t *img, const int32_t x, const int32_t y,
     unsigned int cnt = 0;
 
     // Left-top pixel
-    if(x == 0 && y == 0)
+    if (x == 0 && y == 0)
     {
-        if(*(s + sizeof(uint8_pixel_t)              ) == p){ cnt++; } // right
-        if(*(s + (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // down
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s + sizeof(uint8_pixel_t)) == p)
         {
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // down-right
+            cnt++;
+        } // right
+        if (*(s + (img->cols * sizeof(uint8_pixel_t))) == p)
+        {
+            cnt++;
+        } // down
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // down-right
         }
     }
     // Right-top pixel
-    else if(x == img->cols-1 && y == 0)
+    else if (x == img->cols - 1 && y == 0)
     {
-        if(*(s - sizeof(uint8_pixel_t)              ) == p){ cnt++; } // left
-        if(*(s + (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // down
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - sizeof(uint8_pixel_t)) == p)
         {
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // down-left
+            cnt++;
+        } // left
+        if (*(s + (img->cols * sizeof(uint8_pixel_t))) == p)
+        {
+            cnt++;
+        } // down
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // down-left
         }
     }
     // Left-bottom pixel
-    else if(x == 0 && y == img->rows-1)
+    else if (x == 0 && y == img->rows - 1)
     {
-        if(*(s - (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // up
-        if(*(s + sizeof(uint8_pixel_t)              ) == p){ cnt++; } // right
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - (img->cols * sizeof(uint8_pixel_t))) == p)
         {
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // up-right
-        }
+            cnt++;
+        } // up
+        if (*(s + sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // right
 
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // up-right
+        }
     }
     // Right-bottom pixel
-    else if(x == img->cols-1 && y == img->rows-1)
+    else if (x == img->cols - 1 && y == img->rows - 1)
     {
-        if(*(s - (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // up
-        if(*(s - sizeof(uint8_pixel_t)              ) == p){ cnt++; } // left
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - (img->cols * sizeof(uint8_pixel_t))) == p)
         {
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // up-left
+            cnt++;
+        } // up
+        if (*(s - sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // left
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // up-left
         }
     }
     // Top border pixels
-    else if(y == 0)
+    else if (y == 0)
     {
-        if(*(s - sizeof(uint8_pixel_t)              ) == p){ cnt++; } // left
-        if(*(s + sizeof(uint8_pixel_t)              ) == p){ cnt++; } // right
-        if(*(s + (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // down
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - sizeof(uint8_pixel_t)) == p)
         {
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // down-left
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // down-right
+            cnt++;
+        } // left
+        if (*(s + sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // right
+        if (*(s + (img->cols * sizeof(uint8_pixel_t))) == p)
+        {
+            cnt++;
+        } // down
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // down-left
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // down-right
         }
     }
     // Bottom border pixels
-    else if(y == img->rows-1)
+    else if (y == img->rows - 1)
     {
-        if(*(s - (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // up
-        if(*(s - sizeof(uint8_pixel_t)              ) == p){ cnt++; } // left
-        if(*(s + sizeof(uint8_pixel_t)              ) == p){ cnt++; } // right
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - (img->cols * sizeof(uint8_pixel_t))) == p)
         {
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // up-left
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // up-right
+            cnt++;
+        } // up
+        if (*(s - sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // left
+        if (*(s + sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // right
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // up-left
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // up-right
         }
     }
     // Left border pixels
-    else if(x == 0)
+    else if (x == 0)
     {
-        if(*(s - (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // up
-        if(*(s + sizeof(uint8_pixel_t)              ) == p){ cnt++; } // right
-        if(*(s + (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // down
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - (img->cols * sizeof(uint8_pixel_t))) == p)
         {
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // up-right
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // down-right
+            cnt++;
+        } // up
+        if (*(s + sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // right
+        if (*(s + (img->cols * sizeof(uint8_pixel_t))) == p)
+        {
+            cnt++;
+        } // down
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // up-right
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // down-right
         }
     }
     // Right border pixels
-    else if(x == img->cols-1)
+    else if (x == img->cols - 1)
     {
-        if(*(s - (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // up
-        if(*(s - sizeof(uint8_pixel_t)              ) == p){ cnt++; } // left
-        if(*(s + (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // down
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - (img->cols * sizeof(uint8_pixel_t))) == p)
         {
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // up-left
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // down-left
+            cnt++;
+        } // up
+        if (*(s - sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // left
+        if (*(s + (img->cols * sizeof(uint8_pixel_t))) == p)
+        {
+            cnt++;
+        } // down
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // up-left
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // down-left
         }
     }
     else
     {
         // Inner pixels
-        if(*(s - (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // up
-        if(*(s - sizeof(uint8_pixel_t)              ) == p){ cnt++; } // left
-        if(*(s + sizeof(uint8_pixel_t)              ) == p){ cnt++; } // right
-        if(*(s + (img->cols * sizeof(uint8_pixel_t))) == p){ cnt++; } // down
-
-        if(c == CONNECTED_EIGHT)
+        if (*(s - (img->cols * sizeof(uint8_pixel_t))) == p)
         {
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // up-left
-            if(*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // up-right
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p){ cnt++; } // down-left
-            if(*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p){ cnt++; } // down-right
+            cnt++;
+        } // up
+        if (*(s - sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // left
+        if (*(s + sizeof(uint8_pixel_t)) == p)
+        {
+            cnt++;
+        } // right
+        if (*(s + (img->cols * sizeof(uint8_pixel_t))) == p)
+        {
+            cnt++;
+        } // down
+
+        if (c == CONNECTED_EIGHT)
+        {
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // up-left
+            if (*(s - (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // up-right
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) - 1) == p)
+            {
+                cnt++;
+            } // down-left
+            if (*(s + (img->cols * sizeof(uint8_pixel_t)) + 1) == p)
+            {
+                cnt++;
+            } // down-right
         }
     }
 
@@ -1668,45 +1826,45 @@ void convolve(const image_t *src, image_t *dst, const image_t *msk)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
     ASSERT(src == dst, "src and dst are the same images");
 
-    if(src->type == IMGTYPE_INT16)
+    if (src->type == IMGTYPE_INT16)
     {
         ASSERT(dst->type != IMGTYPE_INT16, "dst type is invalid");
         ASSERT(msk->type != IMGTYPE_INT16, "msk type is invalid");
 
         // Loop all pixels
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 int32_t val = 0;
-                int32_t dr = (msk->rows/2);
-                int32_t dc = (msk->cols/2);
+                int32_t dr = (msk->rows / 2);
+                int32_t dc = (msk->cols / 2);
 
                 // Apply the kernel only for pixels within the image
-                for(int32_t j=-dr; j<=dr; j++)
+                for (int32_t j = -dr; j <= dr; j++)
                 {
-                    for(int32_t i=-dc; i<=dc; i++)
+                    for (int32_t i = -dc; i <= dc; i++)
                     {
-                        if(((x-i) >= 0) &&
-                           ((y-j) >= 0) &&
-                           ((x-i) <  src->cols) &&
-                           ((y-j) <  src->rows))
+                        if (((x - i) >= 0) &&
+                            ((y - j) >= 0) &&
+                            ((x - i) < src->cols) &&
+                            ((y - j) < src->rows))
                         {
-                            val += getInt16Pixel(src,x-i,y-j) *
-                                   getInt16Pixel(msk,i+dc,j+dr);
+                            val += getInt16Pixel(src, x - i, y - j) *
+                                   getInt16Pixel(msk, i + dc, j + dr);
                         }
                     }
                 }
 
                 // Clip the result
-                if(val>INT16_PIXEL_MAX)
+                if (val > INT16_PIXEL_MAX)
                 {
-                    val=INT16_PIXEL_MAX;
+                    val = INT16_PIXEL_MAX;
                 }
 
-                if(val<INT16_PIXEL_MIN)
+                if (val < INT16_PIXEL_MIN)
                 {
-                    val=INT16_PIXEL_MIN;
+                    val = INT16_PIXEL_MIN;
                 }
 
                 // Store the result
@@ -1714,44 +1872,44 @@ void convolve(const image_t *src, image_t *dst, const image_t *msk)
             }
         }
     }
-    else if(src->type == IMGTYPE_UINT8)
+    else if (src->type == IMGTYPE_UINT8)
     {
         ASSERT(dst->type != IMGTYPE_UINT8, "dst type is invalid");
         ASSERT(msk->type != IMGTYPE_UINT8, "msk type is invalid");
 
         // Loop all pixels
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 int32_t val = 0;
-                int32_t dr = (msk->rows/2);
-                int32_t dc = (msk->cols/2);
+                int32_t dr = (msk->rows / 2);
+                int32_t dc = (msk->cols / 2);
 
                 // Apply the kernel only for pixels within the image
-                for(int32_t j=-dr; j<=dr; j++)
+                for (int32_t j = -dr; j <= dr; j++)
                 {
-                    for(int32_t i=-dc; i<=dc; i++)
+                    for (int32_t i = -dc; i <= dc; i++)
                     {
-                        if(((x-i) >= 0) &&
-                           ((y-j) >= 0) &&
-                           ((x-i) <  src->cols) &&
-                           ((y-j) <  src->rows))
+                        if (((x - i) >= 0) &&
+                            ((y - j) >= 0) &&
+                            ((x - i) < src->cols) &&
+                            ((y - j) < src->rows))
                         {
-                            val += getUint8Pixel(src,x-i,y-j) * getUint8Pixel(msk,i+dc,j+dr);
+                            val += getUint8Pixel(src, x - i, y - j) * getUint8Pixel(msk, i + dc, j + dr);
                         }
                     }
                 }
 
                 // Clip the result
-                if(val>UINT8_PIXEL_MAX)
+                if (val > UINT8_PIXEL_MAX)
                 {
-                    val=UINT8_PIXEL_MAX;
+                    val = UINT8_PIXEL_MAX;
                 }
 
-                if(val<UINT8_PIXEL_MIN)
+                if (val < UINT8_PIXEL_MIN)
                 {
-                    val=UINT8_PIXEL_MIN;
+                    val = UINT8_PIXEL_MIN;
                 }
 
                 // Store the result
@@ -1776,9 +1934,9 @@ void convolve(const image_t *src, image_t *dst, const image_t *msk)
  */
 void convolveFast(const image_t *src, image_t *dst, const image_t *msk)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: convolveFast
+// ********************************************
+// Remove this block when implementation starts
+#warning TODO: convolveFast
 
     // Added to prevent compiler warnings
     (void)src;
@@ -1817,45 +1975,45 @@ void correlate(const image_t *src, image_t *dst, const image_t *msk)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
     ASSERT(src == dst, "src and dst are the same images");
 
-    if(src->type == IMGTYPE_INT16)
+    if (src->type == IMGTYPE_INT16)
     {
         ASSERT(dst->type != IMGTYPE_INT16, "dst type is invalid");
         ASSERT(msk->type != IMGTYPE_INT16, "msk type is invalid");
 
         // Loop all pixels
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 int32_t val = 0;
-                int32_t dr = (msk->rows/2);
-                int32_t dc = (msk->cols/2);
+                int32_t dr = (msk->rows / 2);
+                int32_t dc = (msk->cols / 2);
 
                 // Apply the kernel only for pixels within the image
-                for(int32_t j=-dr; j<=dr; j++)
+                for (int32_t j = -dr; j <= dr; j++)
                 {
-                    for(int32_t i=-dc; i<=dc; i++)
+                    for (int32_t i = -dc; i <= dc; i++)
                     {
-                        if(((x+i) >= 0) &&
-                           ((y+j) >= 0) &&
-                           ((x+i) <  src->cols) &&
-                           ((y+j) <  src->rows))
+                        if (((x + i) >= 0) &&
+                            ((y + j) >= 0) &&
+                            ((x + i) < src->cols) &&
+                            ((y + j) < src->rows))
                         {
-                            val += getInt16Pixel(src,x+i,y+j) *
-                                   getInt16Pixel(msk,i+dc,j+dr);
+                            val += getInt16Pixel(src, x + i, y + j) *
+                                   getInt16Pixel(msk, i + dc, j + dr);
                         }
                     }
                 }
 
                 // Clip the result
-                if(val>INT16_PIXEL_MAX)
+                if (val > INT16_PIXEL_MAX)
                 {
-                    val=INT16_PIXEL_MAX;
+                    val = INT16_PIXEL_MAX;
                 }
 
-                if(val<INT16_PIXEL_MIN)
+                if (val < INT16_PIXEL_MIN)
                 {
-                    val=INT16_PIXEL_MIN;
+                    val = INT16_PIXEL_MIN;
                 }
 
                 // Store the result
@@ -1863,44 +2021,44 @@ void correlate(const image_t *src, image_t *dst, const image_t *msk)
             }
         }
     }
-    else if(src->type == IMGTYPE_UINT8)
+    else if (src->type == IMGTYPE_UINT8)
     {
         ASSERT(dst->type != IMGTYPE_UINT8, "dst type is invalid");
         ASSERT(msk->type != IMGTYPE_UINT8, "msk type is invalid");
 
         // Loop all pixels
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 int32_t val = 0;
-                int32_t dr = (msk->rows/2);
-                int32_t dc = (msk->cols/2);
+                int32_t dr = (msk->rows / 2);
+                int32_t dc = (msk->cols / 2);
 
                 // Apply the kernel only for pixels within the image
-                for(int32_t j=-dr; j<=dr; j++)
+                for (int32_t j = -dr; j <= dr; j++)
                 {
-                    for(int32_t i=-dc; i<=dc; i++)
+                    for (int32_t i = -dc; i <= dc; i++)
                     {
-                        if(((x+i) >= 0) &&
-                           ((y+j) >= 0) &&
-                           ((x+i) <  src->cols) &&
-                           ((y+j) <  src->rows))
+                        if (((x + i) >= 0) &&
+                            ((y + j) >= 0) &&
+                            ((x + i) < src->cols) &&
+                            ((y + j) < src->rows))
                         {
-                            val += getUint8Pixel(src,x+i,y+j) * getUint8Pixel(msk,i+dc,j+dr);
+                            val += getUint8Pixel(src, x + i, y + j) * getUint8Pixel(msk, i + dc, j + dr);
                         }
                     }
                 }
 
                 // Clip the result
-                if(val>UINT8_PIXEL_MAX)
+                if (val > UINT8_PIXEL_MAX)
                 {
-                    val=UINT8_PIXEL_MAX;
+                    val = UINT8_PIXEL_MAX;
                 }
 
-                if(val<UINT8_PIXEL_MIN)
+                if (val < UINT8_PIXEL_MIN)
                 {
-                    val=UINT8_PIXEL_MIN;
+                    val = UINT8_PIXEL_MIN;
                 }
 
                 // Store the result
@@ -1920,7 +2078,7 @@ void correlate(const image_t *src, image_t *dst, const image_t *msk)
  * \param[in]  src A pointer to the source image
  * \param[out] dst A pointer to the destination image
  */
-void scale(const image_t *src ,image_t *dst)
+void scale(const image_t *src, image_t *dst)
 {
     // Verify image validity
     ASSERT(src == NULL, "src image is invalid");
@@ -1934,19 +2092,19 @@ void scale(const image_t *src ,image_t *dst)
     ASSERT(src->cols != dst->cols, "src and dst have different number of columns");
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
-    uint8_pixel_t min=UINT8_PIXEL_MAX, max=UINT8_PIXEL_MIN;
+    uint8_pixel_t min = UINT8_PIXEL_MAX, max = UINT8_PIXEL_MIN;
     uint32_t imsize = src->rows * src->cols;
     uint8_pixel_t *s = (uint8_pixel_t *)src->data;
 
     // Scan input image for min/max values
-    for(uint32_t i=0; i<imsize; ++i)
+    for (uint32_t i = 0; i < imsize; ++i)
     {
-        if(*s < min)
+        if (*s < min)
         {
             min = *s;
         }
 
-        if(*s > max)
+        if (*s > max)
         {
             max = *s;
         }
@@ -1959,10 +2117,10 @@ void scale(const image_t *src ,image_t *dst)
     uint8_pixel_t *d = (uint8_pixel_t *)dst->data;
 
     // Prevent division by zero
-    if(max == min)
+    if (max == min)
     {
         // Scale the output to basic image type
-        for(uint32_t i=0; i<imsize; ++i)
+        for (uint32_t i = 0; i < imsize; ++i)
         {
             *d++ = (uint8_pixel_t)128;
         }
@@ -1970,9 +2128,9 @@ void scale(const image_t *src ,image_t *dst)
     else
     {
         // Scale the output to basic image type
-        for(uint32_t i=0; i<imsize; ++i)
+        for (uint32_t i = 0; i < imsize; ++i)
         {
-            *d++ = (uint8_pixel_t)((255.0f/(max-min)) * (*s++ - min) + 0.5f);
+            *d++ = (uint8_pixel_t)((255.0f / (max - min)) * (*s++ - min) + 0.5f);
         }
     }
 }
@@ -1987,7 +2145,7 @@ void scale(const image_t *src ,image_t *dst)
  * \param[in]  src A pointer to the source image
  * \param[out] dst A pointer to the destination image
  */
-void scaleInt16ToUint8(const image_t *src ,image_t *dst)
+void scaleInt16ToUint8(const image_t *src, image_t *dst)
 {
     // Verify image validity
     ASSERT(src == NULL, "src image is invalid");
@@ -2001,20 +2159,20 @@ void scaleInt16ToUint8(const image_t *src ,image_t *dst)
     ASSERT(src->cols != dst->cols, "src and dst have different number of columns");
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
-    int16_pixel_t min=INT16_PIXEL_MAX, max=INT16_PIXEL_MIN;
+    int16_pixel_t min = INT16_PIXEL_MAX, max = INT16_PIXEL_MIN;
     uint32_t imsize = src->rows * src->cols;
 
     int16_pixel_t *s = (int16_pixel_t *)src->data;
 
     // Scan input image for min/max values
-    for(uint32_t i=0; i<imsize; ++i)
+    for (uint32_t i = 0; i < imsize; ++i)
     {
-        if(*s < min)
+        if (*s < min)
         {
             min = *s;
         }
 
-        if(*s > max)
+        if (*s > max)
         {
             max = *s;
         }
@@ -2027,10 +2185,10 @@ void scaleInt16ToUint8(const image_t *src ,image_t *dst)
     uint8_pixel_t *d = (uint8_pixel_t *)dst->data;
 
     // Prevent division by zero
-    if(max == min)
+    if (max == min)
     {
         // Scale the output to basic image type
-        for(uint32_t i=0; i<imsize; ++i)
+        for (uint32_t i = 0; i < imsize; ++i)
         {
             *d++ = (uint8_pixel_t)128;
         }
@@ -2038,9 +2196,9 @@ void scaleInt16ToUint8(const image_t *src ,image_t *dst)
     else
     {
         // Scale the output to basic image type
-        for(uint32_t i=0; i<imsize; ++i)
+        for (uint32_t i = 0; i < imsize; ++i)
         {
-            *d++ = (uint8_pixel_t)((255.0f/(max-min)) * (*s++ - min) + 0.5f);
+            *d++ = (uint8_pixel_t)((255.0f / (max - min)) * (*s++ - min) + 0.5f);
         }
     }
 }
@@ -2055,7 +2213,7 @@ void scaleInt16ToUint8(const image_t *src ,image_t *dst)
  * \param[in]  src A pointer to the source image
  * \param[out] dst A pointer to the destination image
  */
-void scaleFloatToUint8(const image_t *src ,image_t *dst)
+void scaleFloatToUint8(const image_t *src, image_t *dst)
 {
     // Verify image validity
     ASSERT(src == NULL, "src image is invalid");
@@ -2069,20 +2227,20 @@ void scaleFloatToUint8(const image_t *src ,image_t *dst)
     ASSERT(src->cols != dst->cols, "src and dst have different number of columns");
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
-    float_pixel_t min=FLOAT_PIXEL_MAX, max=FLOAT_PIXEL_MIN;
+    float_pixel_t min = FLOAT_PIXEL_MAX, max = FLOAT_PIXEL_MIN;
     uint32_t imsize = src->rows * src->cols;
 
     float_pixel_t *s = (float_pixel_t *)src->data;
 
     // Scan input image for min/max values
-    for(uint32_t i=0; i<imsize; ++i)
+    for (uint32_t i = 0; i < imsize; ++i)
     {
-        if(*s < min)
+        if (*s < min)
         {
             min = *s;
         }
 
-        if(*s > max)
+        if (*s > max)
         {
             max = *s;
         }
@@ -2095,10 +2253,10 @@ void scaleFloatToUint8(const image_t *src ,image_t *dst)
     uint8_pixel_t *d = (uint8_pixel_t *)dst->data;
 
     // Prevent division by zero
-    if(max == min)
+    if (max == min)
     {
         // Scale the output to basic image type
-        for(uint32_t i=0; i<imsize; ++i)
+        for (uint32_t i = 0; i < imsize; ++i)
         {
             *d++ = (uint8_pixel_t)128;
         }
@@ -2106,9 +2264,9 @@ void scaleFloatToUint8(const image_t *src ,image_t *dst)
     else
     {
         // Scale the output to basic image type
-        for(uint32_t i=0; i<imsize; ++i)
+        for (uint32_t i = 0; i < imsize; ++i)
         {
-            *d++ = (uint8_pixel_t)((255.0f/(max-min)) * (*s++ - min) + 0.5f);
+            *d++ = (uint8_pixel_t)((255.0f / (max - min)) * (*s++ - min) + 0.5f);
         }
     }
 }
@@ -2120,18 +2278,76 @@ void scaleFloatToUint8(const image_t *src ,image_t *dst)
  * \param[in]  src A pointer to the source image
  * \param[out] dst A pointer to the destination image
  *
- * \todo Implement this function
+ * Debug config: delta: 5990 us
+ * Release config: delta: 3520 us
+ * lut: delta: 1870 us
  */
 void scaleFast(const image_t *src, image_t *dst)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: scaleFast
+    uint8_pixel_t min = UINT8_PIXEL_MAX, max = UINT8_PIXEL_MIN;
+    uint32_t imsize = src->rows * src->cols;
+    uint8_pixel_t *s = (uint8_pixel_t *)src->data;
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)dst;
+    uint8_pixel_t LUT[256];
+
+    // Scan input image for min/max values
+    for (uint32_t i = 0; i < imsize; ++i)
+    {
+        if (*s < min)
+        {
+            min = *s;
+        }
+
+        if (*s > max)
+        {
+            max = *s;
+        }
+
+        ++s;
+    }
+
+    // Restore pointers
+    s = (uint8_pixel_t *)src->data;
+    uint8_pixel_t *d = (uint8_pixel_t *)dst->data;
+
+    // Prevent division by zero
+    if (max == min)
+    {
+        uint8_pixel_t uniform_val = (uint8_pixel_t)128;
+        for (int idx = 0; idx < 256; ++idx)
+        {
+            LUT[idx] = uniform_val;
+        }
+    }
+    else
+    {
+        float scale_factor = 255.0f / (float)(max - min);
+
+        for (int idx = 0; idx < 256; ++idx)
+        {
+            if (idx <= min)
+            {
+                LUT[idx] = 0;
+            }
+            else if (idx >= max)
+            {
+                LUT[idx] = 255;
+            }
+            else
+            {
+                LUT[idx] = (uint8_pixel_t)(scale_factor * (idx - min) + 0.5f);
+            }
+        }
+
+        LUT[min] = 0;
+        LUT[max] = 255;
+    }
+
+    for (uint32_t i = 0; i < imsize; ++i)
+    {
+        // p_dst(x,y) = LUT[ p_src(x,y) ]
+        *d++ = LUT[*s++];
+    }
 
     return;
-    // ********************************************
 }

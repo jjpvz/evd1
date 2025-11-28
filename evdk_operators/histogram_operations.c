@@ -60,9 +60,9 @@ void histogram(const image_t *img, uint32_t *hist)
     //       this for-loop. However, the compiler optimizes such a loop to a
     //       call to memset() anyway (at least when optimization is set to
     //       -Ofast).
-    for(uint32_t i=0; i<256; ++i)
+    for (uint32_t i = 0; i < 256; ++i)
     {
-        hist[i]=0;
+        hist[i] = 0;
     }
 
     // Set the image size
@@ -72,7 +72,7 @@ void histogram(const image_t *img, uint32_t *hist)
     uint8_pixel_t *d = (uint8_pixel_t *)img->data;
 
     // Create the histogram
-    for(uint32_t i=0; i<imsize; ++i)
+    for (uint32_t i = 0; i < imsize; ++i)
     {
         hist[*d++]++;
     }
@@ -107,28 +107,42 @@ void brightness(const image_t *src, image_t *dst, const int32_t brightness)
     int32_t i;
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Get the pixel from the original image and modify brightness
             i = getUint8Pixel(src, x, y) + brightness;
 
             // Clip the result
-            if(i>255)
+            if (i > 255)
             {
-                i=255;
+                i = 255;
             }
 
-            if(i<0)
+            if (i < 0)
             {
-                i=0;
+                i = 0;
             }
 
             // Store the result
             setUint8Pixel(dst, x, y, i);
         }
     }
+}
+
+float calculate_average(const image_t *src)
+{
+    uint32_t sum = 0;
+    uint8_t *src_data = (uint8_t *)src->data;
+    uint32_t total_pixels = src->cols * src->rows;
+
+    for (uint32_t i = 0; i < total_pixels; ++i)
+    {
+        sum += src_data[i];
+    }
+
+    return (float)sum / (float)total_pixels;
 }
 
 /*!
@@ -145,20 +159,39 @@ void brightness(const image_t *src, image_t *dst, const int32_t brightness)
  * \param[out] dst      A pointer to the destination image
  * \param[in]  contrast New distance to the average pixel value
  *
- * \todo Implement this function
  */
 void contrast(const image_t *src, image_t *dst, const float contrast)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: contrast
+    uint32_t sum = 0;
+    uint8_t *src_data = (uint8_t *)src->data;
+    uint8_t *dst_data = (uint8_t *)dst->data;
+    uint32_t total_pixels = src->cols * src->rows;
 
-    // Added to prevent compiler warnings
+    for (uint32_t i = 0; i < total_pixels; ++i)
+    {
+        sum += src_data[i];
+    }
 
-    (void)src;
-    (void)dst;
-    (void)contrast;
+    // calculate average
+    float average = (float)sum / (float)total_pixels;
 
-    return;
-    // ********************************************
+    for (uint32_t i = 0; i < total_pixels; ++i)
+    {
+        uint8_t current_value = src_data[i];
+
+        // calculate new value
+        float new_value = (contrast * (current_value - average)) + average;
+
+        // clipping
+        if (new_value < 0.0f)
+        {
+            new_value = 0.0f;
+        }
+        else if (new_value > 255.0f)
+        {
+            new_value = 255.0f;
+        }
+
+        dst_data[i] = (uint8_t)(new_value + 0.5f);
+    }
 }
