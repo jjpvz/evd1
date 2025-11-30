@@ -62,40 +62,40 @@ void harmonic(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             float sum = 0;
             uint32_t cnt = 0;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Count the number of valid cells
                         cnt++;
 
                         // Calculation for each window cell
-                        uint8_pixel_t p = getUint8Pixel(src,x+i,y+j);
+                        uint8_pixel_t p = getUint8Pixel(src, x + i, y + j);
 
-                        if(p == 0)
+                        if (p == 0)
                         {
                             sum = 0.0f;
 
                             // Break from loops
-                            i=n/2+1;
-                            j=n/2+1;
+                            i = n / 2 + 1;
+                            j = n / 2 + 1;
                         }
                         else
                         {
@@ -106,13 +106,13 @@ void harmonic(const image_t *src, image_t *dst, const uint8_t n)
             }
 
             // Calculate and store the result
-            if(sum == 0)
+            if (sum == 0)
             {
-                setUint8Pixel(dst,x,y,0);
+                setUint8Pixel(dst, x, y, 0);
             }
             else
             {
-                setUint8Pixel(dst,x,y,(uint8_pixel_t)(cnt/sum + 0.5f));
+                setUint8Pixel(dst, x, y, (uint8_pixel_t)(cnt / sum + 0.5f));
             }
         }
     }
@@ -141,35 +141,35 @@ void maximum(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             uint8_pixel_t max = UINT8_PIXEL_MIN;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Calculation for each window cell
-                        uint8_pixel_t p = getUint8Pixel(src,x+i,y+j);
+                        uint8_pixel_t p = getUint8Pixel(src, x + i, y + j);
                         max = p > max ? p : max;
                     }
                 }
             }
 
             // Calculate and store the result
-            setUint8Pixel(dst,x,y,max);
+            setUint8Pixel(dst, x, y, max);
         }
     }
 }
@@ -199,38 +199,38 @@ void mean(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             uint32_t sum = 0;
             uint32_t cnt = 0;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Count the number of valid pixels
                         cnt++;
 
                         // Calculation for each window cell
-                        sum += getUint8Pixel(src,x+i,y+j);
+                        sum += getUint8Pixel(src, x + i, y + j);
                     }
                 }
             }
 
             // Calculate and store the result
-            setUint8Pixel(dst,x,y,(uint8_pixel_t)((float)sum/(float)cnt + 0.5f));
+            setUint8Pixel(dst, x, y, (uint8_pixel_t)((float)sum / (float)cnt + 0.5f));
         }
     }
 }
@@ -242,21 +242,51 @@ void mean(const image_t *src, image_t *dst, const uint8_t n)
  *
  * \param[in]  src A pointer to the source image
  * \param[out] dst A pointer to the destination image
- *
- * \todo Implement this function
  */
 void meanFast(const image_t *src, image_t *dst)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: meanFast
+    uint8_pixel_t *src_data = (uint8_pixel_t *)src->data;
+    uint8_pixel_t *dst_data = (uint8_pixel_t *)dst->data;
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)dst;
+    // Loop all pixels
+    for (int32_t y = 1; y < (src->rows - 1); y++)
+    {
+        for (int32_t x = 1; x < (src->cols - 1); x++)
+        {
+            // Initialize filter specific variables
+            uint32_t sum = 0;
 
-    return;
-    // ********************************************
+            // x + 1, y + 1
+            sum += src_data[((y + 1) * src->cols) + (x + 1)];
+
+            // x, y + 1
+            sum += src_data[((y + 1) * src->cols) + x];
+
+            // x - 1, y + 1
+            sum += src_data[((y + 1) * src->cols) + (x - 1)];
+
+            // x + 1, y
+            sum += src_data[(y * src->cols) + (x + 1)];
+
+            // x, y
+            sum += src_data[(y * src->cols) + x];
+
+            // x - 1, y
+            sum += src_data[(y * src->cols) + (x - 1)];
+
+            // x + 1, y - 1
+            sum += src_data[((y - 1) * src->cols) + (x + 1)];
+
+            // x, y - 1
+            sum += src_data[((y - 1) * src->cols) + x];
+
+            // x - 1, y - 1
+            sum += src_data[((y - 1) * src->cols) + (x - 1)];
+
+            // Calculate and store the result
+            dst_data[(y * src->cols) + x] = (uint8_pixel_t)((float)sum / 9.0f + 0.5f);
+        }
+    }
 }
 
 /*!
@@ -288,31 +318,31 @@ void median(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
     ASSERT(n > 11, "window size is too large");
 
     uint8_pixel_t median[121];
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             uint32_t cnt = 0;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Store pixel value in array
-                        median[cnt] = getUint8Pixel(src,x+i,y+j);
+                        median[cnt] = getUint8Pixel(src, x + i, y + j);
 
                         // Count the number of valid cells
                         cnt++;
@@ -322,7 +352,7 @@ void median(const image_t *src, image_t *dst, const uint8_t n)
 
             // Use the 'Insertion sort' algorithm to sort the median values
             // Loop through all elements, starting at second
-            for(uint32_t i=1; i<cnt; i++)
+            for (uint32_t i = 1; i < cnt; i++)
             {
                 // Copy the element
                 uint8_pixel_t a = median[i];
@@ -330,7 +360,10 @@ void median(const image_t *src, image_t *dst, const uint8_t n)
                 // Move 'backwards' and shift all values bigger then the current
                 // value to the next position in the array
                 uint32_t j;
-                for(j=i; j>0 && median[j-1] > a; j--){ median[j] = median[j-1]; }
+                for (j = i; j > 0 && median[j - 1] > a; j--)
+                {
+                    median[j] = median[j - 1];
+                }
 
                 // Insert current element at this position in the array
                 median[j] = a;
@@ -338,15 +371,15 @@ void median(const image_t *src, image_t *dst, const uint8_t n)
 
             // Check if there is an even number of pixels.
             // This might be the case for border pixels.
-            if((cnt%2) == 0)
+            if ((cnt % 2) == 0)
             {
                 // Store the result
-                setUint8Pixel(dst,x,y,(median[(cnt/2) - 1] + median[cnt/2]) / 2.0f + 0.5f);
+                setUint8Pixel(dst, x, y, (median[(cnt / 2) - 1] + median[cnt / 2]) / 2.0f + 0.5f);
             }
             else
             {
                 // Store the result
-                setUint8Pixel(dst,x,y,median[cnt/2]);
+                setUint8Pixel(dst, x, y, median[cnt / 2]);
             }
         }
     }
@@ -376,29 +409,29 @@ void midpoint(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             uint8_pixel_t min = UINT8_PIXEL_MAX;
             uint8_pixel_t max = UINT8_PIXEL_MIN;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Calculation for each window cell
-                        uint8_pixel_t p = getUint8Pixel(src,x+i,y+j);
+                        uint8_pixel_t p = getUint8Pixel(src, x + i, y + j);
                         min = p < min ? p : min;
                         max = p > max ? p : max;
                     }
@@ -406,7 +439,7 @@ void midpoint(const image_t *src, image_t *dst, const uint8_t n)
             }
 
             // Calculate and store the result
-            setUint8Pixel(dst,x,y,((min + max)/2.0f) + 0.5f);
+            setUint8Pixel(dst, x, y, ((min + max) / 2.0f) + 0.5f);
         }
     }
 }
@@ -434,35 +467,35 @@ void minimum(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             uint8_pixel_t min = UINT8_PIXEL_MAX;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Calculation for each window cell
-                        uint8_pixel_t p = getUint8Pixel(src,x+i,y+j);
+                        uint8_pixel_t p = getUint8Pixel(src, x + i, y + j);
                         min = p < min ? p : min;
                     }
                 }
             }
 
             // Calculate and store the result
-            setUint8Pixel(dst,x,y,min);
+            setUint8Pixel(dst, x, y, min);
         }
     }
 }
@@ -490,29 +523,29 @@ void range(const image_t *src, image_t *dst, const uint8_t n)
     ASSERT(src == dst, "src and dst are the same images");
 
     // Verify parameters
-    ASSERT((n%2) == 0, "window size is not an odd value");
+    ASSERT((n % 2) == 0, "window size is not an odd value");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             // Initialize filter specific variables
             uint8_pixel_t min = UINT8_PIXEL_MAX;
             uint8_pixel_t max = UINT8_PIXEL_MIN;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Calculation for each window cell
-                        uint8_pixel_t p = getUint8Pixel(src,x+i,y+j);
+                        uint8_pixel_t p = getUint8Pixel(src, x + i, y + j);
                         min = p < min ? p : min;
                         max = p > max ? p : max;
                     }
@@ -520,7 +553,7 @@ void range(const image_t *src, image_t *dst, const uint8_t n)
             }
 
             // Calculate and store the result
-            setUint8Pixel(dst,x,y,max - min);
+            setUint8Pixel(dst, x, y, max - min);
         }
     }
 }

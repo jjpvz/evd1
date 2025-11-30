@@ -1932,6 +1932,8 @@ void convolve(const image_t *src, image_t *dst, const image_t *msk)
  */
 void convolveFast(const image_t *src, image_t *dst, const image_t *msk)
 {
+    // printf("\n");
+
     // uint16_t *data_ptr = (uint16_t *)src->data;
     // int cols = 12;
     // int rows = 8;
@@ -1956,48 +1958,40 @@ void convolveFast(const image_t *src, image_t *dst, const image_t *msk)
     int32_t src_rows = src->rows;
 
     // Loop all pixels
-    for (int32_t y = 0; y < src_rows; y++)
+    for (int32_t y = 1; y < (src_rows - 1); y++)
     {
         int16_pixel_t *dst_row_ptr = dst_data + (y * src_cols);
 
-        for (int32_t x = 0; x < src_cols; x++)
+        for (int32_t x = 1; x < (src_cols - 1); x++)
         {
             int32_t value = 0;
 
             // x + 1, y + 1
-            if ((x + 1 < src_cols) && (y + 1 < src_rows))
-                value += src_data[((y + 1) * src_cols) + (x + 1)] * msk_data[0];
+            value += src_data[((y + 1) * src_cols) + (x + 1)] * msk_data[0];
 
             // x, y + 1
-            if (y + 1 < src_rows)
-                value += src_data[((y + 1) * src_cols) + x] * msk_data[1];
+            value += src_data[((y + 1) * src_cols) + x] * msk_data[1];
 
             // x - 1, y + 1
-            if ((x - 1 >= 0) && (y + 1 < src_rows))
-                value += src_data[((y + 1) * src_cols) + (x - 1)] * msk_data[2];
+            value += src_data[((y + 1) * src_cols) + (x - 1)] * msk_data[2];
 
             // x + 1, y
-            if (x + 1 < src_cols)
-                value += src_data[(y * src_cols) + (x + 1)] * msk_data[3];
+            value += src_data[(y * src_cols) + (x + 1)] * msk_data[3];
 
             // x, y
             value += src_data[(y * src_cols) + x] * msk_data[4];
 
             // x - 1, y
-            if (x - 1 >= 0)
-                value += src_data[(y * src_cols) + (x - 1)] * msk_data[5];
+            value += src_data[(y * src_cols) + (x - 1)] * msk_data[5];
 
             // x + 1, y - 1
-            if ((x + 1 < src_cols) && (y - 1 >= 0))
-                value += src_data[((y - 1) * src_cols) + (x + 1)] * msk_data[6];
+            value += src_data[((y - 1) * src_cols) + (x + 1)] * msk_data[6];
 
             // x, y - 1
-            if (y - 1 >= 0)
-                value += src_data[((y - 1) * src_cols) + x] * msk_data[7];
+            value += src_data[((y - 1) * src_cols) + x] * msk_data[7];
 
             // x - 1, y - 1
-            if ((x - 1 >= 0) && (y - 1 >= 0))
-                value += src_data[((y - 1) * src_cols) + (x - 1)] * msk_data[8];
+            value += src_data[((y - 1) * src_cols) + (x - 1)] * msk_data[8];
 
             // Clip the result
             if (value > INT16_PIXEL_MAX)
@@ -2015,21 +2009,21 @@ void convolveFast(const image_t *src, image_t *dst, const image_t *msk)
         }
     }
 
-    int16_t *data_ptr = (int16_t *)dst->data;
-    int cols = 12;
-    int rows = 8;
+    // int16_t *data_ptr = (int16_t *)dst->data;
+    // int cols = 12;
+    // int rows = 8;
 
-    for (int r = 0; r < rows; r++)
-    {
-        for (int c = 0; c < cols; c++)
-        {
-            int index = r * cols + c;
+    // for (int r = 0; r < rows; r++)
+    // {
+    //     for (int c = 0; c < cols; c++)
+    //     {
+    //         int index = r * cols + c;
 
-            printf("%3u ", data_ptr[index]);
-        }
+    //         printf("%3u ", data_ptr[index]);
+    //     }
 
-        printf("\n");
-    }
+    //     printf("\n");
+    // }
 }
 
 /*!
