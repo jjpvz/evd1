@@ -1932,24 +1932,6 @@ void convolve(const image_t *src, image_t *dst, const image_t *msk)
  */
 void convolveFast(const image_t *src, image_t *dst, const image_t *msk)
 {
-    // printf("\n");
-
-    // uint16_t *data_ptr = (uint16_t *)src->data;
-    // int cols = 12;
-    // int rows = 8;
-
-    // for (int r = 0; r < rows; r++)
-    // {
-    //     for (int c = 0; c < cols; c++)
-    //     {
-    //         int index = r * cols + c;
-
-    //         printf("%3u ", data_ptr[index]);
-    //     }
-
-    //     printf("\n");
-    // }
-
     int16_pixel_t *src_data = (int16_pixel_t *)src->data;
     int16_pixel_t *dst_data = (int16_pixel_t *)dst->data;
     int16_pixel_t *msk_data = (int16_pixel_t *)msk->data;
@@ -2008,22 +1990,6 @@ void convolveFast(const image_t *src, image_t *dst, const image_t *msk)
             dst_row_ptr[x] = (int16_t)value;
         }
     }
-
-    // int16_t *data_ptr = (int16_t *)dst->data;
-    // int cols = 12;
-    // int rows = 8;
-
-    // for (int r = 0; r < rows; r++)
-    // {
-    //     for (int c = 0; c < cols; c++)
-    //     {
-    //         int index = r * cols + c;
-
-    //         printf("%3u ", data_ptr[index]);
-    //     }
-
-    //     printf("\n");
-    // }
 }
 
 /*!

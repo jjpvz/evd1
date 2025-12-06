@@ -9,5 +9,11 @@
 			"path": "frdmmcxn947_evdk5_0"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"type_traits": "c",
+			"xtr1common": "c",
+			"utility": "c"
+		}
+	}
 }

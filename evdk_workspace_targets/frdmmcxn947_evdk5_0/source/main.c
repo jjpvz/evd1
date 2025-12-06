@@ -192,6 +192,7 @@ int main(void)
     // exampleRotate();
     exampleTemplate();
     // exampleFinalAssignment();
+    // exampleHuffman();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -774,6 +775,40 @@ void exampleTemplate(void)
     // -------------------------------------------------------------------------
     // Local image memory allocation
     // -------------------------------------------------------------------------
+    // Create additional int16_pixel_t images
+    image_t *src_int16 = newInt16Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+    image_t *dst_int16 = newInt16Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+    image_t *msk_int16 = newEmptyInt16Image(3, 3);
+
+    // Prepare images
+    clearInt16Image(src_int16);
+    clearInt16Image(dst_int16);
+
+    // Set convolution mask
+    int16_pixel_t msk_data[3 * 3] =
+        {
+            // Identity
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            // Edge enhancement
+            // -1,-1,-1,
+            // -1, 8,-1,
+            // -1,-1,-1,
+            // Sharpen
+            // 0,-1, 0,
+            // -1, 5,-1,
+            // 0,-1, 0,
+        };
+
+    msk_int16->data = (uint8_t *)msk_data;
+
     image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
@@ -800,7 +835,7 @@ void exampleTemplate(void)
         // Image processing pipeline
         // ---------------------------------------------------------------------
         // Convert uyvy_pixel_t camera image to uint8_pixel_t image
-        convertToUint8(cam, src);
+        convertToUint8(cam, src_int16);
 
         // Copy timestamp
         ms1 = ms;
@@ -808,12 +843,27 @@ void exampleTemplate(void)
         // Use this as a playground for testing image processing functions. As
         // an example, the following function scales the image for better
         // visualization.
-        // scaleFast(src, dst);
-        // clearUint8Image(dst); // Measured execution time 0130 us
-        clearUint8Image_cm33(dst); // Measured execution time ... us
+
+        // scale(src, dst); // 3520 us
+        // scaleFast(src, dst); // 1870 us
+
+        // clearUint8Image(dst); // 0130 us
+        // clearUint8Image_cm33(dst); // ... us
+
+        // convolve(src_int16, dst_int16, msk_int16); // 33470 us
+        // convolveFast(src_int16, dst_int16, msk_int16); // 5210 us
+
+        // mean(src, dst); // ... us
+        // meanFast(src, dst); // 7590 us
+
+        // sobel(src_int16, dst_int16, NULL); // 67640 us
+        // sobelFast(src_int16, dst_int16); // 14610 us
 
         // Copy timestamp
         ms2 = ms;
+
+        // Scale for visualisation
+        scaleInt16ToUint8(dst_int16, dst);
 
         // Convert uint8_pixel_t image to bgr888_pixel_t image for USB
         convertToBgr888(dst, usb);
@@ -871,3 +921,81 @@ void exampleFinalAssignment(void)
         PRINTF("delta: %d ms\r\n", ms2 - ms1);
     }
 }
+
+// void exampleHuffman(void)
+// {
+//     // HuffmanTree tree = build_huffman_tree()
+
+//     // encode_image()
+// }
+
+// typedef struct HuffmanNode
+// {
+//     int value;
+//     int freq;
+//     struct HuffmanNode *left;
+//     struct HuffmanNode *right;
+// } HuffmanNode;
+
+// typedef struct
+// {
+
+// } HuffmanTree;
+
+// typedef struct key_value
+// {
+//     int key;
+//     int value;
+// } key_value;
+
+// HuffmanTree build_huffman_tree(image_t *image)
+// {
+//     uint8_pixel_t *src_data = (uint8_pixel_t *)src->data;
+
+//     key_value frequency_map[] = {0};
+
+//     for (int32_t y = 0; y < image->rows; y++)
+//     {
+//         for (int32_t x = 0; x < image->cols; x++)
+//         {
+//             // read value
+//             uint32_t value = src_data[(y * src->cols) + x];
+
+//             // check if value already exists in map
+
+//             // if not add key set value to 1
+
+//             // if true increment value where key
+//         }
+//     }
+
+//     // put keyvalue pairs in order in map
+
+//     // build tree
+//     // - connect lowest frequency together
+//     // - label it with sum of both frequencies
+//     // - repeat
+// }
+
+// uint8_t *encode_image(image_t *image, HuffmanTree *tree)
+// {
+//     // foreach value in image
+//     // - find in tree
+//     // - navigate to it
+//     //     - left = 0
+//     //     - right = 1
+//     // - build code by following path
+
+//     // onsucces return pointer naar plaatje in geheugen
+//     // onfail nullpointer geen geheugen gealloceerd dus iets fout gegaan
+// }
+
+// bool decode_image(uint8_t *compressed_bits, HuffmanTree *tree, image_t *output_image)
+// {
+//     // read compressed_bits
+//     // - navigate through tree
+//     // - stop when node with value is found
+//     // - repeat
+
+//     // check of dit fout kan gaan
+// }

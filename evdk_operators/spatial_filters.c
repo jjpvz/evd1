@@ -64,20 +64,26 @@ void gaussianFilter_3x3(const image_t *src, image_t *dst)
 
     // Define mask
     int16_pixel_t msk_data[3 * 3] =
-    {
-        1,2,1,
-        2,4,2,
-        1,2,1,
-    };
+        {
+            1,
+            2,
+            1,
+            2,
+            4,
+            2,
+            1,
+            2,
+            1,
+        };
 
     // Create the mask image
     image_t msk =
-    {
-        .cols=3,
-        .rows=3,
-        .type=IMGTYPE_INT16,
-        .data=(uint8_t *)msk_data,
-    };
+        {
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_INT16,
+            .data = (uint8_t *)msk_data,
+        };
 
     convolve(src, dst, &msk);
 }
@@ -107,22 +113,42 @@ void gaussianFilter_5x5(const image_t *src, image_t *dst)
 
     // Define mask
     int16_pixel_t msk_data[5 * 5] =
-    {
-        1, 4, 7, 4, 1,
-        4,16,26,16, 4,
-        7,26,41,26, 7,
-        4,16,26,16, 4,
-        1, 4, 7, 4, 1,
-    };
+        {
+            1,
+            4,
+            7,
+            4,
+            1,
+            4,
+            16,
+            26,
+            16,
+            4,
+            7,
+            26,
+            41,
+            26,
+            7,
+            4,
+            16,
+            26,
+            16,
+            4,
+            1,
+            4,
+            7,
+            4,
+            1,
+        };
 
     // Create the mask image
     image_t msk =
-    {
-        .cols=5,
-        .rows=5,
-        .type=IMGTYPE_INT16,
-        .data=(uint8_t *)msk_data,
-    };
+        {
+            .cols = 5,
+            .rows = 5,
+            .type = IMGTYPE_INT16,
+            .data = (uint8_t *)msk_data,
+        };
 
     convolve(src, dst, &msk);
 }
@@ -153,20 +179,26 @@ void laplacianFilter_3x3(const image_t *src, image_t *dst)
 
     // Define mask
     int16_pixel_t msk_data[3 * 3] =
-    {
-        0,-1, 0,
-       -1, 4,-1,
-        0,-1, 0,
-    };
+        {
+            0,
+            -1,
+            0,
+            -1,
+            4,
+            -1,
+            0,
+            -1,
+            0,
+        };
 
     // Create the mask image
     image_t msk =
-    {
-        .cols=3,
-        .rows=3,
-        .type=IMGTYPE_INT16,
-        .data=(uint8_t *)msk_data,
-    };
+        {
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_INT16,
+            .data = (uint8_t *)msk_data,
+        };
 
     convolve(src, dst, &msk);
 }
@@ -197,22 +229,42 @@ void laplacianFilter_5x5(const image_t *src, image_t *dst)
 
     // Define mask
     int16_pixel_t msk_data[5 * 5] =
-    {
-        -1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,
-        -1,-1,24,-1,-1,
-        -1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,
-    };
+        {
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            24,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+        };
 
     // Create the mask image
     image_t msk =
-    {
-        .cols=5,
-        .rows=5,
-        .type=IMGTYPE_INT16,
-        .data=(uint8_t *)msk_data,
-    };
+        {
+            .cols = 5,
+            .rows = 5,
+            .type = IMGTYPE_INT16,
+            .data = (uint8_t *)msk_data,
+        };
 
     convolve(src, dst, &msk);
 }
@@ -248,31 +300,43 @@ void sobel(const image_t *src, image_t *mag, image_t *dir)
 
     // Define Sobel masks
     int16_pixel_t gh_msk_data[3 * 3] =
-    {
-        -1,-2,-1,
-         0, 0, 0,
-         1, 2, 1,
-    };
+        {
+            -1,
+            -2,
+            -1,
+            0,
+            0,
+            0,
+            1,
+            2,
+            1,
+        };
 
     int16_pixel_t gv_msk_data[3 * 3] =
-    {
-        -1, 0, 1,
-        -2, 0, 2,
-        -1, 0, 1,
-    };
+        {
+            -1,
+            0,
+            1,
+            -2,
+            0,
+            2,
+            -1,
+            0,
+            1,
+        };
 
     // Create the mask image
     image_t msk =
-    {
-        .cols=3,
-        .rows=3,
-        .type=IMGTYPE_INT16,
-        .data=NULL,
-    };
+        {
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_INT16,
+            .data = NULL,
+        };
 
     // Create temporary images and verify memory allocation
     image_t *gh = newInt16Image(src->cols, src->rows);
-    if(gh == NULL)
+    if (gh == NULL)
     {
         // No memory allocated
         return;
@@ -280,7 +344,7 @@ void sobel(const image_t *src, image_t *mag, image_t *dir)
 
     image_t *gv = newInt16Image(src->cols, src->rows);
 
-    if(gv == NULL)
+    if (gv == NULL)
     {
         // No memory allocated
         deleteInt16Image(gh);
@@ -294,27 +358,27 @@ void sobel(const image_t *src, image_t *mag, image_t *dir)
     // Use correlation instead of convolution, because the
     // mask is not symmetrical in both horizontal and
     // vertical direction
-    msk.data=(uint8_t *)gh_msk_data;
+    msk.data = (uint8_t *)gh_msk_data;
     correlate(src, gh, &msk);
 
     // Calculate Gv by correlating the mask
     // Use correlation instead of convolution, because the
     // mask is not symmetrical in both horizontal and
     // vertical direction
-    msk.data=(uint8_t *)gv_msk_data;
+    msk.data = (uint8_t *)gv_msk_data;
     correlate(src, gv, &msk);
 
     // Loop all pixels
-    if(dir == NULL)
+    if (dir == NULL)
     {
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 // Msobel = |Gh| + |Gv|
-                int16_pixel_t m = abs(getInt16Pixel(gh,x,y)) +
-                                  abs(getInt16Pixel(gv,x,y));
-                setInt16Pixel(mag,x,y,m);
+                int16_pixel_t m = abs(getInt16Pixel(gh, x, y)) +
+                                  abs(getInt16Pixel(gv, x, y));
+                setInt16Pixel(mag, x, y, m);
             }
         }
     }
@@ -327,19 +391,19 @@ void sobel(const image_t *src, image_t *mag, image_t *dir)
         // Verify image consistency
         ASSERT(dir->cols != mag->cols, "dir and mag have different number of columns");
 
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 // Msobel = |Gh| + |Gv|
-                int16_pixel_t m = abs(getInt16Pixel(gh,x,y)) +
-                                  abs(getInt16Pixel(gv,x,y));
-                setInt16Pixel(mag,x,y,m);
+                int16_pixel_t m = abs(getInt16Pixel(gh, x, y)) +
+                                  abs(getInt16Pixel(gv, x, y));
+                setInt16Pixel(mag, x, y, m);
 
                 // PHIsobel = tan-1(Gv/Gh)
-                float_pixel_t phi = atanf(((float)getInt16Pixel(gv,x,y)) /
-                                           (float)getInt16Pixel(gh,x,y));
-                setFloatPixel(dir,x,y,phi);
+                float_pixel_t phi = atanf(((float)getInt16Pixel(gv, x, y)) /
+                                          (float)getInt16Pixel(gh, x, y));
+                setFloatPixel(dir, x, y, phi);
             }
         }
     }
@@ -359,19 +423,87 @@ void sobel(const image_t *src, image_t *mag, image_t *dir)
  *
  * \param[in]  src A pointer to the source image
  * \param[out] mag A pointer to the Sobel magnitude destination image
- *
- * \todo Implement this function
  */
 void sobelFast(const image_t *src, image_t *mag)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: sobelFast
+    // computes horizontal gradient
+    int16_pixel_t gh_msk_data[3 * 3] =
+        {
+            -1,
+            -2,
+            -1,
+            0,
+            0,
+            0,
+            1,
+            2,
+            1,
+        };
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)mag;
+    // computes vertical gradient
+    int16_pixel_t gv_msk_data[3 * 3] =
+        {
+            -1,
+            0,
+            1,
+            -2,
+            0,
+            2,
+            -1,
+            0,
+            1,
+        };
 
-    return;
-    // ********************************************
+    image_t msk =
+        {
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_INT16,
+            .data = NULL,
+        };
+
+    // Create temporary images and verify memory allocation
+    image_t *gh = newInt16Image(src->cols, src->rows);
+    if (gh == NULL)
+    {
+        // No memory allocated
+        return;
+    }
+
+    image_t *gv = newInt16Image(src->cols, src->rows);
+
+    if (gv == NULL)
+    {
+        // No memory allocated
+        deleteInt16Image(gh);
+        return;
+    }
+
+    clearInt16Image(gh);
+    clearInt16Image(gv);
+
+    msk.data = (uint8_t *)gh_msk_data;
+    convolveFast(src, gh, &msk);
+
+    msk.data = (uint8_t *)gv_msk_data;
+    convolveFast(src, gv, &msk);
+
+    int16_pixel_t *gh_data = (int16_pixel_t *)gh->data;
+    int16_pixel_t *gv_data = (int16_pixel_t *)gv->data;
+    int16_pixel_t *mag_data = (int16_pixel_t *)mag->data;
+
+    for (int32_t y = 0; y < src->rows; y++)
+    {
+        for (int32_t x = 0; x < src->cols; x++)
+        {
+            // Msobel = |Gh| + |Gv|
+            int16_pixel_t m = abs(gh_data[y * src->cols + x]) +
+                              abs(gv_data[y * src->cols + x]);
+            mag_data[y * src->cols + x] = m;
+        }
+    }
+
+    // Cleanup temporary images
+    deleteInt16Image(gh);
+    deleteInt16Image(gv);
 }

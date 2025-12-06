@@ -24,5 +24,10 @@
 			"name": "evdk5_webcam",
 			"path": "evdk5_webcam"
 		}
-	]
+	],
+	"settings": {
+		"files.associations": {
+			"cstdint": "cpp"
+		}
+	}
 }
