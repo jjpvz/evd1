@@ -77,7 +77,7 @@ void threshold(const image_t *src, image_t *dst,
     uint8_pixel_t *d = (uint8_pixel_t *)dst->data;
 
     // Loop all pixels and set to 1 if the pixel is within thresholding window
-    while(i-- > 0)
+    while (i-- > 0)
     {
         uint8_pixel_t pixel = *s++;
         *d++ = ((pixel >= min) && (pixel <= max)) ? 1 : 0;
@@ -114,17 +114,17 @@ void thresholdOptimum(const image_t *src, image_t *dst, const eBrightness b)
     histogram(src, hist1);
 
     // Apply 31x1 mean filter on the histogram
-    for(y=0; y<256; y++)
+    for (y = 0; y < 256; y++)
     {
         uint32_t sum = 0.0f;
         uint32_t cnt = 0;
 
-        for(int32_t x=-15; x<=15; ++x)
+        for (int32_t x = -15; x <= 15; ++x)
         {
             // Is the calculated index valid?
-            int32_t index = y+x;
+            int32_t index = y + x;
 
-            if((index >= 0) && (index <= 255))
+            if ((index >= 0) && (index <= 255))
             {
                 ++cnt;
                 sum += hist1[index];
@@ -139,17 +139,17 @@ void thresholdOptimum(const image_t *src, image_t *dst, const eBrightness b)
 
     // Find the first non-zero value in the histogram,
     // skipping the very first value
-    for(y=1; y<256; y++)
+    for (y = 1; y < 256; y++)
     {
-        if(hist2[y] != 0.0f)
+        if (hist2[y] != 0.0f)
             break;
     }
 
     // Find the valley between the two peaks,
     // skipping the final value
-    while((flag == 0) && (y <= 254))
+    while ((flag == 0) && (y <= 254))
     {
-        if((hist2[y-1] >= hist2[y]) && (hist2[y] < hist2[y+1]))
+        if ((hist2[y - 1] >= hist2[y]) && (hist2[y] < hist2[y + 1]))
         {
             flag = 1;
             t = y;
@@ -159,7 +159,7 @@ void thresholdOptimum(const image_t *src, image_t *dst, const eBrightness b)
     }
 
     // Threshold the image
-    if(b == BRIGHTNESS_DARK)
+    if (b == BRIGHTNESS_DARK)
         threshold(src, dst, 0, t);
     else
         threshold(src, dst, t, 255);
@@ -176,23 +176,78 @@ void thresholdOptimum(const image_t *src, image_t *dst, const eBrightness b)
  * \param[out] dst A pointer to the destination image
  * \param[in]  b   Return the bright or the BRIGHTNESS_DARK areas in the source image as
  *                 object. Must be of type ::eBrightness
- *
- * \todo Implement this function
  */
 void threshold2Means(const image_t *src, image_t *dst, const eBrightness b)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: threshold2Means
+    // calculate the histogram
+    uint32_t hist[256] = {0};
 
-    // Added to prevent compiler warnings
+    histogram(src, hist);
 
-    (void)src;
-    (void)dst;
-    (void)b;
+    // initialize mean intensity to the global mean intensity
+    uint32_t total = src->rows * src->cols;
 
-    return;
-    // ********************************************
+    int T = 0;
+
+    for (uint32_t i = 0; i < 256; i++)
+    {
+        T += i * hist[i];
+    }
+
+    T /= total;
+
+    int T_new = T;
+
+    // Iterative 2-means algorithm
+    do
+    {
+        T = T_new;
+
+        uint32_t sum_left = 0;
+        uint32_t count_left = 0;
+        uint32_t sum_right = 0;
+        uint32_t count_right = 0;
+
+        for (uint32_t i = 0; i < 256; i++)
+        {
+            if (i <= T)
+            {
+                sum_left += i * hist[i];
+                count_left += hist[i];
+            }
+            else
+            {
+                sum_right += i * hist[i];
+                count_right += hist[i];
+            }
+        }
+
+        // Prevent division by zero
+        if (count_left == 0 || count_right == 0)
+        {
+            break;
+        }
+
+        // Calculate mean value of all pixels to the left of T (mean left)
+        int mean_left = sum_left / count_left;
+
+        // Calculate mean value of all pixels to the right of T (mean right)
+        int mean_right = sum_right / count_right;
+
+        // Move T to the mean of mean left and mean right
+        T_new = ((mean_left + mean_right) + 1) / 2;
+
+    } while (T_new != T); // Repeat as long as T changes
+
+    // Threshold the image
+    if (b == BRIGHTNESS_DARK)
+    {
+        threshold(src, dst, 0, T_new);
+    }
+    else
+    {
+        threshold(src, dst, T_new, 255);
+    }
 }
 
 /*!
@@ -208,22 +263,76 @@ void threshold2Means(const image_t *src, image_t *dst, const eBrightness b)
  * \param[out] dst A pointer to the destination image
  * \param[in]  b   Return the bright or the BRIGHTNESS_DARK areas in the source image as
  *                 object. Must be of type ::eBrightness
- *
- * \todo Implement this function
  */
 void thresholdOtsu(const image_t *src, image_t *dst, const eBrightness b)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: thresholdOtsu
+    // check worstcase for otsu and check met welk datatype bcv opgeslafen moet worden
+    uint32_t hist[256] = {0};
+    histogram(src, hist);
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)dst;
-    (void)b;
+    uint32_t total = src->rows * src->cols;
 
-    return;
-    // ********************************************
+    uint32_t sum_total = 0;
+    for (int i = 0; i < 256; i++)
+    {
+        sum_total += i * hist[i];
+    }
+
+    // At start, all pixels are in the right and are iteratively moved to the left
+    uint32_t sum_left = 0;
+    uint32_t count_left = 0;
+
+    uint32_t sum_right = sum_total;
+    uint32_t count_right = total;
+
+    int best_T = 0;
+    double best_bcv = 0.0;
+
+    for (uint32_t T = 0; T < 256; T++)
+    {
+        // Values added to the left
+        sum_left += (uint32_t)T * hist[T];
+        count_left += hist[T];
+
+        // are removed from the right
+        sum_right -= (uint32_t)T * hist[T];
+        count_right -= hist[T];
+
+        // Prevent division by zero
+        if (count_left == 0 || count_right == 0)
+        {
+            continue;
+        }
+
+        // Calculate mean value of all pixels to the left of T (mean left)
+        double mean_left = (double)sum_left / count_left;
+
+        // Calculate mean value of all pixels to the right of T (mean right)
+        double mean_right = (double)sum_right / count_right;
+
+        // BCV = w_left​ x w_right​ x ( mean_left − mean_right )2
+        double w_left = (double)count_left / total;
+        double w_right = (double)count_right / total;
+
+        double bcv = w_left * w_right * (mean_left - mean_right) * (mean_left - mean_right);
+
+        // Keep best threshold
+        if (bcv > best_bcv)
+        {
+            best_bcv = bcv;
+            best_T = T;
+        }
+    }
+
+    // Threshold the image using the best threshold
+    if (b == BRIGHTNESS_DARK)
+    {
+        threshold(src, dst, 0, best_T);
+    }
+    else
+    {
+        threshold(src, dst, best_T, 255);
+    }
 }
 
 /*!
@@ -278,45 +387,45 @@ void lineDetector(const image_t *src, image_t *dst, int16_t mask[][3])
     ASSERT(src == dst, "src and dst are the same images");
 
     // Set first and last row in dst to 0
-    for(int32_t x = 0; x < dst->cols; x++)
+    for (int32_t x = 0; x < dst->cols; x++)
     {
-        setUint8Pixel(dst,x,0,0);
-        setUint8Pixel(dst,x,dst->rows-1,0);
+        setUint8Pixel(dst, x, 0, 0);
+        setUint8Pixel(dst, x, dst->rows - 1, 0);
     }
 
     // Set first and last column in dst to 0
-    for(int32_t y = 0; y < dst->rows; y++)
+    for (int32_t y = 0; y < dst->rows; y++)
     {
-        setUint8Pixel(dst,0,y,0);
-        setUint8Pixel(dst,dst->cols-1,y,0);
+        setUint8Pixel(dst, 0, y, 0);
+        setUint8Pixel(dst, dst->cols - 1, y, 0);
     }
 
     int32_t sum;
 
     // Loop all pixels, skipping the border pixels
-    for(int32_t y=1; y<(src->rows-1); y++)
+    for (int32_t y = 1; y < (src->rows - 1); y++)
     {
-        for(int32_t x=1; x<(src->cols-1); x++)
+        for (int32_t x = 1; x < (src->cols - 1); x++)
         {
             // Calculate the sum under the 3x3 mask
             sum = 0;
-            for(int32_t j=-1; j<=1; j++)
+            for (int32_t j = -1; j <= 1; j++)
             {
-                for(int32_t i=-1; i<=1; i++)
+                for (int32_t i = -1; i <= 1; i++)
                 {
-                    sum += getUint8Pixel(src, (x+i), (y+j)) * mask[j+1][i+1];
+                    sum += getUint8Pixel(src, (x + i), (y + j)) * mask[j + 1][i + 1];
                 }
             }
 
             // Clip the result
-            if(sum>255)
+            if (sum > 255)
             {
-                sum=255;
+                sum = 255;
             }
 
-            if(sum<0)
+            if (sum < 0)
             {
-                sum=0;
+                sum = 0;
             }
 
             // Store the result
@@ -324,4 +433,3 @@ void lineDetector(const image_t *src, image_t *dst, int16_t mask[][3])
         }
     }
 }
-

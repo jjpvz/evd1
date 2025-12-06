@@ -853,7 +853,7 @@ void exampleTemplate(void)
         // convolve(src_int16, dst_int16, msk_int16); // 33470 us
         // convolveFast(src_int16, dst_int16, msk_int16); // 5210 us
 
-        // mean(src, dst); // ... us
+        // mean(src, dst, 3); // 52070 us
         // meanFast(src, dst); // 7590 us
 
         // sobel(src_int16, dst_int16, NULL); // 67640 us
@@ -922,80 +922,9 @@ void exampleFinalAssignment(void)
     }
 }
 
-// void exampleHuffman(void)
-// {
-//     // HuffmanTree tree = build_huffman_tree()
+void exampleHuffman(void)
+{
+    // HuffmanTree tree = build_huffman_tree()
 
-//     // encode_image()
-// }
-
-// typedef struct HuffmanNode
-// {
-//     int value;
-//     int freq;
-//     struct HuffmanNode *left;
-//     struct HuffmanNode *right;
-// } HuffmanNode;
-
-// typedef struct
-// {
-
-// } HuffmanTree;
-
-// typedef struct key_value
-// {
-//     int key;
-//     int value;
-// } key_value;
-
-// HuffmanTree build_huffman_tree(image_t *image)
-// {
-//     uint8_pixel_t *src_data = (uint8_pixel_t *)src->data;
-
-//     key_value frequency_map[] = {0};
-
-//     for (int32_t y = 0; y < image->rows; y++)
-//     {
-//         for (int32_t x = 0; x < image->cols; x++)
-//         {
-//             // read value
-//             uint32_t value = src_data[(y * src->cols) + x];
-
-//             // check if value already exists in map
-
-//             // if not add key set value to 1
-
-//             // if true increment value where key
-//         }
-//     }
-
-//     // put keyvalue pairs in order in map
-
-//     // build tree
-//     // - connect lowest frequency together
-//     // - label it with sum of both frequencies
-//     // - repeat
-// }
-
-// uint8_t *encode_image(image_t *image, HuffmanTree *tree)
-// {
-//     // foreach value in image
-//     // - find in tree
-//     // - navigate to it
-//     //     - left = 0
-//     //     - right = 1
-//     // - build code by following path
-
-//     // onsucces return pointer naar plaatje in geheugen
-//     // onfail nullpointer geen geheugen gealloceerd dus iets fout gegaan
-// }
-
-// bool decode_image(uint8_t *compressed_bits, HuffmanTree *tree, image_t *output_image)
-// {
-//     // read compressed_bits
-//     // - navigate through tree
-//     // - stop when node with value is found
-//     // - repeat
-
-//     // check of dit fout kan gaan
-// }
+    // encode_image()
+}
