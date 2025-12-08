@@ -59,51 +59,53 @@ int main(void)
     printf("EVDK UNIT TESTS\n\n");
 
     printf("CODING AND COMPRESSION\n");
-    #ifndef TEST_ASSIGNMENTS_ONLY
-    //RUN_TEST();
-    #endif
-    //printf("\n");
+    RUN_TEST(test_huffman);
+    RUN_TEST(test_encode_image);
+    RUN_TEST(test_decode_image);
+#ifndef TEST_ASSIGNMENTS_ONLY
+#endif
+    // printf("\n");
 
     printf("GRAPHICS ALGORITHMS\n");
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_affineTransformation);
     RUN_TEST(test_warpPerspective);
     RUN_TEST(test_warpPerspectiveFast);
     RUN_TEST(test_zoom);
     RUN_TEST(test_zoomFactor);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("HISTOGRAM OPERATIONS\n");
     RUN_TEST(test_contrast);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_brightness);
     RUN_TEST(test_histogram);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("IMAGE FUNDAMENTALS\n");
     RUN_TEST(test_convertUyvyToUint8);
     RUN_TEST(test_scaleFast);
     RUN_TEST(test_convolveFast);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_convolve);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("MENSURATION\n");
     RUN_TEST(test_labelTwoPass);
     RUN_TEST(test_perimeter);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_area);
     RUN_TEST(test_labelIterative);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("MORPHOLOGICAL FILTERS\n");
     RUN_TEST(test_fillHolesTwoPass);
     RUN_TEST(test_removeBorderBlobsTwoPass);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_dilation);
     RUN_TEST(test_dilationGray);
     RUN_TEST(test_erosion);
@@ -112,18 +114,18 @@ int main(void)
     RUN_TEST(test_hitmiss);
     RUN_TEST(test_removeBorderBlobsIterative);
     RUN_TEST(test_skeleton);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("NOISE\n");
-    #ifndef TEST_ASSIGNMENTS_ONLY
-    //RUN_TEST();
-    #endif
-    //printf("\n");
+#ifndef TEST_ASSIGNMENTS_ONLY
+// RUN_TEST();
+#endif
+    // printf("\n");
 
     printf("NONLINEAR FILTERS\n");
     RUN_TEST(test_meanFast);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_harmonic);
     RUN_TEST(test_maximum);
     RUN_TEST(test_mean);
@@ -131,39 +133,39 @@ int main(void)
     RUN_TEST(test_midpoint);
     RUN_TEST(test_minimum);
     RUN_TEST(test_range);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("SEGMENTATION\n");
     RUN_TEST(test_threshold2Means);
     RUN_TEST(test_thresholdOtsu);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_threshold);
     RUN_TEST(test_thresholdOptimum);
     RUN_TEST(test_lineDetector);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("SPATIAL FILTERS\n");
     RUN_TEST(test_sobelFast);
-    #ifndef TEST_ASSIGNMENTS_ONLY
+#ifndef TEST_ASSIGNMENTS_ONLY
     RUN_TEST(test_gaussianFilter);
     RUN_TEST(test_laplacian);
     RUN_TEST(test_sobel);
-    #endif
-    //printf("\n");
+#endif
+    // printf("\n");
 
     printf("SPATIAL FREQUENCY FILTERS\n");
-    #ifndef TEST_ASSIGNMENTS_ONLY
-    //RUN_TEST();
-    #endif
-    //printf("\n");
+#ifndef TEST_ASSIGNMENTS_ONLY
+// RUN_TEST();
+#endif
+    // printf("\n");
 
     printf("TRANSFORMS\n");
-    #ifndef TEST_ASSIGNMENTS_ONLY
-    //RUN_TEST();
-    #endif
-    //printf("\n");
+#ifndef TEST_ASSIGNMENTS_ONLY
+// RUN_TEST();
+#endif
+    // printf("\n");
 
     return UNITY_END();
 }
@@ -173,30 +175,30 @@ void prettyprint(const image_t *img, const char *title)
 {
     printf("\n%s\n", title);
 
-    for(int r = 0; r < img->rows; r++)
+    for (int r = 0; r < img->rows; r++)
     {
-        for(int c = 0; c < img->cols; c++)
+        for (int c = 0; c < img->cols; c++)
         {
             // Print the pixel based on the image type
-            if(img->type == IMGTYPE_UINT8)
+            if (img->type == IMGTYPE_UINT8)
             {
-                printf("%3d, ", getUint8Pixel(img,c,r));
+                printf("%3d, ", getUint8Pixel(img, c, r));
             }
-            else if(img->type == IMGTYPE_INT16)
+            else if (img->type == IMGTYPE_INT16)
             {
-                printf("%5d, ", getInt16Pixel(img,c,r));
+                printf("%5d, ", getInt16Pixel(img, c, r));
             }
-            else if(img->type == IMGTYPE_INT32)
+            else if (img->type == IMGTYPE_INT32)
             {
-                printf("%5d, ", getInt32Pixel(img,c,r));
+                printf("%5d, ", getInt32Pixel(img, c, r));
             }
-            else if(img->type == IMGTYPE_FLOAT)
+            else if (img->type == IMGTYPE_FLOAT)
             {
-                printf("%8.3f, ", getFloatPixel(img,c,r));
+                printf("%8.3f, ", getFloatPixel(img, c, r));
             }
-            else if(img->type == IMGTYPE_UYVY)
+            else if (img->type == IMGTYPE_UYVY)
             {
-                printf("0x%04X, ", getUyvyPixel(img,c,r));
+                printf("0x%04X, ", getUyvyPixel(img, c, r));
             }
             else
             {

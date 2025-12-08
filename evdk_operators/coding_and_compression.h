@@ -32,7 +32,8 @@
  *****************************************************************************/
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /// Include guard to prevent recursive inclusion
@@ -41,8 +42,18 @@ extern "C" {
 
 #include "image.h"
 
-// Functions are documented in the source file
+    // Functions are documented in the source file
 
+    typedef struct Node
+    {
+        int value;          // Gray value (0-255)
+        uint32_t freq;      // Frequency of this value
+        struct Node *left;  // Left child
+        struct Node *right; // Right child
+    } Node;
+
+    Node *build_huffman_tree(image_t *image);
+    uint8_t *encode_image(image_t *image, Node *root);
 
 #endif // _CODING_AND_COMPRESSION_H_
 
