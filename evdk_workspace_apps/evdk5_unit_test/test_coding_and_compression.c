@@ -33,6 +33,7 @@
 
 #include "main.h"
 #include "coding_and_compression.h"
+#include <assert.h>
 
 // Helper function to print the tree structure
 void print_tree(Node *node, int depth, char *prefix)
@@ -376,134 +377,51 @@ void test_huffman(void)
 
 void test_encode_image(void)
 {
-    // Test case 1: Simple image with a few gray values
-    uint8_pixel_t src_data_test_case_01[12 * 8] =
+    // 3x3 test image
+    uint8_pixel_t src_data[3 * 3] =
         {
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-        };
+            10, 10, 20,
+            20, 20, 30,
+            30, 30, 40};
 
-    typedef struct testcase_t
-    {
-        uint8_pixel_t *src_data;
-    } testcase_t;
-
-    // Compose array of test cases
-    testcase_t testcases[] =
+    image_t src =
         {
-            {src_data_test_case_01},
-        };
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_UINT8,
+            .data = src_data};
 
-    // Prepare image
-    image_t src = {12, 8, IMGTYPE_UINT8, NULL};
+    size_t original_size = src.cols * src.rows * sizeof(uint8_pixel_t);
 
-    // Loop all test cases
-    for (uint32_t i = 0; i < (sizeof(testcases) / sizeof(testcase_t)); ++i)
+    printf("Original size: %zu bytes\n", original_size);
+
+    // Build Huffman tree
+    Node *root = build_huffman_tree(&src);
+    assert(root != NULL);
+
+    // Encode image
+    size_t encoded_size = 0;
+    uint8_t *encoded = encode_image(&src, root, &encoded_size);
+
+    // Sanity checks
+    assert(encoded != NULL);
+    assert(encoded_size > 0);
+
+    printf("Encoded size: %zu byte(s)\n", encoded_size);
+
+    // Print all encoded bytes bit-by-bit
+    for (size_t i = 0; i < encoded_size; i++)
     {
-        // Set the data
-        src.data = testcases[i].src_data;
-        Node *root = build_huffman_tree(&src);
-
-        // Execute the operator
-        encode_image(&src, root);
-
-        // Clean up
-        free_tree(root);
+        printf("byte %zu: ", i);
+        print_byte_bits(encoded[i]);
+        printf("\n");
     }
+
+    // Cleanup
+    free(encoded);
+    free_tree(root);
+
+    printf("test_encode_image passed\n");
 }
 
 void test_decode_image(void)

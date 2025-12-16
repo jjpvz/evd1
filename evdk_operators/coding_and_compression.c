@@ -160,26 +160,59 @@ void print_byte_bits(uint8_t byte)
         printf("%d", (byte >> i) & 1);
 }
 
-uint8_t *encode_image(image_t *image, Node *root)
+uint8_t *encode_image(image_t *image, Node *root, size_t *out_size)
 {
-    int arr[256] = {0};
     HuffmanCode table[256] = {0};
-
-    // build code table once
+    int arr[256];
     build_huffman_table(root, arr, 0, table);
 
-    uint8_t first = image->data[0];
+    size_t capacity = 1;
+    uint8_t *output = malloc(capacity);
+    output[0] = 0;
 
-    printf("Original: ");
-    print_byte_bits(first);
-    printf("\n");
+    size_t byte_index = 0;
+    int bits_filled = 0;
 
-    printf("Encoded: ");
-    for (int j = 0; j < table[first].length; j++)
-        printf("%d", table[first].code[j]);
-    printf("\n");
+    for (size_t i = 0; i < image->rows * image->cols; i++)
+    {
+        uint8_t pixel = image->data[i];
+        HuffmanCode *code = &table[pixel];
 
-    return NULL;
+        for (int b = 0; b < code->length; b++)
+        {
+            // shift left to make space
+            output[byte_index] <<= 1;
+
+            // add new bit
+            output[byte_index] |= code->code[b];
+
+            bits_filled++;
+
+            if (bits_filled == 8)
+            {
+                bits_filled = 0;
+                byte_index++;
+
+                if (byte_index >= capacity)
+                {
+                    capacity *= 2;
+                    output = realloc(output, capacity);
+                }
+
+                output[byte_index] = 0;
+            }
+        }
+    }
+
+    // pad last byte with zeros if not full
+    if (bits_filled > 0)
+    {
+        output[byte_index] <<= (8 - bits_filled);
+        byte_index++;
+    }
+
+    *out_size = byte_index;
+    return output;
 }
 
 // onsucces return pointer naar plaatje in geheugen
