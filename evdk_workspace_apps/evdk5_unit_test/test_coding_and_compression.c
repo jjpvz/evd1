@@ -426,4 +426,55 @@ void test_encode_image(void)
 
 void test_decode_image(void)
 {
+    // Original image (3x3)
+    uint8_pixel_t src_data[9] =
+        {
+            10, 10, 20,
+            20, 20, 30,
+            30, 30, 40};
+
+    image_t src =
+        {
+            .rows = 3,
+            .cols = 3,
+            .type = IMGTYPE_UINT8,
+            .data = src_data};
+
+    // Build Huffman tree
+    Node *root = build_huffman_tree(&src);
+    assert(root != NULL);
+
+    // ---- ENCODE ----
+    size_t encoded_size = 0;
+    uint8_t *encoded = encode_image(&src, root, &encoded_size);
+
+    assert(encoded != NULL);
+    assert(encoded_size > 0);
+
+    printf("Original size: %zu bytes\n", sizeof(src_data));
+    printf("Encoded size : %zu bytes\n", encoded_size);
+
+    // ---- DECODE ----
+    uint8_pixel_t decoded_data[9] = {0};
+
+    image_t dst =
+        {
+            .rows = 3,
+            .cols = 3,
+            .type = IMGTYPE_UINT8,
+            .data = decoded_data};
+
+    decode_image(encoded, encoded_size, root, &dst);
+
+    // ---- VERIFY ----
+    for (int i = 0; i < 9; i++)
+    {
+        assert(decoded_data[i] == src_data[i]);
+    }
+
+    // Cleanup
+    free(encoded);
+    free_tree(root);
+
+    printf("test_encode_decode PASSED\n");
 }

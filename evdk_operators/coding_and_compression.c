@@ -227,3 +227,41 @@ uint8_t *encode_image(image_t *image, Node *root, size_t *out_size)
 
 //     // check of dit fout kan gaan
 // }
+
+void decode_image(
+    const uint8_t *encoded,
+    size_t encoded_size,
+    Node *root,
+    image_t *dst)
+{
+    size_t pixel_index = 0;
+    Node *current = root;
+
+    for (size_t byte_index = 0; byte_index < encoded_size; byte_index++)
+    {
+        uint8_t byte = encoded[byte_index];
+
+        // MSB → LSB
+        for (int bit = 7; bit >= 0; bit--)
+        {
+            int b = (byte >> bit) & 1;
+
+            // Walk the tree
+            if (b == 0)
+                current = current->left;
+            else
+                current = current->right;
+
+            // Leaf reached?
+            if (!current->left && !current->right)
+            {
+                dst->data[pixel_index++] = (uint8_pixel_t)current->value;
+                current = root;
+
+                // Stop exactly after all pixels
+                if (pixel_index == dst->rows * dst->cols)
+                    return;
+            }
+        }
+    }
+}

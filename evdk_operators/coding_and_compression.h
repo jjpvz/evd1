@@ -55,6 +55,11 @@ extern "C"
     Node *build_huffman_tree(image_t *image);
     uint8_t *encode_image(image_t *image, Node *root, size_t *out_size);
     void print_byte_bits(uint8_t byte);
+    void decode_image(
+        const uint8_t *encoded,
+        size_t encoded_size,
+        Node *root,
+        image_t *dst);
 
 #endif // _CODING_AND_COMPRESSION_H_
 
