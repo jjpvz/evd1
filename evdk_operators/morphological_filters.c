@@ -70,26 +70,26 @@ void dilation(const image_t *src, image_t *dst, const uint8_t *mask, const uint8
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             uint32_t smax = 0;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Is the pixel set and is the corresponding
                         // cell in the mask set?
-                        if((getUint8Pixel(src,x+i,y+j) == 1) &&
-                           (mask[((j+(n/2))*n) + (i+(n/2))] == 1))
+                        if ((getUint8Pixel(src, x + i, y + j) == 1) &&
+                            (mask[((j + (n / 2)) * n) + (i + (n / 2))] == 1))
                         {
                             // Mark this cell for dilation
                             smax = 1;
@@ -99,7 +99,7 @@ void dilation(const image_t *src, image_t *dst, const uint8_t *mask, const uint8
             }
 
             // Store the result
-            setUint8Pixel(dst,x,y,smax);
+            setUint8Pixel(dst, x, y, smax);
         }
     }
 }
@@ -135,38 +135,38 @@ void dilationGray(const image_t *src, image_t *dst, const uint8_t *mask, const u
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             int32_t smax = 0;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
-                        int32_t val = getUint8Pixel(src,x+i,y+j) + mask[((j+(n/2))*n) + (i+(n/2))];
+                        int32_t val = getUint8Pixel(src, x + i, y + j) + mask[((j + (n / 2)) * n) + (i + (n / 2))];
 
-                        if(val > smax)
+                        if (val > smax)
                             smax = val;
                     }
                 }
             }
 
             // Clip the result
-            if(smax > 255)
+            if (smax > 255)
             {
                 smax = 255;
             }
 
             // Store the result
-            setUint8Pixel(dst,x,y,smax);
+            setUint8Pixel(dst, x, y, smax);
         }
     }
 }
@@ -202,26 +202,26 @@ void erosion(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             uint32_t smin = 1;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
                         // Is the pixel background and is the corresponding
                         // cell in the mask set?
-                        if((getUint8Pixel(src,x+i,y+j) == 0) &&
-                           (mask[((j+(n/2))*n) + (i+(n/2))] == 1))
+                        if ((getUint8Pixel(src, x + i, y + j) == 0) &&
+                            (mask[((j + (n / 2)) * n) + (i + (n / 2))] == 1))
                         {
                             // Mark this cell for erosion
                             smin = 0;
@@ -231,7 +231,7 @@ void erosion(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_
             }
 
             // Store the result
-            setUint8Pixel(dst,x,y,smin);
+            setUint8Pixel(dst, x, y, smin);
         }
     }
 }
@@ -267,38 +267,38 @@ void erosionGray(const image_t *src, image_t *dst, const uint8_t *mask, const ui
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
             int32_t smin = 255;
 
             // Apply the kernel only for pixels within the image
-            for(int32_t j=-n/2; j<=n/2; j++)
+            for (int32_t j = -n / 2; j <= n / 2; j++)
             {
-                for(int32_t i=-n/2; i<=n/2; i++)
+                for (int32_t i = -n / 2; i <= n / 2; i++)
                 {
-                    if((x+i) >= 0 &&
-                       (y+j) >= 0 &&
-                       (x+i) <  src->cols &&
-                       (y+j) <  src->rows)
+                    if ((x + i) >= 0 &&
+                        (y + j) >= 0 &&
+                        (x + i) < src->cols &&
+                        (y + j) < src->rows)
                     {
-                        int32_t val = getUint8Pixel(src,x+i,y+j) - mask[((j+(n/2))*n) + (i+(n/2))];
+                        int32_t val = getUint8Pixel(src, x + i, y + j) - mask[((j + (n / 2)) * n) + (i + (n / 2))];
 
-                        if(val < smin)
+                        if (val < smin)
                             smin = val;
                     }
                 }
             }
 
             // Clip the result
-            if(smin < 0)
+            if (smin < 0)
             {
                 smin = 0;
             }
 
             // Store the result
-            setUint8Pixel(dst,x,y,smin);
+            setUint8Pixel(dst, x, y, smin);
         }
     }
 }
@@ -328,35 +328,35 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
     ASSERT(src->rows != dst->rows, "src and dst have different number of rows");
 
     // Copy the image if needed
-    if(src != dst)
+    if (src != dst)
     {
         copyUint8Image(src, dst);
     }
 
     // Mark the border pixels that are set
-    for(int32_t y=0; y<dst->rows; y++)
+    for (int32_t y = 0; y < dst->rows; y++)
     {
-        if(getUint8Pixel(dst,0,y) == 0)
+        if (getUint8Pixel(dst, 0, y) == 0)
         {
-            setUint8Pixel(dst,0,y,2);
+            setUint8Pixel(dst, 0, y, 2);
         }
-        
-        if(getUint8Pixel(dst,(dst->cols-1),y) == 0)
+
+        if (getUint8Pixel(dst, (dst->cols - 1), y) == 0)
         {
-            setUint8Pixel(dst,(dst->cols-1),y,2);
+            setUint8Pixel(dst, (dst->cols - 1), y, 2);
         }
     }
 
-    for(int32_t x=0; x<dst->cols; x++)
+    for (int32_t x = 0; x < dst->cols; x++)
     {
-        if(getUint8Pixel(dst,x,0) == 0)
+        if (getUint8Pixel(dst, x, 0) == 0)
         {
-            setUint8Pixel(dst,x,0,2);
+            setUint8Pixel(dst, x, 0, 2);
         }
 
-        if(getUint8Pixel(dst,x,(dst->rows-1)) == 0)
+        if (getUint8Pixel(dst, x, (dst->rows - 1)) == 0)
         {
-            setUint8Pixel(dst,x,(dst->rows-1),2);
+            setUint8Pixel(dst, x, (dst->rows - 1), 2);
         }
     }
 
@@ -371,18 +371,18 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
 
         // Pass through from left-top to right-bottom
         // Discard first row, last row, first column and last column
-        for(int32_t y = 1; y < dst->rows-1; y++)
+        for (int32_t y = 1; y < dst->rows - 1; y++)
         {
-            for(int32_t x = 1; x < dst->cols-1; x++)
+            for (int32_t x = 1; x < dst->cols - 1; x++)
             {
                 // Does the pixel belong to the background?
-                if(getUint8Pixel(dst,x,y) == 0)
+                if (getUint8Pixel(dst, x, y) == 0)
                 {
                     // Is a neighbour marked?
-                    if(neighbourCount(dst,x,y,2,c) > 0)
+                    if (neighbourCount(dst, x, y, 2, c) > 0)
                     {
                         // Also mark this pixel
-                        setUint8Pixel(dst,x,y,2);
+                        setUint8Pixel(dst, x, y, 2);
                         changes = 1;
                     }
                 }
@@ -391,23 +391,23 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
 
         iterations++;
 
-        if(!changes)
+        if (!changes)
             break;
 
         // Pass through from right-bottom to left-top
         // Discard first row, last row, firs column and last column
-        for(int32_t y = dst->rows-2; y > 0 ; y--)
+        for (int32_t y = dst->rows - 2; y > 0; y--)
         {
-            for(int32_t x = dst->cols-2; x > 0; x--)
+            for (int32_t x = dst->cols - 2; x > 0; x--)
             {
                 // Does the pixel belong to the background?
-                if(getUint8Pixel(dst,x,y) == 0)
+                if (getUint8Pixel(dst, x, y) == 0)
                 {
                     // Is a neighbour marked?
-                    if(neighbourCount(dst,x,y,2,c) > 0)
+                    if (neighbourCount(dst, x, y, 2, c) > 0)
                     {
                         // Also mark this pixel
-                        setUint8Pixel(dst,x,y,2);
+                        setUint8Pixel(dst, x, y, 2);
                         changes = 1;
                     }
                 }
@@ -415,29 +415,28 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
         }
 
         iterations++;
-    }
-    while(changes != 0);
+    } while (changes != 0);
 
     // Set background to object value
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
-            if(getUint8Pixel(dst,x,y) == 0)
+            if (getUint8Pixel(dst, x, y) == 0)
             {
-                setUint8Pixel(dst,x,y,1);
+                setUint8Pixel(dst, x, y, 1);
             }
         }
     }
 
     // Set marked value to background value
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
-            if(getUint8Pixel(dst,x,y) == 2)
+            if (getUint8Pixel(dst, x, y) == 2)
             {
-                setUint8Pixel(dst,x,y,0);
+                setUint8Pixel(dst, x, y, 0);
             }
         }
     }
@@ -467,9 +466,9 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
 uint32_t fillHolesTwoPass(const image_t *src, image_t *dst,
                           const eConnected connected, const uint32_t lutSize)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: fillHolesTwoPass
+// ********************************************
+// Remove this block when implementation starts
+#warning TODO: fillHolesTwoPass
 
     // Added to prevent compiler warnings
     (void)src;
@@ -504,14 +503,14 @@ void hitmiss(const image_t *src, image_t *dst, const uint8_t *m1, const uint8_t 
 
     // Verifiy mask validity
     ASSERT((m1[0] & m2[0]) == 1 ||
-           (m1[1] & m2[1]) == 1 ||
-           (m1[2] & m2[2]) == 1 ||
-           (m1[3] & m2[3]) == 1 ||
-           (m1[4] & m2[4]) == 1 ||
-           (m1[5] & m2[5]) == 1 ||
-           (m1[6] & m2[6]) == 1 ||
-           (m1[7] & m2[7]) == 1 ||
-           (m1[8] & m2[8]) == 1,
+               (m1[1] & m2[1]) == 1 ||
+               (m1[2] & m2[2]) == 1 ||
+               (m1[3] & m2[3]) == 1 ||
+               (m1[4] & m2[4]) == 1 ||
+               (m1[5] & m2[5]) == 1 ||
+               (m1[6] & m2[6]) == 1 ||
+               (m1[7] & m2[7]) == 1 ||
+               (m1[8] & m2[8]) == 1,
            " m1 AND m2 must be 0");
 
     // Verify image consistency
@@ -528,11 +527,11 @@ void hitmiss(const image_t *src, image_t *dst, const uint8_t *m1, const uint8_t 
     copyUint8Image(src, org);
 
     // Set tmp image to the complement of org
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
-            setUint8Pixel(tmp,x,y, 1 - getUint8Pixel(src,x,y));
+            setUint8Pixel(tmp, x, y, 1 - getUint8Pixel(src, x, y));
         }
     }
 
@@ -540,11 +539,11 @@ void hitmiss(const image_t *src, image_t *dst, const uint8_t *m1, const uint8_t 
     erosion(tmp, org, m2, 3);
 
     // Calculate the intersection
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
-            setUint8Pixel(dst,x,y, getUint8Pixel(dst,x,y) & getUint8Pixel(org,x,y));
+            setUint8Pixel(dst, x, y, getUint8Pixel(dst, x, y) & getUint8Pixel(org, x, y));
         }
     }
 
@@ -588,11 +587,11 @@ void outline(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_
     erosion(src, dst, mask, n);
 
     // Loop all pixels
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
-            setUint8Pixel(dst,x,y, getUint8Pixel(src,x,y) - getUint8Pixel(dst,x,y));
+            setUint8Pixel(dst, x, y, getUint8Pixel(src, x, y) - getUint8Pixel(dst, x, y));
         }
     }
 }
@@ -622,29 +621,29 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
     copyUint8Image(src, dst);
 
     // Mark the border pixels that are set
-    for(int32_t y=0; y<dst->rows; y++)
+    for (int32_t y = 0; y < dst->rows; y++)
     {
-        if(getUint8Pixel(dst,0,y) == 1)
+        if (getUint8Pixel(dst, 0, y) == 1)
         {
-            setUint8Pixel(dst,0,y,2);
+            setUint8Pixel(dst, 0, y, 2);
         }
-        
-        if(getUint8Pixel(dst,(dst->cols-1),y) == 1)
+
+        if (getUint8Pixel(dst, (dst->cols - 1), y) == 1)
         {
-            setUint8Pixel(dst,(dst->cols-1),y,2);
+            setUint8Pixel(dst, (dst->cols - 1), y, 2);
         }
     }
 
-    for(int32_t x=0; x<dst->cols; x++)
+    for (int32_t x = 0; x < dst->cols; x++)
     {
-        if(getUint8Pixel(dst,x,0) == 1)
+        if (getUint8Pixel(dst, x, 0) == 1)
         {
-            setUint8Pixel(dst,x,0,2);
+            setUint8Pixel(dst, x, 0, 2);
         }
 
-        if(getUint8Pixel(dst,x,(dst->rows-1)) == 1)
+        if (getUint8Pixel(dst, x, (dst->rows - 1)) == 1)
         {
-            setUint8Pixel(dst,x,(dst->rows-1),2);
+            setUint8Pixel(dst, x, (dst->rows - 1), 2);
         }
     }
 
@@ -659,18 +658,18 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
 
         // Pass through from left-top to right-bottom
         // Discard first row, last row, first column and last column
-        for(int32_t y = 1; y < dst->rows-1; y++)
+        for (int32_t y = 1; y < dst->rows - 1; y++)
         {
-            for(int32_t x = 1; x < dst->cols-1; x++)
+            for (int32_t x = 1; x < dst->cols - 1; x++)
             {
                 // Does the pixel belong to a blob?
-                if(getUint8Pixel(dst,x,y) == 1)
+                if (getUint8Pixel(dst, x, y) == 1)
                 {
                     // Is a neighbour marked?
-                    if(neighbourCount(dst,x,y,2,c) > 0)
+                    if (neighbourCount(dst, x, y, 2, c) > 0)
                     {
                         // Also mark this pixel
-                        setUint8Pixel(dst,x,y,2);
+                        setUint8Pixel(dst, x, y, 2);
                         changes = 1;
                     }
                 }
@@ -678,17 +677,16 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
         }
 
         iterations++;
-    }
-    while(changes != 0);
+    } while (changes != 0);
 
     // Set marked value to background value
-    for(int32_t y=0; y<src->rows; y++)
+    for (int32_t y = 0; y < src->rows; y++)
     {
-        for(int32_t x=0; x<src->cols; x++)
+        for (int32_t x = 0; x < src->cols; x++)
         {
-            if(getUint8Pixel(dst,x,y) == 2)
+            if (getUint8Pixel(dst, x, y) == 2)
             {
-                setUint8Pixel(dst,x,y,0);
+                setUint8Pixel(dst, x, y, 0);
             }
         }
     }
@@ -710,24 +708,201 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
  *           \li Lookup table is too small
  *         1 Success
  *
- * \todo Implement this function
  */
 uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
                                   const eConnected connected,
                                   const uint32_t lutSize)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: removeBorderBlobsTwoPass
+    uint32_t *lut = (uint32_t *)malloc(lutSize * sizeof(uint32_t));
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)dst;
-    (void)connected;
-    (void)lutSize;
+    if (lut == NULL)
+    {
+        return 0;
+    }
 
-    return 0;
-    // ********************************************
+    for (uint32_t i = 0; i < lutSize; ++i)
+    {
+        lut[i] = 0;
+    }
+
+    lut[1] = 1;
+    lut[2] = 2;
+
+    uint32_t nextLabel = 3;
+
+    // Mark the border pixels in the destination
+    for (uint32_t y = 0; y < src->rows; y++)
+    {
+        for (uint32_t x = 0; x < src->cols; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if on border
+            if (x == 0 || x == src->cols - 1 || y == 0 || y == src->rows - 1)
+            {
+                // if object
+                if (src->data[idx] != 0)
+                {
+                    // set in destination 2
+                    dst->data[idx] = 2;
+                }
+
+                // if background
+                if (src->data[idx] == 0)
+                {
+                    // set in destination 0
+                    dst->data[idx] = 0;
+                }
+            }
+        }
+    }
+
+    // Pass 1: Label the objects, skipping the borders, and record equivalences in lut
+    for (int32_t y = 1; y < src->rows - 1; y++)
+    {
+        for (int32_t x = 1; x < src->cols - 1; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if object
+            if (src->data[idx] != 0)
+            {
+                /*
+                    1 1 1
+                    1 0 0
+                    0 0 0
+                */
+                uint32_t n = dst->data[idx - src->cols];
+                uint32_t w = dst->data[idx - 1];
+                uint32_t nw = 0;
+                uint32_t ne = 0;
+
+                // Alleen diagonalen meenemen als we 8-connected gebruiken
+                if (connected == CONNECTED_EIGHT)
+                {
+                    nw = dst->data[idx - src->cols - 1];
+                    ne = dst->data[idx - src->cols + 1];
+                }
+
+                // if neighbours labelled
+                if (n != 0 || nw != 0 || ne != 0 || w != 0)
+                {
+                    // 1. Label this pixel with the lowest value of neighbor
+                    uint32_t minLabel = UINT32_MAX;
+
+                    if (n != 0 && n < minLabel)
+                    {
+                        minLabel = n;
+                    }
+
+                    if (nw != 0 && nw < minLabel)
+                    {
+                        minLabel = nw;
+                    }
+
+                    if (ne != 0 && ne < minLabel)
+                    {
+                        minLabel = ne;
+                    }
+
+                    if (w != 0 && w < minLabel)
+                    {
+                        minLabel = w;
+                    }
+
+                    // 2. Label this pixel with that value
+                    dst->data[idx] = minLabel;
+
+                    // record equivalence(s)
+                    if (n != 0 && n != minLabel)
+                    {
+                        lut[n] = minLabel;
+                    }
+
+                    if (nw != 0 && nw != minLabel)
+                    {
+                        lut[nw] = minLabel;
+                    }
+
+                    if (ne != 0 && ne != minLabel)
+                    {
+                        lut[ne] = minLabel;
+                    }
+
+                    if (w != 0 && w != minLabel)
+                    {
+                        lut[w] = minLabel;
+                    }
+                }
+                else
+                {
+                    if (nextLabel >= lutSize)
+                    {
+                        free(lut);
+                        return 0; // Lookup table is too small
+                    }
+
+                    // Assign next label value
+                    dst->data[idx] = nextLabel;
+
+                    // record in lut
+                    lut[nextLabel] = nextLabel;
+                    nextLabel++;
+                }
+            }
+            else
+            {
+                // label this pixel with background value
+                dst->data[idx] = 0;
+            }
+        }
+    }
+
+    // Doorloop de LUT van laag naar hoog (vanaf index 3)
+    for (uint32_t i = 3; i < nextLabel; i++)
+    {
+        // Haal de waarde op waar dit label momenteel naar naar verwijst
+        uint32_t target = lut[i];
+
+        // Als het doellabel niet naar zichzelf wijst, zoek dan de diepere verbinding
+        // Omdat we van laag naar hoog gaan, is de waarde bij lut[target] al
+        // "opgelost" naar de laagst mogelijke waarde.
+        if (target != i)
+        {
+            lut[i] = lut[target];
+        }
+    }
+
+    // Doorloop alle pixels in de destination buffer
+    for (uint32_t y = 0; y < src->rows; y++)
+    {
+        for (uint32_t x = 0; x < src->cols; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+            uint32_t currentLabel = dst->data[idx];
+
+            // Is de pixel gelabeld? (Niet gelijk aan achtergrond 0)
+            if (currentLabel != 0)
+            {
+                // Is het label equivalent aan 2 volgens de LUT?
+                if (lut[currentLabel] == 2)
+                {
+                    // Ja: Het is een border blob, zet naar achtergrond (0)
+                    dst->data[idx] = 0;
+                }
+                else
+                {
+                    // No: Het is een interne blob, zet naar objectwaarde (1)
+                    dst->data[idx] = 1;
+                }
+            }
+            // Als de pixel 0 was, blijft deze 0 (achtergrond)
+        }
+    }
+
+    free(lut);
+
+    return 1;
 }
 
 /*!
@@ -768,17 +943,17 @@ void skeleton(const image_t *src, image_t *dst, const uint8_t *mask, const uint8
     clearUint8Image(dst);
 
     // Create temporary images
-    image_t *org    = newUint8Image(src->cols, src->rows);
+    image_t *org = newUint8Image(src->cols, src->rows);
     image_t *eroded = newUint8Image(src->cols, src->rows);
     image_t *opened = newUint8Image(src->cols, src->rows);
 
     ASSERT(opened == NULL, "not enough memory for image allocation");
 
-    copyUint8Image(src,org);
+    copyUint8Image(src, org);
 
     // Loop as long as the original image has not been fully eroded
-    uint8_t changes=1;
-    while(changes)
+    uint8_t changes = 1;
+    while (changes)
     {
         changes = 0;
 
@@ -790,22 +965,22 @@ void skeleton(const image_t *src, image_t *dst, const uint8_t *mask, const uint8
         dilation(eroded, opened, mask, n);
 
         // Loop all pixels, skip the border
-        for(int32_t y=n/2; y<org->rows-(n/2); y++)
+        for (int32_t y = n / 2; y < org->rows - (n / 2); y++)
         {
-            for(int32_t x=(n/2); x<org->cols-(n/2); x++)
+            for (int32_t x = (n / 2); x < org->cols - (n / 2); x++)
             {
                 // Calculate Kn(A): erode_n-1(org) - open(erode_n(org), mask)
-                uint8_pixel_t p = getUint8Pixel(org,x,y) - getUint8Pixel(opened,x,y);
+                uint8_pixel_t p = getUint8Pixel(org, x, y) - getUint8Pixel(opened, x, y);
 
                 // Create skeleton by the union of Kn(A) of all erosions
-                setUint8Pixel(dst,x,y, getUint8Pixel(dst,x,y) | p);
+                setUint8Pixel(dst, x, y, getUint8Pixel(dst, x, y) | p);
 
                 // Copy eroded image to original image
-                setUint8Pixel(org,x,y, getUint8Pixel(eroded,x,y));
+                setUint8Pixel(org, x, y, getUint8Pixel(eroded, x, y));
 
                 // Continue as long as the original image has not yet been fully eroded
-                if(getUint8Pixel(org,x,y) == 1)
-                    changes=1;
+                if (getUint8Pixel(org, x, y) == 1)
+                    changes = 1;
             }
         }
     }

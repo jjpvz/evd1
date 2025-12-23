@@ -192,7 +192,6 @@ int main(void)
     // exampleRotate();
     exampleTemplate();
     // exampleFinalAssignment();
-    // exampleHuffman();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -845,7 +844,7 @@ void exampleTemplate(void)
         // visualization.
 
         // scale(src, dst); // 3520 us
-        // scaleFast(src, dst); // 1870 us
+        scaleFast(src, dst); // 1870 us
 
         // clearUint8Image(dst); // 0130 us
         // clearUint8Image_cm33(dst); // ... us
@@ -920,11 +919,4 @@ void exampleFinalAssignment(void)
 
         PRINTF("delta: %d ms\r\n", ms2 - ms1);
     }
-}
-
-void exampleHuffman(void)
-{
-    // HuffmanTree tree = build_huffman_tree()
-
-    // encode_image()
 }

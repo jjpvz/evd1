@@ -76,9 +76,9 @@ void area(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
     uint32_t cnt = 0;
 
     // Scan input image for blobnr
-    for(uint32_t i=0; i<imsize; ++i)
+    for (uint32_t i = 0; i < imsize; ++i)
     {
-        if(*p++ == blobnr)
+        if (*p++ == blobnr)
         {
             ++cnt;
         }
@@ -96,7 +96,7 @@ void area(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
  * \param[in]  img      A pointer to a binary or a labelled image
  * \param[out] blobinfo A pointer to a BLOB info structure
  * \param[in]  blobnr   \li In a binary image: must be 1
- *                      \li In a labelled image: the number of the BLOB of 
+ *                      \li In a labelled image: the number of the BLOB of
  *                          interest
  */
 void centroid(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
@@ -111,13 +111,13 @@ void centroid(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
 
     // Scan input image for blobnr
     // Pass through from left top to right bottom
-    for(int32_t y = 0; y < img->rows; y++)
+    for (int32_t y = 0; y < img->rows; y++)
     {
-        for(int32_t x = 0; x < img->cols; x++)
+        for (int32_t x = 0; x < img->cols; x++)
         {
-            uint8_pixel_t p = getUint8Pixel(img,x,y);
+            uint8_pixel_t p = getUint8Pixel(img, x, y);
 
-            if(p == blobnr)
+            if (p == blobnr)
             {
                 ++cnt;
                 xc += x;
@@ -128,7 +128,7 @@ void centroid(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
 
     // Set the result
     blobinfo->area = cnt;
-    if(cnt == 0)
+    if (cnt == 0)
     {
         blobinfo->centroid.x = -1;
         blobinfo->centroid.y = -1;
@@ -168,17 +168,17 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
     register int32_t blobcnt = 1;
     register uint32_t changed = 0;
 
-    image_t * cnt = newInt32Image(src->cols, src->rows);
+    image_t *cnt = newInt32Image(src->cols, src->rows);
 
-    if(cnt == NULL)
+    if (cnt == NULL)
     {
         return 0;
     }
 
     // Assign numbers in ascending order from left-top to right-bottom
-    for(int32_t r = 0; r < src->rows; r++)
+    for (int32_t r = 0; r < src->rows; r++)
     {
-        for(int32_t c = 0; c < src->cols; c++)
+        for (int32_t c = 0; c < src->cols; c++)
         {
             uint8_pixel_t pixel = getUint8Pixel(src, c, r);
             setInt32Pixel(cnt, c, r, (pixel == 1) ? blobcnt++ : 0);
@@ -190,14 +190,14 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
         changed = 0;
 
         // Pass through from left top to right bottom
-        for(int32_t r = 0; r < cnt->rows; r++)
+        for (int32_t r = 0; r < cnt->rows; r++)
         {
-            for(int32_t c = 0; c < cnt->cols; c++)
+            for (int32_t c = 0; c < cnt->cols; c++)
             {
-                int32_pixel_t pixel = getInt32Pixel(cnt,c,r);
+                int32_pixel_t pixel = getInt32Pixel(cnt, c, r);
 
                 // Is this an object pixel?
-                if(pixel != 0)
+                if (pixel != 0)
                 {
                     // +-+-+-+
                     // | |N| |
@@ -206,13 +206,13 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                     // +-+-+-+
                     // | | | |
                     // +-+-+-+
-                    if(r > 0)
+                    if (r > 0)
                     {
-                        int32_pixel_t neighbour = getInt32Pixel(cnt,(c),(r-1));
+                        int32_pixel_t neighbour = getInt32Pixel(cnt, (c), (r - 1));
 
-                        if((neighbour != 0) && (neighbour < pixel))
+                        if ((neighbour != 0) && (neighbour < pixel))
                         {
-                            setInt32Pixel(cnt,c,r,neighbour);
+                            setInt32Pixel(cnt, c, r, neighbour);
                             changed = 1;
                         }
                     }
@@ -224,17 +224,16 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                     // +-+-+-+
                     // | | | |
                     // +-+-+-+
-                    if(c > 0)
+                    if (c > 0)
                     {
-                        int32_pixel_t neighbour = getInt32Pixel(cnt,(c-1),(r));
+                        int32_pixel_t neighbour = getInt32Pixel(cnt, (c - 1), (r));
 
-                        if((neighbour != 0) && (neighbour < pixel))
+                        if ((neighbour != 0) && (neighbour < pixel))
                         {
-                            setInt32Pixel(cnt,c,r,neighbour);
+                            setInt32Pixel(cnt, c, r, neighbour);
                             changed = 1;
                         }
                     }
-
 
                     // +-+-+-+
                     // | | | |
@@ -243,13 +242,13 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                     // +-+-+-+
                     // | | | |
                     // +-+-+-+
-                    if(c < (cnt->cols-1))
+                    if (c < (cnt->cols - 1))
                     {
-                        int32_pixel_t neighbour = getInt32Pixel(cnt,(c+1),(r));
+                        int32_pixel_t neighbour = getInt32Pixel(cnt, (c + 1), (r));
 
-                        if((neighbour != 0) && (neighbour < pixel))
+                        if ((neighbour != 0) && (neighbour < pixel))
                         {
-                            setInt32Pixel(cnt,c,r,neighbour);
+                            setInt32Pixel(cnt, c, r, neighbour);
                             changed = 1;
                         }
                     }
@@ -261,18 +260,18 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                     // +-+-+-+
                     // | |N| |
                     // +-+-+-+
-                    if(r < (cnt->rows-1))
+                    if (r < (cnt->rows - 1))
                     {
-                        int32_pixel_t neighbour = getInt32Pixel(cnt,(c),(r+1));
+                        int32_pixel_t neighbour = getInt32Pixel(cnt, (c), (r + 1));
 
-                        if((neighbour != 0) && (neighbour < pixel))
+                        if ((neighbour != 0) && (neighbour < pixel))
                         {
-                            setInt32Pixel(cnt,c,r,neighbour);
+                            setInt32Pixel(cnt, c, r, neighbour);
                             changed = 1;
                         }
                     }
 
-                    if(connected == CONNECTED_EIGHT)
+                    if (connected == CONNECTED_EIGHT)
                     {
                         // +-+-+-+
                         // |N| | |
@@ -281,13 +280,13 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                         // +-+-+-+
                         // | | | |
                         // +-+-+-+
-                        if((c > 0) && (r > 0))
+                        if ((c > 0) && (r > 0))
                         {
-                            int32_pixel_t neighbour = getInt32Pixel(cnt,(c-1),(r-1));
+                            int32_pixel_t neighbour = getInt32Pixel(cnt, (c - 1), (r - 1));
 
-                            if((neighbour != 0) && (neighbour < pixel))
+                            if ((neighbour != 0) && (neighbour < pixel))
                             {
-                                setInt32Pixel(cnt,c,r,neighbour);
+                                setInt32Pixel(cnt, c, r, neighbour);
                                 changed = 1;
                             }
                         }
@@ -299,13 +298,13 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                         // +-+-+-+
                         // | | | |
                         // +-+-+-+
-                        if((c < (cnt->cols - 1)) && (r > 0))
+                        if ((c < (cnt->cols - 1)) && (r > 0))
                         {
-                            int32_pixel_t neighbour = getInt32Pixel(cnt,(c+1),(r-1));
+                            int32_pixel_t neighbour = getInt32Pixel(cnt, (c + 1), (r - 1));
 
-                            if((neighbour != 0) && (neighbour < pixel))
+                            if ((neighbour != 0) && (neighbour < pixel))
                             {
-                                setInt32Pixel(cnt,c,r,neighbour);
+                                setInt32Pixel(cnt, c, r, neighbour);
                                 changed = 1;
                             }
                         }
@@ -317,13 +316,13 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                         // +-+-+-+
                         // |N| | |
                         // +-+-+-+
-                        if((c > 0) && (r < (cnt->rows - 1)))
+                        if ((c > 0) && (r < (cnt->rows - 1)))
                         {
-                            int32_pixel_t neighbour = getInt32Pixel(cnt,(c-1),(r+1));
+                            int32_pixel_t neighbour = getInt32Pixel(cnt, (c - 1), (r + 1));
 
-                            if((neighbour != 0) && (neighbour < pixel))
+                            if ((neighbour != 0) && (neighbour < pixel))
                             {
-                                setInt32Pixel(cnt,c,r,neighbour);
+                                setInt32Pixel(cnt, c, r, neighbour);
                                 changed = 1;
                             }
                         }
@@ -335,13 +334,13 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                         // +-+-+-+
                         // | | |N|
                         // +-+-+-+
-                        if((c < (cnt->cols - 1)) && (r < (cnt->rows - 1)))
+                        if ((c < (cnt->cols - 1)) && (r < (cnt->rows - 1)))
                         {
-                            int32_pixel_t neighbour = getInt32Pixel(cnt,(c+1),(r+1));
+                            int32_pixel_t neighbour = getInt32Pixel(cnt, (c + 1), (r + 1));
 
-                            if((neighbour != 0) && (neighbour < pixel))
+                            if ((neighbour != 0) && (neighbour < pixel))
                             {
-                                setInt32Pixel(cnt,c,r,neighbour);
+                                setInt32Pixel(cnt, c, r, neighbour);
                                 changed = 1;
                             }
                         }
@@ -349,28 +348,28 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
                 }
             }
         }
-    }while(changed == 1);
+    } while (changed == 1);
 
     // Assign labels in the correct order
     blobcnt = 1;
 
     // Pass through from left top to right bottom
-    for(int32_t r = 0; r < cnt->rows; r++)
+    for (int32_t r = 0; r < cnt->rows; r++)
     {
-        for(int32_t c = 0; c < cnt->cols; c++)
+        for (int32_t c = 0; c < cnt->cols; c++)
         {
-            int32_pixel_t pixel = getInt32Pixel(cnt,c,r);
+            int32_pixel_t pixel = getInt32Pixel(cnt, c, r);
 
-            if((pixel != 0) && (pixel >= blobcnt))
+            if ((pixel != 0) && (pixel >= blobcnt))
             {
                 // Set selected to value
-                for(int32_t rr = 0; rr < cnt->rows; rr++)
+                for (int32_t rr = 0; rr < cnt->rows; rr++)
                 {
-                    for(int32_t cc = 0; cc < cnt->cols; cc++)
+                    for (int32_t cc = 0; cc < cnt->cols; cc++)
                     {
-                        if(getInt32Pixel(cnt,cc,rr) == pixel)
+                        if (getInt32Pixel(cnt, cc, rr) == pixel)
                         {
-                            setInt32Pixel(cnt,cc,rr, blobcnt);
+                            setInt32Pixel(cnt, cc, rr, blobcnt);
                         }
                     }
                 }
@@ -381,9 +380,9 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
     }
 
     // Copy result
-    for(int32_t r = 0; r < src->rows; r++)
+    for (int32_t r = 0; r < src->rows; r++)
     {
-        for(int32_t c = 0; c < src->cols; c++)
+        for (int32_t c = 0; c < src->cols; c++)
         {
             int32_pixel_t pixel = getInt32Pixel(cnt, c, r);
             setUint8Pixel(dst, c, r, (uint8_pixel_t)(pixel % 255));
@@ -393,7 +392,7 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
     // Cleanup
     deleteInt32Image(cnt);
 
-    return(blobcnt-1);
+    return (blobcnt - 1);
 }
 
 /*!
@@ -424,9 +423,9 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
 uint32_t labelTwoPass(const image_t *src, image_t *dst,
                       const eConnected connected, const uint32_t lutSize)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: labelTwoPass
+// ********************************************
+// Remove this block when implementation starts
+#warning TODO: labelTwoPass
 
     // Added to prevent compiler warnings
 
@@ -454,18 +453,18 @@ uint32_t labelTwoPass(const image_t *src, image_t *dst,
  */
 void circularity(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
 {
-    if(blobinfo->area == 0)
+    if (blobinfo->area == 0)
     {
         area(img, blobinfo, blobnr);
     }
 
-    if(blobinfo->perimeter == 0)
+    if (blobinfo->perimeter == 0)
     {
         perimeter(img, blobinfo, blobnr);
     }
 
     blobinfo->circularity = 4 * 3.14159f *
-        (blobinfo->area / (blobinfo->perimeter * blobinfo->perimeter));
+                            (blobinfo->area / (blobinfo->perimeter * blobinfo->perimeter));
 }
 
 /*!
@@ -480,7 +479,7 @@ void circularity(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr
  * \param[in]  img      A pointer to a binary or a labelled image
  * \param[out] blobinfo A pointer to a BLOB info structure
  * \param[in]  blobnr   \li In a binary image: must be 1
- *                      \li In a labelled image: the number of the BLOB of 
+ *                      \li In a labelled image: the number of the BLOB of
  *                          interest
  */
 void huInvariantMoments(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
@@ -494,18 +493,18 @@ void huInvariantMoments(const image_t *img, blobinfo_t *blobinfo, const uint32_t
     ASSERT(blobinfo == NULL, "blobinfo is invalid");
 
     // Calculate normalized central moments
-    float ncm_20 = ncm(img,blobnr,2,0);
-    float ncm_02 = ncm(img,blobnr,0,2);
-    float ncm_11 = ncm(img,blobnr,1,1);
-    float ncm_30 = ncm(img,blobnr,3,0);
-    float ncm_12 = ncm(img,blobnr,1,2);
-    float ncm_21 = ncm(img,blobnr,2,1);
-    float ncm_03 = ncm(img,blobnr,0,3);
+    float ncm_20 = ncm(img, blobnr, 2, 0);
+    float ncm_02 = ncm(img, blobnr, 0, 2);
+    float ncm_11 = ncm(img, blobnr, 1, 1);
+    float ncm_30 = ncm(img, blobnr, 3, 0);
+    float ncm_12 = ncm(img, blobnr, 1, 2);
+    float ncm_21 = ncm(img, blobnr, 2, 1);
+    float ncm_03 = ncm(img, blobnr, 0, 3);
 
     // Calculate the Hu invariant moments
     blobinfo->hu_moments[0] = ncm_20 + ncm_02;
     blobinfo->hu_moments[1] = powf(ncm_20 - ncm_02, 2) + (4 * powf(ncm_11, 2));
-    blobinfo->hu_moments[2] = powf(ncm_30 - (3*ncm_12), 2) + powf((3*ncm_21) - ncm_03, 2);
+    blobinfo->hu_moments[2] = powf(ncm_30 - (3 * ncm_12), 2) + powf((3 * ncm_21) - ncm_03, 2);
     blobinfo->hu_moments[3] = powf(ncm_30 + ncm_12, 2) + powf(ncm_21 + ncm_03, 2);
 
     // Add more Hu invariant moments here if required by the application
@@ -534,14 +533,14 @@ float ncm(const image_t *img, const uint8_t blobnr, const int32_t p, const int32
     ASSERT(img->data == NULL, "img data is invalid");
     ASSERT(img->type != IMGTYPE_UINT8, "img type is invalid");
 
-    if((p==0) && (q==0))
+    if ((p == 0) && (q == 0))
     {
-        return(1.0f);
+        return (1.0f);
     }
 
-    if(((p==1) && (q==0)) || ((p==0) && (q==1)))
+    if (((p == 1) && (q == 0)) || ((p == 0) && (q == 1)))
     {
-        return(0.0f);
+        return (0.0f);
     }
 
     register int32_t c, r;
@@ -553,10 +552,10 @@ float ncm(const image_t *img, const uint8_t blobnr, const int32_t p, const int32
     float upq = 0.0f;
 
     // Calculate moments m00, m10 and m01
-    for(r = (img->rows-1); r >= 0; r--)
+    for (r = (img->rows - 1); r >= 0; r--)
     {
-        for(c = (img->cols-1); c >= 0; c--)
-            if(getUint8Pixel(img,c,r) == blobnr)
+        for (c = (img->cols - 1); c >= 0; c--)
+            if (getUint8Pixel(img, c, r) == blobnr)
             {
                 m00 += 1.0f;
                 m10 += c;
@@ -565,35 +564,35 @@ float ncm(const image_t *img, const uint8_t blobnr, const int32_t p, const int32
     }
 
     // Calculate centroids
-    cc = m10/m00;
-    rc = m01/m00;
+    cc = m10 / m00;
+    rc = m01 / m00;
 
     // Calculate central moments ...
     // ... when p=0
-    if(p==0)
+    if (p == 0)
     {
-        for(r = (img->rows-1); r >= 0; r--)
+        for (r = (img->rows - 1); r >= 0; r--)
         {
-            for(c = (img->cols-1); c >= 0; c--)
+            for (c = (img->cols - 1); c >= 0; c--)
             {
-                if(getUint8Pixel(img,c,r) == blobnr)
+                if (getUint8Pixel(img, c, r) == blobnr)
                 {
-                    upq += powf((float)(r-rc),(float)q);
+                    upq += powf((float)(r - rc), (float)q);
                 }
             }
         }
     }
 
     // ... when q=0
-    else if(q==0)
+    else if (q == 0)
     {
-        for(r = (img->rows-1); r >= 0; r--)
+        for (r = (img->rows - 1); r >= 0; r--)
         {
-            for(c = (img->cols-1); c >= 0; c--)
+            for (c = (img->cols - 1); c >= 0; c--)
             {
-                if(getUint8Pixel(img,c,r) == blobnr)
+                if (getUint8Pixel(img, c, r) == blobnr)
                 {
-                    upq += powf((float)(c-cc),(float)p);
+                    upq += powf((float)(c - cc), (float)p);
                 }
             }
         }
@@ -601,21 +600,28 @@ float ncm(const image_t *img, const uint8_t blobnr, const int32_t p, const int32
     else
     {
         // ... or when p!=0 and q!=0
-        for(r = (img->rows-1); r >= 0; r--)
+        for (r = (img->rows - 1); r >= 0; r--)
         {
-            for(c = (img->cols-1); c >= 0; c--)
+            for (c = (img->cols - 1); c >= 0; c--)
             {
-                if(getUint8Pixel(img,c,r) == blobnr)
+                if (getUint8Pixel(img, c, r) == blobnr)
                 {
-                    upq += powf((float)(c-cc),(float)p) * 
-                           powf((float)(r-rc),(float)q);
+                    upq += powf((float)(c - cc), (float)p) *
+                           powf((float)(r - rc), (float)q);
                 }
             }
         }
     }
 
     // Return normalized central moment
-    return(upq / powf(m00,((((float)(p+q))/2.0f)+1.0f)));
+    return (upq / powf(m00, ((((float)(p + q)) / 2.0f) + 1.0f)));
+}
+
+static inline uint32_t get_pixel(const image_t *img, int x, int y)
+{
+    if (x < 0 || y < 0 || x >= (int)img->cols || y >= (int)img->rows)
+        return 0; // buiten beeld = achtergrond
+    return img->data[y * img->cols + x];
 }
 
 /*!
@@ -636,23 +642,69 @@ float ncm(const image_t *img, const uint8_t blobnr, const int32_t p, const int32
  * \param[in]  blobnr   \li In a binary image: must be 1
  *                      \li In a labelled image: the number of the BLOB of
  *                          interest
- *
- * \todo Implement this function
  */
 void perimeter(const image_t *img, blobinfo_t *blobinfo, const uint32_t blobnr)
 {
-    // ********************************************
-    // Remove this block when implementation starts
-    #warning TODO: perimeter
+    float p = 0.0;
 
-    // Added to prevent compiler warnings
+    int mask[3][3] = {
+        {10, 2, 10},
+        {2, 1, 2},
+        {10, 2, 10}};
 
-    (void)img;
-    (void)blobinfo;
-    (void)blobnr;
+    for (int y = 1; y < (int)img->rows - 1; y++)
+    {
+        for (int x = 1; x < (int)img->cols - 1; x++)
+        {
+            if (img->data[y * img->cols + x] != blobnr)
+            {
+                continue;
+            }
 
-    return;
-    // ********************************************
+            // 1. If it's an edge, apply the convolution mask
+            if (img->data[(y - 1) * img->cols + x] == 0 ||
+                img->data[(y + 1) * img->cols + x] == 0 ||
+                img->data[y * img->cols + (x - 1)] == 0 ||
+                img->data[y * img->cols + (x + 1)] == 0)
+            {
+                int pixel_sum = 0;
+                for (int ky = -1; ky <= 1; ky++)
+                {
+                    for (int kx = -1; kx <= 1; kx++)
+                    {
+                        // Check if the neighbor is also part of the blob
+                        if (img->data[(y + ky) * img->cols + (x + kx)] == blobnr)
+                        {
+                            if (img->data[((y + ky) - 1) * img->cols + (x + kx)] == 0 ||
+                                img->data[((y + ky) + 1) * img->cols + (x + kx)] == 0 ||
+                                img->data[(y + ky) * img->cols + ((x + kx) - 1)] == 0 ||
+                                img->data[(y + ky) * img->cols + ((x + kx) + 1)] == 0)
+                            {
+                                pixel_sum += mask[ky + 1][kx + 1];
+                            }
+                        }
+                    }
+                }
+
+                // 2. Map pixel_sum to the correct Perimeter Increment
+                if (pixel_sum == 5 || pixel_sum == 15 || pixel_sum == 7 ||
+                    pixel_sum == 25 || pixel_sum == 27 || pixel_sum == 17)
+                {
+                    p += 1.0f; // Option 1
+                }
+                else if (pixel_sum == 21 || pixel_sum == 33)
+                {
+                    p += 1.41421356f; // Option 2
+                }
+                else if (pixel_sum == 13 || pixel_sum == 23)
+                {
+                    p += 1.11803399f;
+                }
+            }
+        }
+    }
+
+    blobinfo->perimeter = p;
 }
 
 /*!
@@ -686,156 +738,275 @@ uint8_pixel_t lowestNeighbour(const image_t *img, const int32_t x,
     uint8_pixel_t pixel;
 
     // Left-top pixel
-    if(x == 0 && y == 0)
+    if (x == 0 && y == 0)
     {
         pixel = *(s + sizeof(uint8_pixel_t)); // right
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + (img->cols * sizeof(uint8_pixel_t))); // down
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) + 1); // down-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     // Right-top pixel
-    else if(x == img->cols-1 && y == 0)
+    else if (x == img->cols - 1 && y == 0)
     {
         pixel = *(s - sizeof(uint8_pixel_t)); // left
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + (img->cols * sizeof(uint8_pixel_t))); // down
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) - 1); // down-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     // Left-bottom pixel
-    else if(x == 0 && y == img->rows-1)
+    else if (x == 0 && y == img->rows - 1)
     {
         pixel = *(s - (img->cols * sizeof(uint8_pixel_t))); // up
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
-        pixel = *(s + sizeof(uint8_pixel_t)); // right
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
-
-        if(c == CONNECTED_EIGHT)
+        if ((pixel < val) && (pixel > 1))
         {
-            pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) + 1); // up-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            val = pixel;
+        }
+        pixel = *(s + sizeof(uint8_pixel_t)); // right
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
         }
 
+        if (c == CONNECTED_EIGHT)
+        {
+            pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) + 1); // up-right
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
+        }
     }
     // Right-bottom pixel
-    else if(x == img->cols-1 && y == img->rows-1)
+    else if (x == img->cols - 1 && y == img->rows - 1)
     {
         pixel = *(s - (img->cols * sizeof(uint8_pixel_t))); // up
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s - sizeof(uint8_pixel_t)); // left
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) - 1); // up-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     // Top border pixels
-    else if(y == 0)
+    else if (y == 0)
     {
         pixel = *(s - sizeof(uint8_pixel_t)); // left
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + sizeof(uint8_pixel_t)); // right
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + (img->cols * sizeof(uint8_pixel_t))); // down
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) - 1); // down-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) + 1); // down-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     // Bottom border pixels
-    else if(y == img->rows-1)
+    else if (y == img->rows - 1)
     {
         pixel = *(s - (img->cols * sizeof(uint8_pixel_t))); // up
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
-        pixel = *(s - sizeof(uint8_pixel_t)); // left
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
-        pixel = *(s + sizeof(uint8_pixel_t)); // right
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
-
-        if(c == CONNECTED_EIGHT)
+        if ((pixel < val) && (pixel > 1))
         {
-            pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) - 1);  // up-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
-            pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) + 1);  // up-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            val = pixel;
+        }
+        pixel = *(s - sizeof(uint8_pixel_t)); // left
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
+        pixel = *(s + sizeof(uint8_pixel_t)); // right
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
+
+        if (c == CONNECTED_EIGHT)
+        {
+            pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) - 1); // up-left
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
+            pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) + 1); // up-right
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     // Left border pixels
-    else if(x == 0)
+    else if (x == 0)
     {
         pixel = *(s - (img->cols * sizeof(uint8_pixel_t))); // up
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + sizeof(uint8_pixel_t)); // right
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + (img->cols * sizeof(uint8_pixel_t))); // down
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) + 1); // up-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) + 1); // down-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     // Right border pixels
-    else if(x == img->cols-1)
+    else if (x == img->cols - 1)
     {
-        pixel = *(s - (img->cols * sizeof(uint8_pixel_t)));// up
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        pixel = *(s - (img->cols * sizeof(uint8_pixel_t))); // up
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s - sizeof(uint8_pixel_t)); // left
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + (img->cols * sizeof(uint8_pixel_t))); // down
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) - 1); // up-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) - 1); // down-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
     else
     {
         // Inner pixels
         pixel = *(s - (img->cols * sizeof(uint8_pixel_t))); // up
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s - sizeof(uint8_pixel_t)); // left
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + sizeof(uint8_pixel_t)); // right
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
         pixel = *(s + (img->cols * sizeof(uint8_pixel_t))); // down
-        if((pixel < val) && (pixel > 1)){ val = pixel; }
+        if ((pixel < val) && (pixel > 1))
+        {
+            val = pixel;
+        }
 
-        if(c == CONNECTED_EIGHT)
+        if (c == CONNECTED_EIGHT)
         {
             pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) - 1); // up-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
             pixel = *(s - (img->cols * sizeof(uint8_pixel_t)) + 1); // up-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) - 1); // down-left
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
             pixel = *(s + (img->cols * sizeof(uint8_pixel_t)) + 1); // down-right
-            if((pixel < val) && (pixel > 1)){ val = pixel; }
+            if ((pixel < val) && (pixel > 1))
+            {
+                val = pixel;
+            }
         }
     }
 

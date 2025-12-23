@@ -38,6 +38,16 @@
 #include "string.h"
 #include "histogram_operations.h"
 
+// void huffman_clean_up(Node *nodes[])
+// {
+//     for (int i = 0; i < sizeof(nodes); i++)
+//     {
+//         free(nodes[i]);
+//     }
+
+//     free(nodes);
+// }
+
 Node *build_huffman_tree(image_t *image)
 {
     uint32_t hist[256];
@@ -55,7 +65,13 @@ Node *build_huffman_tree(image_t *image)
     }
 
     // Allocate array of pointers to nodes
-    Node **nodes = malloc(num_nodes * sizeof(Node *));
+    // Init length of address with sizeof void pointer (NULL)
+    Node **nodes = malloc(num_nodes * sizeof(NULL));
+
+    // if (nodes == NULL)
+    // {
+    //     return 0;
+    // };
 
     int idx = 0;
 
@@ -65,6 +81,13 @@ Node *build_huffman_tree(image_t *image)
         if (hist[i] > 0)
         {
             nodes[idx] = malloc(sizeof(Node));
+
+            // if (nodes[idx] == NULL)
+            // {
+            //     huffman_clean_up(nodes);
+            //     return 0;
+            // }
+
             nodes[idx]->value = i;
             nodes[idx]->freq = hist[i];
             nodes[idx]->left = NULL;
@@ -97,6 +120,12 @@ Node *build_huffman_tree(image_t *image)
         // Combine them into a new linking node
         Node *linking_node = malloc(sizeof(Node));
 
+        // if (linking_node == NULL)
+        // {
+        //     huffman_clean_up(nodes);
+        //     return 0;
+        // }
+
         linking_node->value = -1;
         linking_node->freq = nodes[lowest_freq_idx]->freq + nodes[second_lowest_freq_idx]->freq;
         linking_node->left = nodes[lowest_freq_idx];
@@ -118,7 +147,7 @@ Node *build_huffman_tree(image_t *image)
 
     Node *root = nodes[0];
 
-    free(nodes);
+    // huffman_clean_up(nodes);
 
     return root;
 }
@@ -156,8 +185,8 @@ void build_huffman_table(Node *root, int arr[], int top, HuffmanCode table[])
 
 void print_byte_bits(uint8_t byte)
 {
-    for (int i = 7; i >= 0; i--)
-        printf("%d", (byte >> i) & 1);
+    // for (int i = 7; i >= 0; i--)
+    //     printf("%d", (byte >> i) & 1);
 }
 
 uint8_t *encode_image(image_t *image, Node *root, size_t *out_size)
@@ -214,19 +243,6 @@ uint8_t *encode_image(image_t *image, Node *root, size_t *out_size)
     *out_size = byte_index;
     return output;
 }
-
-// onsucces return pointer naar plaatje in geheugen
-// onfail nullpointer geen geheugen gealloceerd dus iets fout gegaan
-
-// bool decode_image(uint8_t *compressed_bits, HuffmanTree *tree, image_t *output_image)
-// {
-//     // read compressed_bits
-//     // - navigate through tree
-//     // - stop when node with value is found
-//     // - repeat
-
-//     // check of dit fout kan gaan
-// }
 
 void decode_image(
     const uint8_t *encoded,
