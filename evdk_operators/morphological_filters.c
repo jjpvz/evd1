@@ -858,45 +858,21 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
         }
     }
 
-    // Doorloop de LUT van laag naar hoog (vanaf index 3)
-    for (uint32_t i = 3; i < nextLabel; i++)
+    for (int32_t y = 1; y < src->rows - 1; y++)
     {
-        // Haal de waarde op waar dit label momenteel naar naar verwijst
-        uint32_t target = lut[i];
-
-        // Als het doellabel niet naar zichzelf wijst, zoek dan de diepere verbinding
-        // Omdat we van laag naar hoog gaan, is de waarde bij lut[target] al
-        // "opgelost" naar de laagst mogelijke waarde.
-        if (target != i)
-        {
-            lut[i] = lut[target];
-        }
-    }
-
-    // Doorloop alle pixels in de destination buffer
-    for (uint32_t y = 0; y < src->rows; y++)
-    {
-        for (uint32_t x = 0; x < src->cols; x++)
+        for (int32_t x = 1; x < src->cols - 1; x++)
         {
             uint32_t idx = y * src->cols + x;
-            uint32_t currentLabel = dst->data[idx];
 
-            // Is de pixel gelabeld? (Niet gelijk aan achtergrond 0)
-            if (currentLabel != 0)
+            // if object
+            if (src->data[idx] != 0)
             {
-                // Is het label equivalent aan 2 volgens de LUT?
-                if (lut[currentLabel] == 2)
-                {
-                    // Ja: Het is een border blob, zet naar achtergrond (0)
-                    dst->data[idx] = 0;
-                }
-                else
-                {
-                    // No: Het is een interne blob, zet naar objectwaarde (1)
-                    dst->data[idx] = 1;
-                }
+                /*
+                    0 0 0
+                    0 0 1
+                    1 1 1
+                */
             }
-            // Als de pixel 0 was, blijft deze 0 (achtergrond)
         }
     }
 

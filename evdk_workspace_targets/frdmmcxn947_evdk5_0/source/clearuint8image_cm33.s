@@ -65,8 +65,27 @@ clearUint8Image_cm33:
         // r14   : Link Register
         // r15   : Program Counter
 
+        PUSH    {r0-r12, lr}
+        LDM     r0, {r0-r3}
+        MUL     r1, r0, r1
+        MOV     r0, r3
 
-        // \todo Implement this function
+        MOVS    r2, #0
+        MOVS    r3, #0
+        MOVS    r4, #0
+        MOVS    r5, #0
+        MOVS    r5, #0
+        MOVS    r6, #0
+        MOVS    r7, #0
+        MOVS    r8, #0
+        MOVS    r9, #0
+        MOVS    r10, #0
+        MOVS    r11, #0
+        MOVS    r12, #0
 
+.loop:
+        STMIA   r0!, {r2-r12}
+        SUBS    r1, r1, #44
+        BNE     .loop
 
-        BX lr
+        POP     {r0-r12, pc}

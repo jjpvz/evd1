@@ -844,9 +844,9 @@ void exampleTemplate(void)
         // visualization.
 
         // scale(src, dst); // 3520 us
-        scaleFast(src, dst); // 1870 us
+        // scaleFast(src, dst); // 1870 us
 
-        // clearUint8Image(dst); // 0130 us
+        clearUint8Image(dst); // 0130 us
         // clearUint8Image_cm33(dst); // ... us
 
         // convolve(src_int16, dst_int16, msk_int16); // 33470 us
