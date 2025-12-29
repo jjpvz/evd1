@@ -63,6 +63,8 @@ extern "C"
         int length;
     } HuffmanCode;
 
+    int compare_tree_nodes(const void *p1, const void *p2);
+    void destroy_node(void *p);
     LinkedListNode *pq_enqueue(LinkedListNode **a_head, void *a_value, int (*cmp_fn)(const void *, const void *));
     LinkedListNode *pq_dequeue(LinkedListNode **a_head);
     void destroy_list(LinkedListNode **a_head, void (*destroy_fn)(void *));
@@ -71,6 +73,7 @@ extern "C"
     void destroy_huffman_tree(TreeNode **a_root);
     void build_huffman_table(TreeNode *root, int arr[], int top, HuffmanCode table[]);
     uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size);
+    void decode_image(const uint8_t *encoded, size_t encoded_size, TreeNode *root, image_t *dst);
 
 #endif // _CODING_AND_COMPRESSION_H_
 

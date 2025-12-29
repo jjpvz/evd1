@@ -59,7 +59,8 @@ int main(void)
     printf("EVDK UNIT TESTS\n\n");
 
     printf("CODING AND COMPRESSION\n");
-    RUN_TEST(test_huffman);
+    RUN_TEST(test_make_huffman_pq);
+    RUN_TEST(test_make_huffman_tree);
     RUN_TEST(test_encode_image);
     RUN_TEST(test_decode_image);
 #ifndef TEST_ASSIGNMENTS_ONLY

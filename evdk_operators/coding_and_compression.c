@@ -38,15 +38,20 @@
 #include "string.h"
 #include "histogram_operations.h"
 
-static int _compare_tree_nodes(const void *p1, const void *p2)
+int compare_tree_nodes(const void *p1, const void *p2)
 {
     const TreeNode *t1 = (const TreeNode *)p1;
     const TreeNode *t2 = (const TreeNode *)p2;
 
-    return t1->freq - t2->freq;
+    if (t1->freq != t2->freq)
+    {
+        return t1->freq - t2->freq;
+    }
+
+    return t1->value - t2->value;
 }
 
-static void _destroy_node(void *p)
+void destroy_node(void *p)
 {
     free(p);
 }
@@ -138,7 +143,7 @@ LinkedListNode *make_huffman_pq(uint32_t hist[256])
             new_tree_node->left = NULL;
             new_tree_node->right = NULL;
 
-            pq_enqueue(&head, new_tree_node, _compare_tree_nodes);
+            pq_enqueue(&head, new_tree_node, compare_tree_nodes);
         }
     }
 
@@ -167,7 +172,7 @@ TreeNode *make_huffman_tree(LinkedListNode *head)
             return NULL;
         }
 
-        parent->value = 0; // TODO: fix
+        parent->value = 0;
         parent->freq = left_child->freq + right_child->freq;
         parent->left = left_child;
         parent->right = right_child;
@@ -175,7 +180,7 @@ TreeNode *make_huffman_tree(LinkedListNode *head)
         free(wrapper1);
         free(wrapper2);
 
-        pq_enqueue(&head, parent, _compare_tree_nodes);
+        pq_enqueue(&head, parent, compare_tree_nodes);
     }
 
     LinkedListNode *final_wrapper = pq_dequeue(&head);
@@ -234,51 +239,103 @@ uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size)
     int arr[256];
     build_huffman_table(root, arr, 0, table);
 
-    // size_t capacity = 1;
-    // uint8_t *output = malloc(capacity);
-    // output[0] = 0;
+    size_t capacity = (image->rows * image->cols) / 2 + 1;
 
-    // size_t byte_index = 0;
-    // int bits_filled = 0;
+    uint8_t *encoded_data = malloc(capacity);
+    if (!encoded_data)
+    {
+        return NULL;
+    }
 
-    // for (size_t i = 0; i < image->rows * image->cols; i++)
-    // {
-    //     uint8_t pixel = image->data[i];
-    //     HuffmanCode *code = &table[pixel];
+    encoded_data[0] = 0;
+    size_t byte_index = 0;
+    int bits_filled = 0;
 
-    //     for (int b = 0; b < code->length; b++)
-    //     {
-    //         // shift left to make space
-    //         output[byte_index] <<= 1;
+    for (size_t i = 0; i < image->rows * image->cols; i++)
+    {
+        uint8_t pixel = image->data[i];
+        HuffmanCode *code = &table[pixel];
 
-    //         // add new bit
-    //         output[byte_index] |= code->code[b];
+        for (int b = 0; b < code->length; b++)
+        {
+            // shift left to make space
+            encoded_data[byte_index] <<= 1;
 
-    //         bits_filled++;
+            // add new bit
+            encoded_data[byte_index] |= code->code[b];
 
-    //         if (bits_filled == 8)
-    //         {
-    //             bits_filled = 0;
-    //             byte_index++;
+            bits_filled++;
 
-    //             if (byte_index >= capacity)
-    //             {
-    //                 capacity *= 2;
-    //                 output = realloc(output, capacity);
-    //             }
+            if (bits_filled == 8)
+            {
+                bits_filled = 0;
+                byte_index++;
 
-    //             output[byte_index] = 0;
-    //         }
-    //     }
-    // }
+                if (byte_index >= capacity)
+                {
+                    capacity *= 2;
 
-    // // pad last byte with zeros if not full
-    // if (bits_filled > 0)
-    // {
-    //     output[byte_index] <<= (8 - bits_filled);
-    //     byte_index++;
-    // }
+                    uint8_t *tmp = realloc(encoded_data, capacity);
 
-    // *out_size = byte_index;
-    // return output;
+                    if (!tmp)
+                    {
+                        free(encoded_data);
+                        return NULL;
+                    }
+
+                    encoded_data = tmp;
+                }
+
+                encoded_data[byte_index] = 0;
+            }
+        }
+    }
+
+    // pad last byte with zeros if not full
+    if (bits_filled > 0)
+    {
+        encoded_data[byte_index] <<= (8 - bits_filled);
+        byte_index++;
+    }
+
+    *out_size = byte_index;
+    return encoded_data;
+}
+
+void decode_image(
+    const uint8_t *encoded,
+    size_t encoded_size,
+    TreeNode *root,
+    image_t *dst)
+{
+    size_t pixel_index = 0;
+    TreeNode *current = root;
+
+    for (size_t byte_index = 0; byte_index < encoded_size; byte_index++)
+    {
+        uint8_t byte = encoded[byte_index];
+
+        // MSB → LSB
+        for (int bit = 7; bit >= 0; bit--)
+        {
+            int b = (byte >> bit) & 1;
+
+            // Walk the tree
+            if (b == 0)
+                current = current->left;
+            else
+                current = current->right;
+
+            // Leaf reached?
+            if (!current->left && !current->right)
+            {
+                dst->data[pixel_index++] = (uint8_pixel_t)current->value;
+                current = root;
+
+                // Stop exactly after all pixels
+                if (pixel_index == dst->rows * dst->cols)
+                    return;
+            }
+        }
+    }
 }

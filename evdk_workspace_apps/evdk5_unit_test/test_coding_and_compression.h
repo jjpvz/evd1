@@ -34,7 +34,8 @@
 #ifndef _TEST_CODING_AND_COMPRESSION_H_
 #define _TEST_CODING_AND_COMPRESSION_H_
 
-void test_huffman(void);
+void test_make_huffman_pq();
+void test_make_huffman_tree();
 void test_encode_image(void);
 void test_decode_image(void);
 

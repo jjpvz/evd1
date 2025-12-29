@@ -35,277 +35,109 @@
 #include "coding_and_compression.h"
 #include <assert.h>
 
-void test_huffman(void)
+void test_make_huffman_pq()
 {
-    // Test case 1: Simple image with a few gray values
-    uint8_pixel_t src_data_test_case_01[12 * 8] =
+    // 3x3 test image
+    uint8_pixel_t src_data[3 * 3] =
         {
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-            10,
-            10,
-            10,
-            10,
-            20,
-            20,
-            20,
-            20,
-            30,
-            30,
-            30,
-            30,
-        };
+            10, 10, 20,
+            20, 20, 30,
+            30, 30, 40};
 
-    // Test case 2: Image with different frequencies
-    uint8_pixel_t src_data_test_case_02[12 * 8] =
+    image_t src =
         {
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5, // 12 pixels with value 5
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15, // 4 more 5s, 6 with 10, 2 with 15
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15,
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15,
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15,
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15,
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15,
-            5,
-            5,
-            5,
-            5,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            15,
-            15,
-        };
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_UINT8,
+            .data = src_data};
 
-    typedef struct testcase_t
+    // Build Huffman tree
+    uint32_t hist[256];
+    histogram(&src, hist);
+
+    // Build the Priority Queue
+    LinkedListNode *head = make_huffman_pq(hist);
+
+    printf("Verifying Priority Queue order...\n");
+
+    LinkedListNode *curr = head;
+    uint32_t expected_freqs[] = {1, 2, 3, 3};
+    uint8_t expected_values[] = {40, 10, 20, 30};
+
+    for (int i = 0; i < 4; i++)
     {
-        uint8_pixel_t *src_data;
-        int expected_num_nodes;
-        int expected_values[256]; // Expected gray values
-        int expected_freqs[256];  // Expected frequencies
-        int total_pixels;         // Total number of pixels
-    } testcase_t;
+        assert(curr != NULL);
+        TreeNode *tn = (TreeNode *)curr->value;
 
-    // Compose array of test cases
-    testcase_t testcases[] =
-        {
-            {src_data_test_case_01, 3, {10, 20, 30}, {32, 32, 32}, 96},
-            {src_data_test_case_02, 3, {5, 10, 15}, {40, 42, 14}, 96},
-        };
+        printf("Node %d: Value %u, Freq %u\n", i, tn->value, tn->freq);
 
-    // Prepare image
-    image_t src = {12, 8, IMGTYPE_UINT8, NULL};
+        assert(tn->freq == expected_freqs[i]);
+        // If your tie-breaker is based on value, 20 will come before 30.
+        assert(tn->value == expected_values[i]);
 
-    // Loop all test cases
-    for (uint32_t i = 0; i < (sizeof(testcases) / sizeof(testcase_t)); ++i)
-    {
-        // Set the data
-        src.data = testcases[i].src_data;
-
-        // Execute the operator
-        // TreeNode *root = build_huffman_tree(&src);
-
-        // Set test case name
-        char name[80] = "";
-        sprintf(name, "Test case %d of %d", i + 1, (uint32_t)(sizeof(testcases) / sizeof(testcase_t)));
-
-        // Verify tree structure
-        int leaf_count = 0;
-        // int valid = verify_tree(root, testcases[i].total_pixels, &leaf_count);
-
-#if 0
-        // Print testcase info
-        printf("\n---------------------------------------\n");
-        printf("%s\n", name);
-        printf("\nInput histogram:\n");
-        for (int j = 0; j < testcases[i].expected_num_nodes; j++)
-        {
-            printf("  Value %3d: frequency %d\n",
-                   testcases[i].expected_values[j],
-                   testcases[i].expected_freqs[j]);
-        }
-        printf("  Total pixels: %d\n", testcases[i].total_pixels);
-
-        printf("\nResulting Huffman tree structure:\n");
-        print_tree(root, 0, "Root:");
-
-        printf("\nTree validation: %s\n", valid ? "PASSED" : "FAILED");
-        printf("Leaf nodes found: %d (expected: %d)\n",
-               leaf_count, testcases[i].expected_num_nodes);
-
-#endif
-
-        // Verify the root
-        // TEST_ASSERT_NOT_NULL_MESSAGE(root, name);
-        // TEST_ASSERT_EQUAL_MESSAGE(testcases[i].total_pixels, root->freq, name);
-        // TEST_ASSERT_EQUAL_MESSAGE(testcases[i].expected_num_nodes, leaf_count, name);
-        // TEST_ASSERT_TRUE_MESSAGE(valid, name);
-
-        // // Clean up
-        // free_tree(root);
+        curr = curr->next;
     }
+
+    // Verify list ends after 4 unique values
+    assert(curr == NULL);
+
+    printf("test_make_huffman_pq: PASSED\n");
+
+    // Clean up
+    destroy_list(&head, destroy_node);
+}
+
+void test_make_huffman_tree()
+{
+    printf("Running test_make_huffman_tree...\n");
+
+    // 3x3 test image
+    uint8_pixel_t src_data[3 * 3] =
+        {
+            10, 10, 20,
+            20, 20, 30,
+            30, 30, 40};
+
+    image_t src =
+        {
+            .cols = 3,
+            .rows = 3,
+            .type = IMGTYPE_UINT8,
+            .data = src_data};
+
+    uint32_t hist[256];
+    histogram(&src, hist);
+    LinkedListNode *head = make_huffman_pq(hist);
+
+    TreeNode *root = make_huffman_tree(head);
+
+    // 3. Verify Root
+    assert(root != NULL);
+    printf("Root frequency: %u (Expected: 9)\n", root->freq);
+    assert(root->freq == 9);
+
+    // 4. Verify Structure (Walking the tree)
+    if (root->left->value == 30)
+    {
+        printf("Left child is leaf 30\n");
+        assert(root->left->freq == 3);
+        assert(root->right->freq == 6);
+    }
+    else if (root->right->value == 30)
+    {
+        printf("Right child is leaf 30\n");
+        assert(root->right->freq == 3);
+        assert(root->left->freq == 6);
+    }
+    else
+    {
+        assert(0 && "Tree structure incorrect: 30 should be a direct child of root");
+    }
+
+    printf("test_make_huffman_tree: PASSED\n");
+
+    // Clean up
+    destroy_huffman_tree(&root);
 }
 
 void test_encode_image(void)
@@ -332,37 +164,45 @@ void test_encode_image(void)
     uint32_t hist[256];
     histogram(&src, hist);
 
-    // TreeNode *head = make_huffman_pq(hist);
-    // TreeNode *root = make_huffman_tree(head);
+    LinkedListNode *head = make_huffman_pq(hist);
+    TreeNode *root = make_huffman_tree(head);
 
     // Encode image
     size_t encoded_size = 0;
-    // uint8_t *encoded = encode_image(&src, root, &encoded_size);
+    uint8_t *encoded = encode_image(&src, root, &encoded_size);
 
-    // // Clean up
-    // destroy_huffman_tree(root);
+    // In our 3x3 case, 9 pixels * 8 bits = 72 bits (9 bytes)
+    // The Huffman version should be roughly 21-25 bits (~3-4 bytes)
+    printf("Original: 9 bytes | Encoded: %zu bytes\n", encoded_size);
+    assert(encoded_size < 9);
 
-    // Sanity checks
-    // assert(encoded != NULL);
-    // assert(encoded_size > 0);
-
-    printf("Encoded size: %zu byte(s)\n", encoded_size);
-
-    // Print all encoded bytes bit-by-bit
+    printf("\n--- Encoded Bitstream Inspection ---\n");
     for (size_t i = 0; i < encoded_size; i++)
     {
-        printf("byte %zu: ", i);
-        // print_byte_bits(encoded[i]);
+        printf("Byte %zu: Binary: ", i, encoded[i]);
+
+        // Print bits from MSB (7) to LSB (0)
+        for (int b = 7; b >= 0; b--)
+        {
+            printf("%d", (encoded[i] >> b) & 1);
+        }
         printf("\n");
     }
+    printf("------------------------------------\n");
+
+    // Cleanup
+    free(encoded);
+    destroy_huffman_tree(&root);
 
     printf("test_encode_image passed\n");
 }
 
 void test_decode_image(void)
 {
-    // Original image (3x3)
-    uint8_pixel_t src_data[9] =
+    printf("Running test_decode_image...\n");
+
+    // 3x3 test image
+    uint8_pixel_t src_data[3 * 3] =
         {
             10, 10, 20,
             20, 20, 30,
@@ -370,46 +210,48 @@ void test_decode_image(void)
 
     image_t src =
         {
-            .rows = 3,
             .cols = 3,
+            .rows = 3,
             .type = IMGTYPE_UINT8,
             .data = src_data};
 
+    size_t original_size = src.cols * src.rows * sizeof(uint8_pixel_t);
+
+    printf("Original size: %zu bytes\n", original_size);
+
     // Build Huffman tree
-    // TreeNode *root = build_huffman_tree(&src);
-    // assert(root != NULL);
+    uint32_t hist[256];
+    histogram(&src, hist);
 
-    // // ---- ENCODE ----
-    // size_t encoded_size = 0;
-    // uint8_t *encoded = encode_image(&src, root, &encoded_size);
+    LinkedListNode *head = make_huffman_pq(hist);
+    TreeNode *root = make_huffman_tree(head);
 
-    // assert(encoded != NULL);
-    // assert(encoded_size > 0);
+    // Encode image
+    size_t encoded_size = 0;
+    uint8_t *encoded = encode_image(&src, root, &encoded_size);
 
-    printf("Original size: %zu bytes\n", sizeof(src_data));
-    // printf("Encoded size : %zu bytes\n", encoded_size);
+    // 4. Prepare Destination Image for Decoding
+    image_t dst;
+    dst.cols = src.cols;
+    dst.rows = src.rows;
+    dst.data = malloc(dst.cols * dst.rows * sizeof(uint8_pixel_t));
+    memset(dst.data, 0, dst.cols * dst.rows); // Clear it first
 
-    // ---- DECODE ----
-    uint8_pixel_t decoded_data[9] = {0};
+    // 5. Run the Decode Function
+    decode_image(encoded, encoded_size, root, &dst);
 
-    image_t dst =
-        {
-            .rows = 3,
-            .cols = 3,
-            .type = IMGTYPE_UINT8,
-            .data = decoded_data};
+    // 6. Verification
+    printf("Verifying pixels...\n");
+    for (int i = 0; i < 9; i++)
+    {
+        printf("Pixel %d: Original %u, Decoded %u\n", i, src_data[i], dst.data[i]);
+        assert(src_data[i] == dst.data[i]);
+    }
 
-    // decode_image(encoded, encoded_size, root, &dst);
-
-    // ---- VERIFY ----
-    // for (int i = 0; i < 9; i++)
-    // {
-    //     assert(decoded_data[i] == src_data[i]);
-    // }
+    printf("test_decode_image: PASSED (Lossless reconstruction confirmed)\n");
 
     // Cleanup
-    // free(encoded);
-    // free_tree(root);
-
-    printf("test_encode_decode PASSED\n");
+    free(encoded);
+    free(dst.data);
+    destroy_huffman_tree(&root);
 }
