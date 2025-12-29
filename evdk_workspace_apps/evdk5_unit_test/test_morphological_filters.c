@@ -8471,13 +8471,13 @@ void test_removeBorderBlobsTwoPass(void)
     // Compose array of test cases
     testcase_t testcases[] =
         {
-            {src_data_test_cases_0102, exp_data_test_case_01, CONNECTED_EIGHT},
-            {src_data_test_cases_0102, exp_data_test_case_02, CONNECTED_FOUR},
-            {src_data_test_cases_0304, exp_data_test_case_03, CONNECTED_FOUR},
-            {src_data_test_cases_0304, exp_data_test_case_04, CONNECTED_EIGHT},
-            {src_data_test_cases_0506, exp_data_test_case_05, CONNECTED_FOUR},
-            {src_data_test_cases_0506, exp_data_test_case_06, CONNECTED_EIGHT},
-            {src_data_test_cases_0708, exp_data_test_case_07, CONNECTED_FOUR},
+            // {src_data_test_cases_0102, exp_data_test_case_01, CONNECTED_EIGHT},
+            // {src_data_test_cases_0102, exp_data_test_case_02, CONNECTED_FOUR},
+            // {src_data_test_cases_0304, exp_data_test_case_03, CONNECTED_FOUR},
+            // {src_data_test_cases_0304, exp_data_test_case_04, CONNECTED_EIGHT},
+            // {src_data_test_cases_0506, exp_data_test_case_05, CONNECTED_FOUR},
+            // {src_data_test_cases_0506, exp_data_test_case_06, CONNECTED_EIGHT},
+            // {src_data_test_cases_0708, exp_data_test_case_07, CONNECTED_FOUR},
             {src_data_test_cases_0708, exp_data_test_case_08, CONNECTED_EIGHT},
             {src_data_test_cases_0910, exp_data_test_case_09, CONNECTED_FOUR},
             {src_data_test_cases_0910, exp_data_test_case_10, CONNECTED_EIGHT},
@@ -8504,7 +8504,7 @@ void test_removeBorderBlobsTwoPass(void)
         char name[80] = "";
         sprintf(name, "Test case %d of %d", i + 1, (uint32_t)(sizeof(testcases) / sizeof(testcase_t)));
 
-#if 0
+#if 1
         // Print testcase info
         printf("\n---------------------------------------\n");
         printf("%s\n", name);

@@ -692,6 +692,50 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
     }
 }
 
+void prtyprint(const image_t *img, const char *title)
+{
+    printf("\n%s\n", title);
+
+    for (int r = 0; r < img->rows; r++)
+    {
+        for (int c = 0; c < img->cols; c++)
+        {
+            // Print the pixel based on the image type
+            if (img->type == IMGTYPE_UINT8)
+            {
+                printf("%3d, ", getUint8Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_INT16)
+            {
+                printf("%5d, ", getInt16Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_INT32)
+            {
+                printf("%5d, ", getInt32Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_FLOAT)
+            {
+                printf("%8.3f, ", getFloatPixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_UYVY)
+            {
+                printf("0x%04X, ", getUyvyPixel(img, c, r));
+            }
+            else
+            {
+                printf("Image type not supported\n");
+                fflush(stdout);
+                return;
+            }
+        }
+        printf("\n");
+        fflush(stdout);
+    }
+
+    printf("\n");
+    fflush(stdout);
+}
+
 /*!
  * \brief Removes all binary objects that are 4/8-connected to a border.
  *
@@ -858,20 +902,120 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
         }
     }
 
-    for (int32_t y = 1; y < src->rows - 1; y++)
+    // Record border equivalences
+    for (int32_t y = 1; y < dst->rows - 1; y++)
     {
-        for (int32_t x = 1; x < src->cols - 1; x++)
+        for (int32_t x = 1; x < dst->cols - 1; x++)
         {
-            uint32_t idx = y * src->cols + x;
+            uint32_t idx = y * dst->cols + x;
+            uint32_t currentLabel = dst->data[idx];
 
             // if object
-            if (src->data[idx] != 0)
+            if (currentLabel != 0)
             {
-                /*
-                    0 0 0
-                    0 0 1
-                    1 1 1
-                */
+                // if col 2
+                if (x == 1)
+                {
+                    // check pixels links
+                    uint32_t left = dst->data[idx - 1];
+
+                    // als waarde = 2
+                    if (left == 2)
+                    {
+                        // pas aan in lut
+                        lut[currentLabel] = 2;
+                    }
+
+                    if (connected == CONNECTED_EIGHT)
+                    {
+                        uint32_t bottom_left = dst->data[idx + src->cols - 1];
+
+                        if (bottom_left == 2)
+                        {
+                            lut[currentLabel] = 2;
+                        }
+                    }
+                }
+
+                // if col max - 1
+                if (x == dst->cols - 2)
+                {
+                    // check pixels rechts
+                    uint32_t right = dst->data[idx + 1];
+
+                    // als waarde = 2
+                    if (right == 2)
+                    {
+                        // pas aan in lut
+                        lut[currentLabel] = 2;
+                    }
+                }
+
+                // if row max - 1
+                if (y == dst->rows - 2)
+                {
+                    // check pixels onder
+                    uint32_t bottom = dst->data[idx + dst->cols];
+
+                    // als waarde = 2
+                    if (bottom == 2)
+                    {
+                        // pas aan in lut
+                        lut[currentLabel] = 2;
+                    }
+
+                    if (connected == CONNECTED_EIGHT)
+                    {
+                        uint32_t bottom_left = dst->data[idx + dst->cols - 1];
+
+                        if (bottom_left == 2)
+                        {
+                            lut[currentLabel] = 2;
+                        }
+
+                        uint32_t bottom_right = dst->data[idx + dst->cols + 1];
+
+                        if (bottom_right == 2)
+                        {
+                            lut[currentLabel] = 2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Resolve equivalences
+    for (uint32_t i = 3; i < nextLabel; i++)
+    {
+        if (lut[i] != i)
+        {
+            lut[i] = lut[lut[i]];
+        }
+    }
+
+    // Pass 2: Assign result by using lut
+    for (uint32_t y = 0; y < dst->rows; y++)
+    {
+        for (uint32_t x = 0; x < dst->cols; x++)
+        {
+            uint32_t idx = y * dst->cols + x;
+            uint32_t currentLabel = dst->data[idx];
+
+            // 1. If background, keep it background
+            if (currentLabel != 0)
+            {
+                // Label is equivalent to 2 according to lut?
+                if (lut[currentLabel] == 2)
+                {
+                    // Yes: Set to 0
+                    dst->data[idx] = 0;
+                }
+                else
+                {
+                    // No: Set to 1
+                    dst->data[idx] = 1;
+                }
             }
         }
     }
