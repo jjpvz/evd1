@@ -43,23 +43,34 @@ extern "C"
 #include "image.h"
 
     // Functions are documented in the source file
-
-    typedef struct Node
+    typedef struct TreeNode
     {
-        int value;          // Gray value (0-255)
-        uint32_t freq;      // Frequency of this value
-        struct Node *left;  // Left child
-        struct Node *right; // Right child
-    } Node;
+        int value;
+        uint32_t freq;
+        struct TreeNode *left;
+        struct TreeNode *right;
+    } TreeNode;
 
-    Node *build_huffman_tree(image_t *image);
-    uint8_t *encode_image(image_t *image, Node *root, size_t *out_size);
-    void print_byte_bits(uint8_t byte);
-    void decode_image(
-        const uint8_t *encoded,
-        size_t encoded_size,
-        Node *root,
-        image_t *dst);
+    typedef struct LinkedListNode
+    {
+        void *value;
+        struct LinkedListNode *next;
+    } LinkedListNode;
+
+    typedef struct
+    {
+        int code[256];
+        int length;
+    } HuffmanCode;
+
+    LinkedListNode *pq_enqueue(LinkedListNode **a_head, void *a_value, int (*cmp_fn)(const void *, const void *));
+    LinkedListNode *pq_dequeue(LinkedListNode **a_head);
+    void destroy_list(LinkedListNode **a_head, void (*destroy_fn)(void *));
+    LinkedListNode *make_huffman_pq(uint32_t hist[256]);
+    TreeNode *make_huffman_tree(LinkedListNode *head);
+    void destroy_huffman_tree(TreeNode **a_root);
+    void build_huffman_table(TreeNode *root, int arr[], int top, HuffmanCode table[]);
+    uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size);
 
 #endif // _CODING_AND_COMPRESSION_H_
 

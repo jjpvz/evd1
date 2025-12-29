@@ -846,8 +846,8 @@ void exampleTemplate(void)
         // scale(src, dst); // 3520 us
         // scaleFast(src, dst); // 1870 us
 
-        clearUint8Image(dst); // 0130 us
-        // clearUint8Image_cm33(dst); // ... us
+        // clearUint8Image(dst); // 0130 us
+        // clearUint8Image_cm33(dst); // 0060 us
 
         // convolve(src_int16, dst_int16, msk_int16); // 33470 us
         // convolveFast(src_int16, dst_int16, msk_int16); // 5210 us

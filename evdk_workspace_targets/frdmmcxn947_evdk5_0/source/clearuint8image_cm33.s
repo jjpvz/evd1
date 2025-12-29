@@ -71,21 +71,21 @@ clearUint8Image_cm33:
         MOV     r0, r3
 
         MOVS    r2, #0
-        MOVS    r3, #0
-        MOVS    r4, #0
-        MOVS    r5, #0
-        MOVS    r5, #0
-        MOVS    r6, #0
-        MOVS    r7, #0
-        MOVS    r8, #0
-        MOVS    r9, #0
-        MOVS    r10, #0
-        MOVS    r11, #0
-        MOVS    r12, #0
+        MOVS     r3, #0
+        MOVS     r4, #0
+        MOVS     r5, #0
+        MOVS     r5, #0
+        MOVS     r6, #0
+        MOVS     r7, #0
+        MOVS     r8, #0
+        MOVS     r9, #0
+        MOVS     r10, #0
+        MOVS     r11, #0
+        MOVS     r12, #0
 
 .loop:
         STMIA   r0!, {r2-r12}
-        SUBS    r1, r1, #44
+        SUBS    r1, r1, #32
         BNE     .loop
 
         POP     {r0-r12, pc}

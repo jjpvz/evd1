@@ -35,75 +35,8 @@
 #include "coding_and_compression.h"
 #include <assert.h>
 
-// Helper function to print the tree structure
-void print_tree(Node *node, int depth, char *prefix)
-{
-    if (node == NULL)
-        return;
-
-    // Print current node
-    for (int i = 0; i < depth; i++)
-        printf("  ");
-
-    if (node->left == NULL && node->right == NULL)
-    {
-        // Leaf node - show gray value
-        printf("%s Leaf: value=%d, freq=%u\n", prefix, node->value, node->freq);
-    }
-    else
-    {
-        // Internal node
-        printf("%s Internal: freq=%u\n", prefix, node->freq);
-        print_tree(node->left, depth + 1, "L:");
-        print_tree(node->right, depth + 1, "R:");
-    }
-}
-
-// Helper function to verify tree properties
-int verify_tree(Node *node, uint32_t expected_total_freq, int *leaf_count)
-{
-    if (node == NULL)
-        return 1;
-
-    // Check if leaf node
-    if (node->left == NULL && node->right == NULL)
-    {
-        (*leaf_count)++;
-        return 1;
-    }
-
-    // Internal node must have both children
-    if (node->left == NULL || node->right == NULL)
-    {
-        printf("ERROR: Internal node has only one child!\n");
-        return 0;
-    }
-
-    // Frequency should equal sum of children
-    uint32_t child_sum = node->left->freq + node->right->freq;
-    if (node->freq != child_sum)
-    {
-        printf("ERROR: Node freq=%u but children sum=%u\n", node->freq, child_sum);
-        return 0;
-    }
-
-    return verify_tree(node->left, expected_total_freq, leaf_count) &&
-           verify_tree(node->right, expected_total_freq, leaf_count);
-}
-
-// Helper function to free the tree
-void free_tree(Node *node)
-{
-    if (node == NULL)
-        return;
-    free_tree(node->left);
-    free_tree(node->right);
-    free(node);
-}
-
 void test_huffman(void)
 {
-
     // Test case 1: Simple image with a few gray values
     uint8_pixel_t src_data_test_case_01[12 * 8] =
         {
@@ -332,7 +265,7 @@ void test_huffman(void)
         src.data = testcases[i].src_data;
 
         // Execute the operator
-        Node *root = build_huffman_tree(&src);
+        TreeNode *root = build_huffman_tree(&src);
 
         // Set test case name
         char name[80] = "";
@@ -396,12 +329,18 @@ void test_encode_image(void)
     printf("Original size: %zu bytes\n", original_size);
 
     // Build Huffman tree
-    Node *root = build_huffman_tree(&src);
-    assert(root != NULL);
+    uint32_t hist[256];
+    histogram(&src, hist);
+
+    TreeNode *head = make_huffman_pq(hist);
+    TreeNode *root = make_huffman_tree(head);
 
     // Encode image
     size_t encoded_size = 0;
     uint8_t *encoded = encode_image(&src, root, &encoded_size);
+
+    // Clean up
+    destroy_huffman_tree(root);
 
     // Sanity checks
     assert(encoded != NULL);
@@ -416,10 +355,6 @@ void test_encode_image(void)
         print_byte_bits(encoded[i]);
         printf("\n");
     }
-
-    // Cleanup
-    free(encoded);
-    free_tree(root);
 
     printf("test_encode_image passed\n");
 }
@@ -441,7 +376,7 @@ void test_decode_image(void)
             .data = src_data};
 
     // Build Huffman tree
-    Node *root = build_huffman_tree(&src);
+    TreeNode *root = build_huffman_tree(&src);
     assert(root != NULL);
 
     // ---- ENCODE ----
