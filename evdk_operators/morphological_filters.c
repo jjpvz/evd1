@@ -442,6 +442,50 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
     }
 }
 
+void prtyprint(const image_t *img, const char *title)
+{
+    printf("\n%s\n", title);
+
+    for (int r = 0; r < img->rows; r++)
+    {
+        for (int c = 0; c < img->cols; c++)
+        {
+            // Print the pixel based on the image type
+            if (img->type == IMGTYPE_UINT8)
+            {
+                printf("%3d, ", getUint8Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_INT16)
+            {
+                printf("%5d, ", getInt16Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_INT32)
+            {
+                printf("%5d, ", getInt32Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_FLOAT)
+            {
+                printf("%8.3f, ", getFloatPixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_UYVY)
+            {
+                printf("0x%04X, ", getUyvyPixel(img, c, r));
+            }
+            else
+            {
+                printf("Image type not supported\n");
+                fflush(stdout);
+                return;
+            }
+        }
+        printf("\n");
+        fflush(stdout);
+    }
+
+    printf("\n");
+    fflush(stdout);
+}
+
 /*!
  * \brief Fills the holes of a binary object
  *
@@ -460,24 +504,264 @@ void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c)
  *           - Memory allocation failed
  *           - Lookup table is too small
  *         1 Success
- *
- * \todo Implement this function
  */
 uint32_t fillHolesTwoPass(const image_t *src, image_t *dst,
                           const eConnected connected, const uint32_t lutSize)
 {
-// ********************************************
-// Remove this block when implementation starts
-#warning TODO: fillHolesTwoPass
+    uint32_t *lut = (uint32_t *)malloc(lutSize * sizeof(uint32_t));
 
-    // Added to prevent compiler warnings
-    (void)src;
-    (void)dst;
-    (void)connected;
-    (void)lutSize;
+    if (lut == NULL)
+    {
+        return 0;
+    }
 
-    return 0;
-    // ********************************************
+    for (uint32_t i = 0; i < lutSize; ++i)
+    {
+        lut[i] = 0;
+    }
+
+    lut[1] = 1;
+    lut[2] = 2;
+
+    uint32_t nextLabel = 3;
+
+    for (uint32_t y = 0; y < src->rows; y++)
+    {
+        for (uint32_t x = 0; x < src->cols; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if on border
+            if (x == 0 || x == src->cols - 1 || y == 0 || y == src->rows - 1)
+            {
+                // if background
+                if (src->data[idx] == 0)
+                {
+                    // set in destination 2
+                    dst->data[idx] = 2;
+                }
+            }
+        }
+    }
+
+    // Pass 1: Label the background, skipping the borders, and record equivalences in lut
+    for (int32_t y = 1; y < src->rows - 1; y++)
+    {
+        for (int32_t x = 1; x < src->cols - 1; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if background
+            if (src->data[idx] == 0)
+            {
+                /*
+                    1 1 1
+                    1 0 0
+                    0 0 0
+                */
+                uint32_t n = dst->data[idx - src->cols];
+                uint32_t w = dst->data[idx - 1];
+                uint32_t nw = 0;
+                uint32_t ne = 0;
+
+                // Alleen diagonalen meenemen als we 8-connected gebruiken
+                if (connected == CONNECTED_EIGHT)
+                {
+                    nw = dst->data[idx - src->cols - 1];
+                    ne = dst->data[idx - src->cols + 1];
+                }
+
+                // if neighbours labelled
+                if (n > 1 || nw > 1 || ne > 1 || w > 1)
+                {
+                    // 1. Label this pixel with the lowest value of neighbor
+                    uint32_t minLabel = UINT32_MAX;
+
+                    if (n > 1 && n < minLabel)
+                    {
+                        minLabel = n;
+                    }
+
+                    if (nw > 1 && nw < minLabel)
+                    {
+                        minLabel = nw;
+                    }
+
+                    if (ne > 1 && ne < minLabel)
+                    {
+                        minLabel = ne;
+                    }
+
+                    if (w > 1 && w < minLabel)
+                    {
+                        minLabel = w;
+                    }
+
+                    // 2. Label this pixel with that value
+                    dst->data[idx] = minLabel;
+
+                    // record equivalence(s)
+                    if (n > 1 && n != minLabel)
+                    {
+                        lut[n] = minLabel;
+                    }
+
+                    if (nw > 1 && nw != minLabel)
+                    {
+                        lut[nw] = minLabel;
+                    }
+
+                    if (ne > 1 && ne != minLabel)
+                    {
+                        lut[ne] = minLabel;
+                    }
+
+                    if (w > 1 && w != minLabel)
+                    {
+                        lut[w] = minLabel;
+                    }
+                }
+                else
+                {
+                    if (nextLabel >= lutSize)
+                    {
+                        free(lut);
+                        return 0; // Lookup table is too small
+                    }
+
+                    // Assign next label value
+                    dst->data[idx] = nextLabel;
+
+                    // record in lut
+                    lut[nextLabel] = nextLabel;
+                    nextLabel++;
+                }
+            }
+            else
+            {
+                // label this pixel with foreground value
+                dst->data[idx] = 1;
+            }
+        }
+    }
+
+    // Record border equivalences
+    for (int32_t y = 1; y < dst->rows - 1; y++)
+    {
+        for (int32_t x = 1; x < dst->cols - 1; x++)
+        {
+            uint32_t idx = y * dst->cols + x;
+            uint32_t currentLabel = dst->data[idx];
+
+            // if object
+            if (currentLabel != 0)
+            {
+                // if col 2
+                if (x == 1)
+                {
+                    // check pixels links
+                    uint32_t left = dst->data[idx - 1];
+
+                    // als waarde = 2
+                    if (left == 2)
+                    {
+                        // pas aan in lut
+                        lut[currentLabel] = 2;
+                    }
+
+                    if (connected == CONNECTED_EIGHT)
+                    {
+                        uint32_t bottom_left = dst->data[idx + src->cols - 1];
+
+                        if (bottom_left == 2)
+                        {
+                            lut[currentLabel] = 2;
+                        }
+                    }
+                }
+
+                // if col max - 1
+                if (x == dst->cols - 2)
+                {
+                    // check pixels rechts
+                    uint32_t right = dst->data[idx + 1];
+
+                    // als waarde = 2
+                    if (right == 2)
+                    {
+                        // pas aan in lut
+                        lut[currentLabel] = 2;
+                    }
+                }
+
+                // if row max - 1
+                if (y == dst->rows - 2)
+                {
+                    // check pixels onder
+                    uint32_t bottom = dst->data[idx + dst->cols];
+
+                    // als waarde = 2
+                    if (bottom == 2)
+                    {
+                        // pas aan in lut
+                        lut[currentLabel] = 2;
+                    }
+
+                    if (connected == CONNECTED_EIGHT)
+                    {
+                        uint32_t bottom_left = dst->data[idx + dst->cols - 1];
+
+                        if (bottom_left == 2)
+                        {
+                            lut[currentLabel] = 2;
+                        }
+
+                        uint32_t bottom_right = dst->data[idx + dst->cols + 1];
+
+                        if (bottom_right == 2)
+                        {
+                            lut[currentLabel] = 2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Resolve equivalences
+    for (uint32_t i = 3; i < nextLabel; i++)
+    {
+        if (lut[i] != i)
+        {
+            lut[i] = lut[lut[i]];
+        }
+    }
+
+    for (uint32_t y = 0; y < dst->rows; y++)
+    {
+        for (uint32_t x = 0; x < dst->cols; x++)
+        {
+            uint32_t idx = y * dst->cols + x;
+            uint32_t currentLabel = dst->data[idx];
+
+            if (currentLabel == 0)
+            {
+                dst->data[idx] = 1;
+            }
+            else if (currentLabel == 2 || (currentLabel >= 3 && lut[currentLabel] == 2))
+            {
+                dst->data[idx] = 0;
+            }
+            else
+            {
+                dst->data[idx] = 1;
+            }
+        }
+    }
+
+    free(lut);
+
+    return 1;
 }
 
 /*!
@@ -690,50 +974,6 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
             }
         }
     }
-}
-
-void prtyprint(const image_t *img, const char *title)
-{
-    printf("\n%s\n", title);
-
-    for (int r = 0; r < img->rows; r++)
-    {
-        for (int c = 0; c < img->cols; c++)
-        {
-            // Print the pixel based on the image type
-            if (img->type == IMGTYPE_UINT8)
-            {
-                printf("%3d, ", getUint8Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_INT16)
-            {
-                printf("%5d, ", getInt16Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_INT32)
-            {
-                printf("%5d, ", getInt32Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_FLOAT)
-            {
-                printf("%8.3f, ", getFloatPixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_UYVY)
-            {
-                printf("0x%04X, ", getUyvyPixel(img, c, r));
-            }
-            else
-            {
-                printf("Image type not supported\n");
-                fflush(stdout);
-                return;
-            }
-        }
-        printf("\n");
-        fflush(stdout);
-    }
-
-    printf("\n");
-    fflush(stdout);
 }
 
 /*!
