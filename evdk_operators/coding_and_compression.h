@@ -59,8 +59,8 @@ extern "C"
 
     typedef struct
     {
-        int code[256];
-        int length;
+        uint64_t code;
+        uint8_t length;
     } HuffmanCode;
 
     int compare_tree_nodes(const void *p1, const void *p2);

@@ -37,6 +37,7 @@
 #include "coding_and_compression.h"
 #include "string.h"
 #include "histogram_operations.h"
+#include <stdio.h>
 
 int compare_tree_nodes(const void *p1, const void *p2)
 {
@@ -227,9 +228,16 @@ void build_huffman_table(TreeNode *root, int arr[], int top, HuffmanCode table[]
 
     if (!root->left && !root->right)
     {
+        uint64_t bit_pattern = 0;
         for (int i = 0; i < top; i++)
-            table[root->value].code[i] = arr[i];
-        table[root->value].length = top;
+        {
+            // Shift left and OR the next bit
+            bit_pattern = (bit_pattern << 1) | (uint64_t)arr[i];
+        }
+
+        uint8_t val = (uint8_t)root->value;
+        table[val].code = bit_pattern;
+        table[val].length = (uint8_t)top;
     }
 }
 
@@ -256,36 +264,18 @@ uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size)
         uint8_t pixel = image->data[i];
         HuffmanCode *code = &table[pixel];
 
-        for (int b = 0; b < code->length; b++)
+        for (int b = code->length - 1; b >= 0; b--)
         {
-            // shift left to make space
+            uint8_t bit = (code->code >> b) & 1;
+
             encoded_data[byte_index] <<= 1;
-
-            // add new bit
-            encoded_data[byte_index] |= code->code[b];
-
+            encoded_data[byte_index] |= bit;
             bits_filled++;
 
             if (bits_filled == 8)
             {
                 bits_filled = 0;
                 byte_index++;
-
-                if (byte_index >= capacity)
-                {
-                    capacity *= 2;
-
-                    uint8_t *tmp = realloc(encoded_data, capacity);
-
-                    if (!tmp)
-                    {
-                        free(encoded_data);
-                        return NULL;
-                    }
-
-                    encoded_data = tmp;
-                }
-
                 encoded_data[byte_index] = 0;
             }
         }
@@ -300,6 +290,7 @@ uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size)
 
     *out_size = byte_index;
     return encoded_data;
+    return 0;
 }
 
 void decode_image(

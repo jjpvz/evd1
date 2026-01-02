@@ -70,6 +70,7 @@ void exampleThreshold(void);
 void exampleRotate(void);
 void exampleTemplate(void);
 void exampleFinalAssignment(void);
+void exampleHuffman(void);
 
 #if (USB_IMAGE_TYPE_UYVY == 1)
 void exampleWebcamUyvy(void);
@@ -190,8 +191,9 @@ int main(void)
     // exampleWebcamUint8TestPattern();``````````````````````````````````````
     // exampleThreshold();
     // exampleRotate();
-    exampleTemplate();
+    // exampleTemplate();
     // exampleFinalAssignment();
+    exampleHuffman();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -445,7 +447,7 @@ void exampleWebcamUint8(void)
         copyUint8Image(src, dst);
         // scale(src, dst);
         // brightness(src, dst, 100);
-        // contrast(src, dst, 2.0f);
+        // contrast(src, dst, 10.0f);
 
         // Convert uint8_pixel_t image to bgr888_pixel_t image for USB
         convertUint8ToBgr888(dst, usb);
@@ -849,14 +851,19 @@ void exampleTemplate(void)
         // clearUint8Image(dst); // 0130 us
         // clearUint8Image_cm33(dst); // 0060 us
 
-        // convolve(src_int16, dst_int16, msk_int16); // 33470 us
-        // convolveFast(src_int16, dst_int16, msk_int16); // 5210 us
+        // convolve(src_int16, dst_int16, msk_int16); // 35740 us
+        // convolveFast(src_int16, dst_int16, msk_int16); // 5550 us
 
-        // mean(src, dst, 3); // 52070 us
-        // meanFast(src, dst); // 7590 us
+        // mean(src, dst, 3); // 55610 us
+        // meanFast(src, dst); // 8100 us
 
         // sobel(src_int16, dst_int16, NULL); // 67640 us
         // sobelFast(src_int16, dst_int16); // 14610 us
+
+        // threshold2Means(src_int16, dst_int16, BRIGHTNESS_DARK);
+        // thresholdOtsu(src_int16, dst_int16, BRIGHTNESS_DARK);
+
+        // fillHolesTwoPass(src_int16, dst_int16);
 
         // Copy timestamp
         ms2 = ms;
@@ -918,5 +925,65 @@ void exampleFinalAssignment(void)
         image_available_for_usb = 1;
 
         PRINTF("delta: %d ms\r\n", ms2 - ms1);
+    }
+}
+
+void exampleHuffman(void)
+{
+    PRINTF("%s\r\n", __func__);
+
+    // Update SysTick to have better precision
+    SysTick_Config(SystemCoreClock / 100000);
+
+    // -------------------------------------------------------------------------
+    // Local image memory allocation
+    // -------------------------------------------------------------------------
+    // Create additional int16_pixel_t images
+    image_t *src_int16 = newInt16Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+    image_t *dst_int16 = newInt16Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+
+    // Prepare images
+    clearInt16Image(src_int16);
+    clearInt16Image(dst_int16);
+
+    image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+    image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+
+    if (dst == NULL)
+    {
+        PRINTF("Could not allocate image memory\r\n");
+        while (1)
+        {
+        }
+    }
+
+    PRINTF("Starting Huffman Snapshot Test...\r\n");
+
+    while (smartdma_camera_image_complete == 0)
+        ;
+    smartdma_camera_image_complete = 0;
+
+    convertToUint8(cam, src);
+
+    uint32_t hist[256] = {0};
+    histogram(src, hist);
+
+    LinkedListNode *pq_head = make_huffman_pq(hist);
+    TreeNode *huffman_root = make_huffman_tree(pq_head);
+
+    size_t encoded_size = 0;
+    uint8_t *encoded_data = encode_image(src, huffman_root, &encoded_size);
+
+    decode_image(encoded_data, encoded_size, huffman_root, dst);
+
+    size_t original_size = src->rows * src->cols;
+    PRINTF("Huffman Results: Original: %u bytes | Encoded: %u bytes\r\n", original_size, (uint32_t)encoded_size);
+    PRINTF("Compression Ratio: %d%%\r\n", (int)((encoded_size * 100) / original_size));
+
+    destroy_huffman_tree(&huffman_root);
+    free(encoded_data);
+
+    while (1U)
+    {
     }
 }
