@@ -1024,31 +1024,7 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
     uint32_t nextLabel = 3;
 
     // Mark the border pixels in the destination
-    for (uint32_t y = 0; y < src->rows; y++)
-    {
-        for (uint32_t x = 0; x < src->cols; x++)
-        {
-            uint32_t idx = y * src->cols + x;
-
-            // if on border
-            if (x == 0 || x == src->cols - 1 || y == 0 || y == src->rows - 1)
-            {
-                // if object
-                if (src->data[idx] != 0)
-                {
-                    // set in destination 2
-                    dst->data[idx] = 2;
-                }
-
-                // if background
-                if (src->data[idx] == 0)
-                {
-                    // set in destination 0
-                    dst->data[idx] = 0;
-                }
-            }
-        }
-    }
+    MarkBorderPixels(src, dst);
 
     // Pass 1: Label the objects, skipping the borders, and record equivalences in lut
     for (int32_t y = 1; y < src->rows - 1; y++)
@@ -1151,12 +1127,19 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
         }
     }
 
-    for (uint32_t i = 0; i < 10; i++)
-    {
-        printf("lookupTable [%d] = %d\n", i, lut[i]);
-    }
+    RecordBorderEquivalences(dst, lut, connected, src);
 
-    // Record border equivalences
+    ResolveEquivalences(nextLabel, lut);
+
+    SecondPass(dst, lut);
+
+    free(lut);
+
+    return 1;
+}
+
+void RecordBorderEquivalences(image_t *dst, uint32_t *lut, const eConnected connected, const image_t *src)
+{
     for (int32_t y = 1; y < dst->rows - 1; y++)
     {
         for (int32_t x = 1; x < dst->cols - 1; x++)
@@ -1176,11 +1159,7 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
                     // als waarde = 2
                     if (left == 2)
                     {
-                        uint32_t prev = lut[currentLabel];
-                        lut[prev] = 2;
-
-                        // pas aan in lut
-                        lut[currentLabel] = 2;
+                        linkLabelToBorder(lut, currentLabel);
                     }
 
                     if (connected == CONNECTED_EIGHT)
@@ -1189,10 +1168,7 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
 
                         if (bottom_left == 2)
                         {
-                            uint32_t prev = lut[currentLabel];
-                            lut[prev] = 2;
-
-                            lut[currentLabel] = 2;
+                            linkLabelToBorder(lut, currentLabel);
                         }
                     }
                 }
@@ -1206,11 +1182,7 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
                     // als waarde = 2
                     if (right == 2)
                     {
-                        uint32_t prev = lut[currentLabel];
-                        lut[prev] = 2;
-
-                        // pas aan in lut
-                        lut[currentLabel] = 2;
+                        linkLabelToBorder(lut, currentLabel);
                     }
                 }
 
@@ -1223,10 +1195,7 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
                     // als waarde = 2
                     if (bottom == 2)
                     {
-                        uint32_t prev = lut[currentLabel];
-                        lut[prev] = 2;
-                        // pas aan in lut
-                        lut[currentLabel] = 2;
+                        linkLabelToBorder(lut, currentLabel);
                     }
 
                     if (connected == CONNECTED_EIGHT)
@@ -1235,42 +1204,24 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
 
                         if (bottom_left == 2)
                         {
-                            uint32_t prev = lut[currentLabel];
-                            lut[prev] = 2;
-                            lut[currentLabel] = 2;
+                            linkLabelToBorder(lut, currentLabel);
                         }
 
                         uint32_t bottom_right = dst->data[idx + dst->cols + 1];
 
                         if (bottom_right == 2)
                         {
-                            uint32_t prev = lut[currentLabel];
-                            lut[prev] = 2;
-                            lut[currentLabel] = 2;
+                            linkLabelToBorder(lut, currentLabel);
                         }
                     }
                 }
             }
         }
     }
+}
 
-    blah(dst, "src");
-
-    for (uint32_t i = 0; i < lutSize; i++)
-    {
-        printf("lookupTable [%d] = %d\n", i, lut[i]);
-    }
-
-    // Resolve equivalences
-    for (uint32_t i = 3; i < nextLabel; i++)
-    {
-        if (lut[i] != i)
-        {
-            lut[i] = lut[lut[i]];
-        }
-    }
-
-    // Pass 2: Assign result by using lut
+void SecondPass(image_t *dst, uint32_t *lut)
+{
     for (uint32_t y = 0; y < dst->rows; y++)
     {
         for (uint32_t x = 0; x < dst->cols; x++)
@@ -1295,10 +1246,63 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
             }
         }
     }
+}
 
-    free(lut);
+void ResolveEquivalences(uint32_t nextLabel, uint32_t *lut)
+{
+    for (uint32_t i = 3; i < nextLabel; i++)
+    {
+        if (lut[i] != i)
+        {
+            lut[i] = lut[lut[i]];
+        }
+    }
+}
 
-    return 1;
+void linkLabelToBorder(uint32_t *lut, uint32_t currentLabel)
+{
+    if (currentLabel == 0)
+        return;
+
+    uint32_t root = currentLabel;
+
+    while (lut[root] != root && root != 2)
+    {
+        root = lut[root];
+    }
+
+    lut[root] = 2;
+
+    lut[currentLabel] = 2;
+}
+
+void MarkBorderPixels(const image_t *src, image_t *dst)
+{
+    for (uint32_t y = 0; y < src->rows; y++)
+    {
+        for (uint32_t x = 0; x < src->cols; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if on border
+            if (x == 0 || x == src->cols - 1 || y == 0 || y == src->rows - 1)
+            {
+                // if object
+                if (src->data[idx] != 0)
+                {
+                    // set in destination 2
+                    dst->data[idx] = 2;
+                }
+
+                // if background
+                if (src->data[idx] == 0)
+                {
+                    // set in destination 0
+                    dst->data[idx] = 0;
+                }
+            }
+        }
+    }
 }
 
 /*!

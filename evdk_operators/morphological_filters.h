@@ -33,7 +33,8 @@
  *****************************************************************************/
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /// Include guard to prevent recursive inclusion
@@ -42,21 +43,26 @@ extern "C" {
 
 #include "image.h"
 
-// Functions are documented in the source file
+    // Functions are documented in the source file
 
-void dilation(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
-void dilationGray(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
-void erosion(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
-void erosionGray(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
-void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c);
-uint32_t fillHolesTwoPass(const image_t *src, image_t *dst,
-                          const eConnected connected, const uint32_t lutSize);
-void hitmiss(const image_t *src, image_t *dst, const uint8_t *m1, const uint8_t *m2);
-void outline(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
-void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnected c);
-uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
-                                  const eConnected connected, const uint32_t lutSize);
-void skeleton(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
+    void dilation(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
+    void dilationGray(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
+    void erosion(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
+    void erosionGray(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
+    void fillHolesIterative(const image_t *src, image_t *dst, const eConnected c);
+    uint32_t fillHolesTwoPass(const image_t *src, image_t *dst,
+                              const eConnected connected, const uint32_t lutSize);
+    void hitmiss(const image_t *src, image_t *dst, const uint8_t *m1, const uint8_t *m2);
+    void outline(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
+    void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnected c);
+    uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
+                                      const eConnected connected, const uint32_t lutSize);
+    void RecordBorderEquivalences(image_t *dst, uint32_t *lut, const eConnected connected, const image_t *src);
+    void linkLabelToBorder(uint32_t *lut, uint32_t currentLabel);
+    void SecondPass(image_t *dst, uint32_t *lut);
+    void ResolveEquivalences(uint32_t nextLabel, uint32_t *lut);
+    void MarkBorderPixels(const image_t *src, image_t *dst);
+    void skeleton(const image_t *src, image_t *dst, const uint8_t *mask, const uint8_t n);
 
 #endif // _MORPHOLOGICAL_FILTERS_H_
 
