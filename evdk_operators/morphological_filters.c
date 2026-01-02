@@ -1013,10 +1013,7 @@ uint32_t removeBorderBlobsTwoPass(const image_t *src, image_t *dst,
         return 0;
     }
 
-    for (uint32_t i = 0; i < lutSize; ++i)
-    {
-        lut[i] = 0;
-    }
+    memset(lut, 0, lutSize * sizeof(uint32_t));
 
     lut[1] = 1;
     lut[2] = 2;
