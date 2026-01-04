@@ -395,6 +395,50 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
     return (blobcnt - 1);
 }
 
+void blah(const image_t *img, const char *title)
+{
+    printf("\n%s\n", title);
+
+    for (int r = 0; r < img->rows; r++)
+    {
+        for (int c = 0; c < img->cols; c++)
+        {
+            // Print the pixel based on the image type
+            if (img->type == IMGTYPE_UINT8)
+            {
+                printf("%3d, ", getUint8Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_INT16)
+            {
+                printf("%5d, ", getInt16Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_INT32)
+            {
+                printf("%5d, ", getInt32Pixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_FLOAT)
+            {
+                printf("%8.3f, ", getFloatPixel(img, c, r));
+            }
+            else if (img->type == IMGTYPE_UYVY)
+            {
+                printf("0x%04X, ", getUyvyPixel(img, c, r));
+            }
+            else
+            {
+                printf("Image type not supported\n");
+                fflush(stdout);
+                return;
+            }
+        }
+        printf("\n");
+        fflush(stdout);
+    }
+
+    printf("\n");
+    fflush(stdout);
+}
+
 /*!
  * \brief Counts and labels all BLOBs
  *
@@ -423,19 +467,167 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
 uint32_t labelTwoPass(const image_t *src, image_t *dst,
                       const eConnected connected, const uint32_t lutSize)
 {
-// ********************************************
-// Remove this block when implementation starts
-#warning TODO: labelTwoPass
+    uint32_t *lut = (uint32_t *)malloc(lutSize * sizeof(uint32_t));
 
-    // Added to prevent compiler warnings
+    if (lut == NULL)
+    {
+        return 0;
+    }
 
-    (void)src;
-    (void)dst;
-    (void)connected;
-    (void)lutSize;
+    memset(lut, 0, lutSize * sizeof(uint32_t));
 
-    return 0;
-    // ********************************************
+    uint32_t nextLabel = 1;
+
+    // clear the border pixels
+    for (uint32_t y = 0; y < src->rows; y++)
+    {
+        for (uint32_t x = 0; x < src->cols; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if on border
+            if (x == 0 || x == src->cols - 1 || y == 0 || y == src->rows - 1)
+            {
+                dst->data[idx] = 0;
+            }
+        }
+    }
+
+    // Pass 1: Label the objects, skipping the borders, and record equivalences in lut
+    for (int32_t y = 1; y < src->rows - 1; y++)
+    {
+        for (int32_t x = 1; x < src->cols - 1; x++)
+        {
+            uint32_t idx = y * src->cols + x;
+
+            // if object
+            if (src->data[idx] != 0)
+            {
+                /*
+                    1 1 1
+                    1 0 0
+                    0 0 0
+                */
+                uint32_t n = dst->data[idx - src->cols];
+                uint32_t w = dst->data[idx - 1];
+                uint32_t nw = 0;
+                uint32_t ne = 0;
+
+                // Alleen diagonalen meenemen als we 8-connected gebruiken
+                if (connected == CONNECTED_EIGHT)
+                {
+                    nw = dst->data[idx - src->cols - 1];
+                    ne = dst->data[idx - src->cols + 1];
+                }
+
+                // if neighbours labelled
+                if (n != 0 || nw != 0 || ne != 0 || w != 0)
+                {
+                    // 1. Label this pixel with the lowest value of neighbor
+                    uint32_t minLabel = UINT32_MAX;
+
+                    if (n != 0 && n < minLabel)
+                    {
+                        minLabel = n;
+                    }
+
+                    if (nw != 0 && nw < minLabel)
+                    {
+                        minLabel = nw;
+                    }
+
+                    if (ne != 0 && ne < minLabel)
+                    {
+                        minLabel = ne;
+                    }
+
+                    if (w != 0 && w < minLabel)
+                    {
+                        minLabel = w;
+                    }
+
+                    // 2. Label this pixel with that value
+                    dst->data[idx] = minLabel;
+
+                    // record equivalence(s)
+                    if (n != 0 && n != minLabel)
+                    {
+                        lut[n] = minLabel;
+                    }
+
+                    if (nw != 0 && nw != minLabel)
+                    {
+                        lut[nw] = minLabel;
+                    }
+
+                    if (ne != 0 && ne != minLabel)
+                    {
+                        lut[ne] = minLabel;
+                    }
+
+                    if (w != 0 && w != minLabel)
+                    {
+                        lut[w] = minLabel;
+                    }
+                }
+                else
+                {
+                    if (nextLabel >= lutSize)
+                    {
+                        free(lut);
+                        return 0; // Lookup table is too small
+                    }
+
+                    // Assign next label value
+                    dst->data[idx] = nextLabel;
+
+                    // record in lut
+                    lut[nextLabel] = nextLabel;
+                    nextLabel++;
+                }
+            }
+            else
+            {
+                // label this pixel with background value
+                dst->data[idx] = 0;
+            }
+        }
+    }
+
+    uint32_t numUniqueLabels = 0;
+
+    // Resolve equivalences and assign consecutive labels
+    for (uint32_t i = 1; i < nextLabel; i++)
+    {
+        if (lut[i] == i)
+        {
+            // This is a root label. Assign it the next available unique ID.
+            numUniqueLabels++;
+            lut[i] = numUniqueLabels;
+        }
+        else
+        {
+            // Point this label to the already-resolved ID of its parent.
+            // This ensures that if 4->3 and 3->1, then 4 will now point to 1.
+            lut[i] = lut[lut[i]];
+        }
+    }
+
+    for (uint32_t y = 0; y < dst->rows; y++)
+    {
+        for (uint32_t x = 0; x < dst->cols; x++)
+        {
+            uint32_t idx = y * dst->cols + x;
+            uint32_t currentLabel = dst->data[idx];
+
+            if (currentLabel != 0)
+            {
+                dst->data[idx] = lut[currentLabel];
+            }
+        }
+    }
+
+    free(lut);
 }
 
 /*!

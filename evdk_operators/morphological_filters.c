@@ -932,50 +932,6 @@ void removeBorderBlobsIterative(const image_t *src, image_t *dst, const eConnect
     }
 }
 
-void blah(const image_t *img, const char *title)
-{
-    printf("\n%s\n", title);
-
-    for (int r = 0; r < img->rows; r++)
-    {
-        for (int c = 0; c < img->cols; c++)
-        {
-            // Print the pixel based on the image type
-            if (img->type == IMGTYPE_UINT8)
-            {
-                printf("%3d, ", getUint8Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_INT16)
-            {
-                printf("%5d, ", getInt16Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_INT32)
-            {
-                printf("%5d, ", getInt32Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_FLOAT)
-            {
-                printf("%8.3f, ", getFloatPixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_UYVY)
-            {
-                printf("0x%04X, ", getUyvyPixel(img, c, r));
-            }
-            else
-            {
-                printf("Image type not supported\n");
-                fflush(stdout);
-                return;
-            }
-        }
-        printf("\n");
-        fflush(stdout);
-    }
-
-    printf("\n");
-    fflush(stdout);
-}
-
 uint32_t find(uint32_t *lut, uint32_t i)
 {
     while (lut[i] != i)
