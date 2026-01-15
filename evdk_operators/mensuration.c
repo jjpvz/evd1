@@ -395,50 +395,6 @@ uint32_t labelIterative(const image_t *src, image_t *dst, const eConnected conne
     return (blobcnt - 1);
 }
 
-void blah(const image_t *img, const char *title)
-{
-    printf("\n%s\n", title);
-
-    for (int r = 0; r < img->rows; r++)
-    {
-        for (int c = 0; c < img->cols; c++)
-        {
-            // Print the pixel based on the image type
-            if (img->type == IMGTYPE_UINT8)
-            {
-                printf("%3d, ", getUint8Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_INT16)
-            {
-                printf("%5d, ", getInt16Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_INT32)
-            {
-                printf("%5d, ", getInt32Pixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_FLOAT)
-            {
-                printf("%8.3f, ", getFloatPixel(img, c, r));
-            }
-            else if (img->type == IMGTYPE_UYVY)
-            {
-                printf("0x%04X, ", getUyvyPixel(img, c, r));
-            }
-            else
-            {
-                printf("Image type not supported\n");
-                fflush(stdout);
-                return;
-            }
-        }
-        printf("\n");
-        fflush(stdout);
-    }
-
-    printf("\n");
-    fflush(stdout);
-}
-
 /*!
  * \brief Counts and labels all BLOBs
  *
@@ -461,8 +417,6 @@ void blah(const image_t *img, const char *title)
  *         \li No unique labels in the image
  *         \li Memory allocation failed
  *         \li Lookup table is too small
- *
- * \todo Implement this function
  */
 uint32_t labelTwoPass(const image_t *src, image_t *dst,
                       const eConnected connected, const uint32_t lutSize)

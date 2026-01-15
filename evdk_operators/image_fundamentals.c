@@ -1023,8 +1023,6 @@ void clearFloatImage(image_t *img)
  *
  * \param[in]  src A pointer to the uyvy_pixel_t image
  * \param[out] dst A pointer to the converted uint8_pixel_t image
- *
- * \todo Implement this function
  */
 void convertUyvyToUint8(image_t *src, image_t *dst)
 {

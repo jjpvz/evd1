@@ -192,8 +192,8 @@ int main(void)
     // exampleThreshold();
     // exampleRotate();
     // exampleTemplate();
-    // exampleFinalAssignment();
-    exampleHuffman();
+    exampleFinalAssignment();
+    // exampleHuffman();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -861,7 +861,7 @@ void exampleTemplate(void)
         // sobelFast(src_int16, dst_int16); // 14610 us
 
         // threshold2Means(src_int16, dst_int16, BRIGHTNESS_DARK);
-        // thresholdOtsu(src_int16, dst_int16, BRIGHTNESS_DARK);
+        thresholdOtsu(src_int16, dst_int16, BRIGHTNESS_DARK);
 
         // fillHolesTwoPass(src_int16, dst_int16);
 
@@ -884,6 +884,52 @@ void exampleTemplate(void)
     }
 }
 
+void downscale2x_fast(const image_t *src, image_t *dst)
+{
+    uint8_t *s_row = (uint8_t *)src->data;
+    uint8_t *d = (uint8_t *)dst->data;
+
+    // We skip every other row, so the stride is 2 full source rows
+    uint32_t src_row_stride = src->cols * 2;
+
+    for (uint32_t y = 0; y < dst->rows; y++)
+    {
+        uint8_t *s_pixel = s_row;
+        for (uint32_t x = 0; x < dst->cols; x++)
+        {
+            *d++ = *s_pixel; // Grab pixel and move destination pointer
+            s_pixel += 2;    // Skip one pixel in the source row
+        }
+        s_row += src_row_stride; // Skip one full row in the source
+    }
+}
+
+void upscale2x_fast(const image_t *src, image_t *dst)
+{
+    uint8_t *s_row = (uint8_t *)src->data;
+    uint8_t *d_data = (uint8_t *)dst->data;
+
+    for (uint32_t y = 0; y < src->rows; y++)
+    {
+        // Pointer to the start of the two rows in the destination we need to fill
+        uint8_t *d_row0 = &d_data[(y * 2) * dst->cols];
+        uint8_t *d_row1 = d_row0 + dst->cols;
+
+        for (uint32_t x = 0; x < src->cols; x++)
+        {
+            uint8_t val = *s_row++; // Grab the small pixel
+
+            // Write it twice horizontally in the first row
+            *d_row0++ = val;
+            *d_row0++ = val;
+
+            // Write it twice horizontally in the second row
+            *d_row1++ = val;
+            *d_row1++ = val;
+        }
+    }
+}
+
 void exampleFinalAssignment(void)
 {
     PRINTF("%s\r\n", __func__);
@@ -891,11 +937,47 @@ void exampleFinalAssignment(void)
     // -------------------------------------------------------------------------
     // Local image memory allocation
     // -------------------------------------------------------------------------
+    image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+    image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
-    // \todo Implement setup for the final assignment
+    image_t *src_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
+    image_t *thr_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
+    image_t *ero_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
+    image_t *rbb_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
+    image_t *lbl_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
+
+    clearUint8Image(src);
+    clearUint8Image(dst);
+    clearUint8Image(src_small);
+    clearUint8Image(thr_small);
+    clearUint8Image(ero_small);
+    clearUint8Image(rbb_small);
+    clearUint8Image(lbl_small);
+
+    if (src_small == NULL)
+    {
+        PRINTF("Could not allocate image memory\r\n");
+        while (1)
+        {
+        }
+    }
 
     // Flip the characters in the y-axis
     textSetFlipCharacters(1);
+
+    // Place this at the top of your function or as a global
+    const uint8_t mask3x3[9] = {
+        1, 1, 1,
+        1, 1, 1,
+        1, 1, 1};
+    const uint8_t maskSize = 3;
+
+    bgr888_pixel_t GREEN = {0, 255, 0};
+    bgr888_pixel_t BLUE = {255, 0, 0};
+    bgr888_pixel_t YELLOW = {0, 255, 255};
+    bgr888_pixel_t RED = {0, 0, 255};
+
+    // textSetBgr888Colors(red, white);
 
     while (1U)
     {
@@ -909,14 +991,87 @@ void exampleFinalAssignment(void)
         // ---------------------------------------------------------------------
         // Image processing pipeline
         // ---------------------------------------------------------------------
-
-        // Copy timestamp
         ms1 = ms;
 
-        // \todo Implement the image processing pipeline for the final
-        //       assignment
+        // Convert uyvy_pixel_t camera image to uint8_pixel_t image
+        convertUyvyToUint8(cam, src);
 
-        // Copy timestamp
+        downscale2x_fast(src, src_small);
+
+        threshold(src_small, thr_small, 0, 60);
+
+        erosion(thr_small, ero_small, mask3x3, maskSize);
+
+        removeBorderBlobsTwoPass(ero_small, rbb_small, CONNECTED_FOUR, 100);
+
+        uint32_t numBlobs = labelTwoPass(rbb_small, lbl_small, CONNECTED_FOUR, 100);
+
+        // Prepare variables for the display phase
+        blobinfo_t firstBlob;
+        memset(&firstBlob, 0, sizeof(blobinfo_t));
+        int32_t usb_x = -1;
+        int32_t usb_y = -1;
+        bgr888_pixel_t crosshairColor = {0, 0, 255}; // Default Red (Unknown)
+
+        if (numBlobs > 0)
+        {
+            // Calculate Centroid and Hu Moments for the first blob (Label 1)
+            centroid(lbl_small, &firstBlob, 1);
+            huInvariantMoments(lbl_small, &firstBlob, 1);
+
+            // Scale coordinates: small image (e.g. 160x120) to USB image (e.g. 320x240)
+            usb_x = (int32_t)(firstBlob.centroid.x * 2);
+            usb_y = (int32_t)(firstBlob.centroid.y * 2);
+
+            // Determine Shape based on Hu Moment 1 (phi1)
+            float phi1 = firstBlob.hu_moments[0];
+
+            if (phi1 < 0.163f)
+            {
+                crosshairColor = (bgr888_pixel_t){0, 255, 0}; // Green: Circle
+            }
+            else if (phi1 < 0.178f)
+            {
+                crosshairColor = (bgr888_pixel_t){255, 0, 0}; // Blue: Square
+            }
+            else if (phi1 < 0.220f)
+            {
+                crosshairColor = (bgr888_pixel_t){0, 255, 255}; // Yellow: Triangle
+            }
+            else
+            {
+                crosshairColor = (bgr888_pixel_t){0, 0, 255}; // Red: Unknown
+            }
+        }
+
+        uint8_t *d_data = (uint8_t *)rbb_small->data;
+
+        for (int i = 0; i < (rbb_small->rows * rbb_small->cols); i++)
+        {
+            if (d_data[i] > 0)
+            {
+                d_data[i] = 255;
+            }
+        }
+
+        upscale2x_fast(rbb_small, dst);
+        convertUint8ToBgr888(dst, usb);
+
+        if (numBlobs > 0 && usb_x >= 0 && usb_x < usb->cols && usb_y >= 0 && usb_y < usb->rows)
+        {
+            int size = 12; // Length of crosshair arms
+
+            point_t h_start = {usb_x - size, usb_y};
+            point_t h_end = {usb_x + size, usb_y};
+            point_t v_start = {usb_x, usb_y - size};
+            point_t v_end = {usb_x, usb_y + size};
+
+            // Draw horizontal line
+            drawLineBgr888(usb, h_start, h_end, crosshairColor);
+            // Draw vertical line
+            drawLineBgr888(usb, v_start, v_end, crosshairColor);
+        }
+
         ms2 = ms;
 
         // ---------------------------------------------------------------------

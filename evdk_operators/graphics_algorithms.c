@@ -74,13 +74,13 @@ static int32_t local_y = 0;
  * \brief Local background color value
  */
 static uint8_pixel_t local_uint8_background = 255;
-static bgr888_pixel_t local_bgr888_background = (bgr888_pixel_t){0xFF,0xFF,0xFF};
+static bgr888_pixel_t local_bgr888_background = (bgr888_pixel_t){0xFF, 0xFF, 0xFF};
 
 /*!
  * \brief Local foreground color value
  */
 static uint8_pixel_t local_uint8_foreground = 0;
-static bgr888_pixel_t local_bgr888_foreground = (bgr888_pixel_t){0x00,0x00,0x00};
+static bgr888_pixel_t local_bgr888_foreground = (bgr888_pixel_t){0x00, 0x00, 0x00};
 
 /*!
  * \brief Local variable indicating if characters should be drawn flipped
@@ -164,8 +164,16 @@ void textSetFlipCharacters(const uint32_t flipped)
  */
 void textPutchar(image_t *img, const char c)
 {
+    if (local_x < 0 || local_x >= img->cols || local_y < 0 || local_y >= img->rows)
+    {
+        // Optional: you might want to increment local_x by a default width
+        // so the NEXT character has a chance to be on screen,
+        // but for a single "BLOB" string, returning is safest.
+        return;
+    }
+
     // Get the first four parameters from the font
-    //uint8_t font_width = font[0];
+    // uint8_t font_width = font[0];
     uint8_t font_height = font[1];
     uint8_t font_firstchar = font[2];
     uint8_t font_numchars = font[3];
@@ -184,7 +192,7 @@ void textPutchar(image_t *img, const char c)
 
     // Calculate the number of bytes for each column
     uint8_t bytes_per_col = (font_height / 8);
-    if((font_height % 8) > 0)
+    if ((font_height % 8) > 0)
     {
         bytes_per_col++;
     }
@@ -199,25 +207,25 @@ void textPutchar(image_t *img, const char c)
     int32_t height = 0;
 
     // Loop all bytes in a character
-    for(uint32_t n=0; n<bytes_total; n++)
+    for (uint32_t n = 0; n < bytes_total; n++)
     {
         // Initially a byte is cleared
         char data = 0;
 
         // Is there data available in the character table for this byte?
-        if(n < n_bytes)
+        if (n < n_bytes)
         {
             data = font[index + n];
         }
 
         // Next column?
-        if((n % bytes_per_col) == 0)
+        if ((n % bytes_per_col) == 0)
         {
-            y_tmp=local_y;
+            y_tmp = local_y;
             local_x++;
 
             // Stop if the x value is outside screen boundaries
-            if(local_x >= img->cols)
+            if (local_x >= img->cols)
             {
                 return;
             }
@@ -226,35 +234,34 @@ void textPutchar(image_t *img, const char c)
         }
 
         // Loop all bits in the byte and update the frame buffer
-        for(uint8_t mask = 1; mask != 0; mask <<= 1)
+        for (uint8_t mask = 1; mask != 0; mask <<= 1)
         {
-            if(img->type == IMGTYPE_UINT8)
+            if (img->type == IMGTYPE_UINT8)
             {
-                uint8_pixel_t val = (data & mask) ? local_uint8_foreground : 
-                    local_uint8_background;
+                uint8_pixel_t val = (data & mask) ? local_uint8_foreground : local_uint8_background;
 
                 setUint8Pixel(img, local_x, y_tmp, val);
             }
-            else if(img->type == IMGTYPE_BGR888)
+            else if (img->type == IMGTYPE_BGR888)
             {
-                bgr888_pixel_t val = (data & mask) ? local_bgr888_foreground : 
-                    local_bgr888_background;
+                bgr888_pixel_t val = (data & mask) ? local_bgr888_foreground : local_bgr888_background;
 
                 setBgr888Pixel(img, local_x, y_tmp, val);
             }
             else
             {
                 // Image type not supported for text
-                while(1)
-                {}
+                while (1)
+                {
+                }
             }
 
-            if(local_flip_characters == 0)
+            if (local_flip_characters == 0)
             {
                 y_tmp++;
 
                 // Stop if the y value is outside screen boundaries
-                if(y_tmp >= img->rows)
+                if (y_tmp >= img->rows)
                 {
                     break;
                 }
@@ -264,7 +271,7 @@ void textPutchar(image_t *img, const char c)
                 y_tmp--;
 
                 // Stop if the y value is outside screen boundaries
-                if(y_tmp < 0)
+                if (y_tmp < 0)
                 {
                     break;
                 }
@@ -272,7 +279,7 @@ void textPutchar(image_t *img, const char c)
 
             // Stop if the font height has been reached
             height++;
-            if(height >= font_height)
+            if (height >= font_height)
             {
                 break;
             }
@@ -298,10 +305,10 @@ void textPutstring(image_t *img, const char *str)
     int32_t delta = 0;
     int32_t org_x = local_x;
 
-    uint32_t i=0;
-    while(str[i] != '\0')
+    uint32_t i = 0;
+    while (str[i] != '\0')
     {
-        if(str[i] == '\n')
+        if (str[i] == '\n')
         {
             // Go to a new line
             // Set the original x value and increment the y value by the font
@@ -309,7 +316,7 @@ void textPutstring(image_t *img, const char *str)
             delta += font[1];
             textSetxy(org_x, local_y + delta);
         }
-        else if(str[i] == '\r')
+        else if (str[i] == '\r')
         {
             // Ignore
         }
@@ -341,13 +348,13 @@ void drawLineUint8(image_t *img, point_t p1, point_t p2, uint8_pixel_t val)
     int sgnY = (p1.y < p2.y) ? 1 : -1;
     int e = 0;
 
-    for(int i=0; i < dx+dy; i++)
+    for (int i = 0; i < dx + dy; i++)
     {
         // Check boundaries
-        if((p1.x >= 0) &&
-           (p1.x < img->cols) &&
-           (p1.y >= 0) &&
-           (p1.y < img->rows))
+        if ((p1.x >= 0) &&
+            (p1.x < img->cols) &&
+            (p1.y >= 0) &&
+            (p1.y < img->rows))
         {
             setUint8Pixel(img, p1.x, p1.y, val);
         }
@@ -375,15 +382,15 @@ void drawLineBgr888(image_t *src, point_t p1, point_t p2, bgr888_pixel_t val)
     int sgnY = p1.y < p2.y ? 1 : -1;
     int e = 0;
 
-    for(int i=0; i < dx+dy; i++)
+    for (int i = 0; i < dx + dy; i++)
     {
         // Check boundaries
-        if((p1.x >= 0) &&
-           (p1.x < src->cols) &&
-           (p1.y >= 0) &&
-           (p1.y < src->rows))
+        if ((p1.x >= 0) &&
+            (p1.x < src->cols) &&
+            (p1.y >= 0) &&
+            (p1.y < src->rows))
         {
-            setBgr888Pixel(src,p1.x,p1.y,val);
+            setBgr888Pixel(src, p1.x, p1.y, val);
         }
 
         int e1 = e + dy;
@@ -409,15 +416,15 @@ void drawLineUyvy(image_t *src, point_t p1, point_t p2, uyvy_pixel_t val)
     int sgnY = p1.y < p2.y ? 1 : -1;
     int e = 0;
 
-    for(int i=0; i < dx+dy; i++)
+    for (int i = 0; i < dx + dy; i++)
     {
         // Check boundaries
-        if((p1.x >= 0) &&
-           (p1.x < src->cols) &&
-           (p1.y >= 0) &&
-           (p1.y < src->rows))
+        if ((p1.x >= 0) &&
+            (p1.x < src->cols) &&
+            (p1.y >= 0) &&
+            (p1.y < src->rows))
         {
-            setUyvyPixel(src,p1.x,p1.y,val);
+            setUyvyPixel(src, p1.x, p1.y, val);
         }
 
         int e1 = e + dy;
@@ -468,22 +475,22 @@ void affineTransformation(const image_t *src, image_t *dst,
     ASSERT(d != TRANSFORM_FORWARD && d != TRANSFORM_BACKWARD, "d is invalid");
     ASSERT(m == NULL, "matrix is invalid");
 
-    if(d == TRANSFORM_BACKWARD)
+    if (d == TRANSFORM_BACKWARD)
     {
         // Loop all pixels
-        for(int32_t y=0; y<dst->rows; y++)
+        for (int32_t y = 0; y < dst->rows; y++)
         {
-            for(int32_t x=0; x<dst->cols; x++)
+            for (int32_t x = 0; x < dst->cols; x++)
             {
                 // Given the transformation matrix, calculate the new
                 // coordinates
                 int32_t xs = (x * m[0][0]) + (y * m[0][1]) + (m[0][2]);
                 int32_t ys = (x * m[1][0]) + (y * m[1][1]) + (m[1][2]);
 
-                if((xs >= 0) &&
-                   (ys >= 0) &&
-                   (xs <  src->cols) &&
-                   (ys <  src->rows))
+                if ((xs >= 0) &&
+                    (ys >= 0) &&
+                    (xs < src->cols) &&
+                    (ys < src->rows))
                 {
                     // Backward transformation: for all coordinates in dst, find
                     // the closest matching coordinate in src
@@ -495,19 +502,19 @@ void affineTransformation(const image_t *src, image_t *dst,
     else // FORWARD
     {
         // Loop all pixels
-        for(int32_t y=0; y<src->rows; y++)
+        for (int32_t y = 0; y < src->rows; y++)
         {
-            for(int32_t x=0; x<src->cols; x++)
+            for (int32_t x = 0; x < src->cols; x++)
             {
                 // Given the transformation matrix, calculate the new
                 // coordinates
                 int32_t xd = (x * m[0][0]) + (y * m[0][1]) + (m[0][2]);
                 int32_t yd = (x * m[1][0]) + (y * m[1][1]) + (m[1][2]);
 
-                if((xd >= 0) &&
-                   (yd >= 0) &&
-                   (xd <  dst->cols) &&
-                   (yd <  dst->rows))
+                if ((xd >= 0) &&
+                    (yd >= 0) &&
+                    (xd < dst->cols) &&
+                    (yd < dst->rows))
                 {
                     // Forward transformation: for all coordinates in src, find
                     // the closest matching coordinate in dst
@@ -555,9 +562,9 @@ void rotate(const image_t *src, image_t *dst, const float radians,
     float yn;
 
     // Rotate
-    for(int y=0; y < src->rows; y++)
+    for (int y = 0; y < src->rows; y++)
     {
-        for(int x=0; x < src->cols; x++)
+        for (int x = 0; x < src->cols; x++)
         {
             // Translate to center
             dx = (float)x - (float)center.x;
@@ -572,14 +579,14 @@ void rotate(const image_t *src, image_t *dst, const float radians,
             xn = xn + (float)center.x;
             yn = yn + (float)center.y;
 
-            if((xn >= 0) &&
-               (yn >= 0) &&
-               (xn <  src->cols) &&
-               (yn <  src->rows))
+            if ((xn >= 0) &&
+                (yn >= 0) &&
+                (xn < src->cols) &&
+                (yn < src->rows))
             {
                 // Backward transformation: for all coordinates in dst, find
                 // the closest matching coordinate in src
-                setUint8Pixel(dst, x, y, getUint8Pixel(src,xn,yn));
+                setUint8Pixel(dst, x, y, getUint8Pixel(src, xn, yn));
             }
         }
     }
@@ -603,13 +610,13 @@ void rotate180_c(const image_t *img)
     register uint32_t i;
     register uint8_pixel_t *s = (uint8_pixel_t *)img->data;
     register uint8_pixel_t *d = (uint8_pixel_t *)(img->data +
-                              (img->rows * img->cols * sizeof(uint8_pixel_t)) -
-                              (1 * sizeof(uint8_pixel_t)));
+                                                  (img->rows * img->cols * sizeof(uint8_pixel_t)) -
+                                                  (1 * sizeof(uint8_pixel_t)));
     register uint8_pixel_t t;
 
-    for(i = (img->rows * img->cols) / 2; i > 0; i--)
+    for (i = (img->rows * img->cols) / 2; i > 0; i--)
     {
-        t    = *s;
+        t = *s;
         *s++ = *d;
         *d-- = t;
     }
@@ -639,36 +646,35 @@ void rotate180_arm(const image_t *img)
     register uint32_t *last_ptr = (uint32_t *)(img->data + (img->rows * img->cols * sizeof(uint8_pixel_t)));
 
     // Temporary variables
-    register uint32_t  first_pixels, last_pixels;
+    register uint32_t first_pixels, last_pixels;
 
-    while(first_ptr != last_ptr)
+    while (first_ptr != last_ptr)
     {
         // Read pixels
         first_pixels = *first_ptr;
         last_pixels = *(--last_ptr);
 
         // Reverse 32-bit byte order : b3 b2 b1 b0 -> b0 b1 b2 b3
-        __asm__ ("REV %[result], %[value]" : [result] "=r" (first_pixels) : [value] "r" (first_pixels));
-        __asm__ ("REV %[result], %[value]" : [result] "=r" (last_pixels)  : [value] "r" (last_pixels));
+        __asm__("REV %[result], %[value]" : [result] "=r"(first_pixels) : [value] "r"(first_pixels));
+        __asm__("REV %[result], %[value]" : [result] "=r"(last_pixels) : [value] "r"(last_pixels));
 
         // When the Release target is selected, this idiom is recognized by the
         // compiler and the REV instruction will be implemented.
-//        first_pixels = ((first_pixels >> 24) & 0x000000FF) |
-//                       ((first_pixels >>  8) & 0x0000FF00) |
-//                       ((first_pixels <<  8) & 0x00FF0000) |
-//                       ((first_pixels << 24) & 0xFF000000);
-//
-//        last_pixels = ((last_pixels >> 24) & 0x000000FF) |
-//                      ((last_pixels >>  8) & 0x0000FF00) |
-//                      ((last_pixels <<  8) & 0x00FF0000) |
-//                      ((last_pixels << 24) & 0xFF000000);
+        //        first_pixels = ((first_pixels >> 24) & 0x000000FF) |
+        //                       ((first_pixels >>  8) & 0x0000FF00) |
+        //                       ((first_pixels <<  8) & 0x00FF0000) |
+        //                       ((first_pixels << 24) & 0xFF000000);
+        //
+        //        last_pixels = ((last_pixels >> 24) & 0x000000FF) |
+        //                      ((last_pixels >>  8) & 0x0000FF00) |
+        //                      ((last_pixels <<  8) & 0x00FF0000) |
+        //                      ((last_pixels << 24) & 0xFF000000);
 
         *(first_ptr++) = last_pixels;
-        *last_ptr      = first_pixels;
+        *last_ptr = first_pixels;
     }
 }
 #endif
-
 
 /*!
  * \brief Warps an image
@@ -690,7 +696,7 @@ void rotate180_arm(const image_t *img)
  *                       destination image
  */
 void warpPerspective(const image_t *src, image_t *dst,
-                     const point_t *from,  const point_t *to,
+                     const point_t *from, const point_t *to,
                      eTransformDirection d)
 {
     // Verify image validity
@@ -717,7 +723,7 @@ void warpPerspective(const image_t *src, image_t *dst,
     float sy = from[0].y - from[1].y + from[2].y - from[3].y;
 
     // Is the from polygon a parallelogram?
-    if((sx == 0) && (sy == 0))
+    if ((sx == 0) && (sy == 0))
     {
         // Yes, mapping is affine
         A[0] = from[1].x - from[0].x;
@@ -761,7 +767,7 @@ void warpPerspective(const image_t *src, image_t *dst,
     sy = to[0].y - to[1].y + to[2].y - to[3].y;
 
     // Is the from polygon a parallelogram?
-    if((sx == 0) && (sy == 0))
+    if ((sx == 0) && (sy == 0))
     {
         // Yes, mapping is affine
         B[0] = to[1].x - to[0].x;
@@ -801,7 +807,7 @@ void warpPerspective(const image_t *src, image_t *dst,
     // Draw mask image
     image_t *msk = newUint8Image(dst->cols, dst->rows);
 
-    if(msk == NULL)
+    if (msk == NULL)
     {
         return;
     }
@@ -813,21 +819,21 @@ void warpPerspective(const image_t *src, image_t *dst,
     drawLineUint8(msk, to[3], to[0], 1);
     fillHolesIterative(msk, msk, CONNECTED_FOUR);
 
-    if(d == TRANSFORM_FORWARD)
+    if (d == TRANSFORM_FORWARD)
     {
         // Inverse AI = A^-1
-        float factor = 1.0f/((A[0] * A[4]       ) -
-                             (A[0] * A[5] * A[7]) -
-                             (A[1] * A[3]       ) +
-                             (A[1] * A[5] * A[6]) +
-                             (A[2] * A[3] * A[7]) -
-                             (A[2] * A[4] * A[6]));
+        float factor = 1.0f / ((A[0] * A[4]) -
+                               (A[0] * A[5] * A[7]) -
+                               (A[1] * A[3]) +
+                               (A[1] * A[5] * A[6]) +
+                               (A[2] * A[3] * A[7]) -
+                               (A[2] * A[4] * A[6]));
         float AI[N];
-        AI[0] = factor * ((A[4]       ) - (A[5] * A[7]));
-        AI[1] = factor * ((A[2] * A[7]) - (A[1]       ));
+        AI[0] = factor * ((A[4]) - (A[5] * A[7]));
+        AI[1] = factor * ((A[2] * A[7]) - (A[1]));
         AI[2] = factor * ((A[1] * A[5]) - (A[2] * A[4]));
-        AI[3] = factor * ((A[5] * A[6]) - (A[3]       ));
-        AI[4] = factor * ((A[0]       ) - (A[2] * A[6]));
+        AI[3] = factor * ((A[5] * A[6]) - (A[3]));
+        AI[4] = factor * ((A[0]) - (A[2] * A[6]));
         AI[5] = factor * ((A[2] * A[3]) - (A[0] * A[5]));
         AI[6] = factor * ((A[3] * A[7]) - (A[4] * A[6]));
         AI[7] = factor * ((A[1] * A[6]) - (A[0] * A[7]));
@@ -850,27 +856,29 @@ void warpPerspective(const image_t *src, image_t *dst,
         // If the output produces too many pixels that are not set, the step size
         // should be decreased
         float step_size = 0.5f;
-        for(float y=0; y<src->rows; y+=step_size)
+        for (float y = 0; y < src->rows; y += step_size)
         {
-            for(float x=0; x<src->cols; x+=step_size)
+            for (float x = 0; x < src->cols; x += step_size)
             {
                 // Given the transformation matrix, calculate the new
                 // coordinates
                 int32_t xn = (((x * T[0]) + (y * T[1]) + T[2]) /
-                              ((x * T[6]) + (y * T[7]) + T[8])) + 0.5f;
+                              ((x * T[6]) + (y * T[7]) + T[8])) +
+                             0.5f;
                 int32_t yn = (((x * T[3]) + (y * T[4]) + T[5]) /
-                              ((x * T[6]) + (y * T[7]) + T[8])) + 0.5f;
+                              ((x * T[6]) + (y * T[7]) + T[8])) +
+                             0.5f;
 
-                if((xn >= 0) &&
-                   (yn >= 0) &&
-                   (xn <  dst->cols) &&
-                   (yn <  dst->rows))
+                if ((xn >= 0) &&
+                    (yn >= 0) &&
+                    (xn < dst->cols) &&
+                    (yn < dst->rows))
                 {
-                    if(1 == getUint8Pixel(msk, xn, yn))
+                    if (1 == getUint8Pixel(msk, xn, yn))
                     {
                         // Forward transformation: for all coordinates in src, find the
                         // closest matching coordinate in dst
-                        setUint8Pixel(dst, xn, yn, getUint8Pixel(src,x,y));
+                        setUint8Pixel(dst, xn, yn, getUint8Pixel(src, x, y));
                     }
                 }
             }
@@ -879,18 +887,18 @@ void warpPerspective(const image_t *src, image_t *dst,
     else // TRANSFORM_BACKWARD
     {
         // Inverse BI = B^-1
-        float factor = 1.0f/((B[0] * B[4]       ) -
-                             (B[0] * B[5] * B[7]) -
-                             (B[1] * B[3]       ) +
-                             (B[1] * B[5] * B[6]) +
-                             (B[2] * B[3] * B[7]) -
-                             (B[2] * B[4] * B[6]));
+        float factor = 1.0f / ((B[0] * B[4]) -
+                               (B[0] * B[5] * B[7]) -
+                               (B[1] * B[3]) +
+                               (B[1] * B[5] * B[6]) +
+                               (B[2] * B[3] * B[7]) -
+                               (B[2] * B[4] * B[6]));
         float BI[N];
-        BI[0] = factor * ((B[4]       ) - (B[5] * B[7]));
-        BI[1] = factor * ((B[2] * B[7]) - (B[1]       ));
+        BI[0] = factor * ((B[4]) - (B[5] * B[7]));
+        BI[1] = factor * ((B[2] * B[7]) - (B[1]));
         BI[2] = factor * ((B[1] * B[5]) - (B[2] * B[4]));
-        BI[3] = factor * ((B[5] * B[6]) - (B[3]       ));
-        BI[4] = factor * ((B[0]       ) - (B[2] * B[6]));
+        BI[3] = factor * ((B[5] * B[6]) - (B[3]));
+        BI[4] = factor * ((B[0]) - (B[2] * B[6]));
         BI[5] = factor * ((B[2] * B[3]) - (B[0] * B[5]));
         BI[6] = factor * ((B[3] * B[7]) - (B[4] * B[6]));
         BI[7] = factor * ((B[1] * B[6]) - (B[0] * B[7]));
@@ -910,23 +918,25 @@ void warpPerspective(const image_t *src, image_t *dst,
         TI[8] = (A[6] * BI[2]) + (A[7] * BI[5]) + (A[8] * BI[8]);
 
         // Loop all pixels
-        for(int32_t y=0; y<dst->rows; y++)
+        for (int32_t y = 0; y < dst->rows; y++)
         {
-            for(int32_t x=0; x<dst->cols; x++)
+            for (int32_t x = 0; x < dst->cols; x++)
             {
-                if(1 == getUint8Pixel(msk, x, y))
+                if (1 == getUint8Pixel(msk, x, y))
                 {
                     // Given the transformation matrix, calculate the new
                     // coordinates
                     int32_t xs = (((x * TI[0]) + (y * TI[1]) + TI[2]) /
-                                  ((x * TI[6]) + (y * TI[7]) + TI[8])) + 0.5f;
+                                  ((x * TI[6]) + (y * TI[7]) + TI[8])) +
+                                 0.5f;
                     int32_t ys = (((x * TI[3]) + (y * TI[4]) + TI[5]) /
-                                  ((x * TI[6]) + (y * TI[7]) + TI[8])) + 0.5f;
+                                  ((x * TI[6]) + (y * TI[7]) + TI[8])) +
+                                 0.5f;
 
-                    if((xs >= 0) &&
-                       (ys >= 0) &&
-                       (xs <  src->cols) &&
-                       (ys <  src->rows))
+                    if ((xs >= 0) &&
+                        (ys >= 0) &&
+                        (xs < src->cols) &&
+                        (ys < src->rows))
                     {
                         // Backward transformation: for all coordinates in dst, find
                         // the closest matching coordinate in src
@@ -975,12 +985,12 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
     ASSERT(from == NULL, "invalid from values");
 
     const point_t to[4] =
-    {
-        {0, 0},
-        {dst->cols - 1, 0},
-        {dst->cols - 1, dst->rows - 1},
-        {0, dst->rows - 1},
-    };
+        {
+            {0, 0},
+            {dst->cols - 1, 0},
+            {dst->cols - 1, dst->rows - 1},
+            {0, dst->rows - 1},
+        };
 
     const int N = 9;
 
@@ -990,7 +1000,7 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
     float sx = from[0].x - from[1].x + from[2].x - from[3].x;
     float sy = from[0].y - from[1].y + from[2].y - from[3].y;
 
-    if((sx == 0) && (sy == 0))
+    if ((sx == 0) && (sy == 0))
     {
         A[0] = from[1].x - from[0].x;
         A[1] = from[2].x - from[1].x;
@@ -1031,7 +1041,7 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
     sx = to[0].x - to[1].x + to[2].x - to[3].x;
     sy = to[0].y - to[1].y + to[2].y - to[3].y;
 
-    if((sx == 0) && (sy == 0))
+    if ((sx == 0) && (sy == 0))
     {
         B[0] = to[1].x - to[0].x;
         B[1] = to[2].x - to[1].x;
@@ -1066,21 +1076,21 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
         B[8] = 1;
     }
 
-    if(d == TRANSFORM_FORWARD)
+    if (d == TRANSFORM_FORWARD)
     {
         // Inverse A^-1
-        float factor = 1.0f/((A[0] * A[4]       ) -
+        float factor = 1.0f / ((A[0] * A[4]) -
                                (A[0] * A[5] * A[7]) -
-                               (A[1] * A[3]       ) +
+                               (A[1] * A[3]) +
                                (A[1] * A[5] * A[6]) +
                                (A[2] * A[3] * A[7]) -
                                (A[2] * A[4] * A[6]));
         float AI[N];
-        AI[0] = factor * ((A[4]       ) - (A[5] * A[7]));
-        AI[1] = factor * ((A[2] * A[7]) - (A[1]       ));
+        AI[0] = factor * ((A[4]) - (A[5] * A[7]));
+        AI[1] = factor * ((A[2] * A[7]) - (A[1]));
         AI[2] = factor * ((A[1] * A[5]) - (A[2] * A[4]));
-        AI[3] = factor * ((A[5] * A[6]) - (A[3]       ));
-        AI[4] = factor * ((A[0]       ) - (A[2] * A[6]));
+        AI[3] = factor * ((A[5] * A[6]) - (A[3]));
+        AI[4] = factor * ((A[0]) - (A[2] * A[6]));
         AI[5] = factor * ((A[2] * A[3]) - (A[0] * A[5]));
         AI[6] = factor * ((A[3] * A[7]) - (A[4] * A[6]));
         AI[7] = factor * ((A[1] * A[6]) - (A[0] * A[7]));
@@ -1102,25 +1112,27 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
         // If the output produces too many pixels that are not set, the step size
         // should be decreased
         float step_size = 0.5f;
-        for(float y=0; y<src->rows; y+=step_size)
+        for (float y = 0; y < src->rows; y += step_size)
         {
-            for(float x=0; x<src->cols; x+=step_size)
+            for (float x = 0; x < src->cols; x += step_size)
             {
                 // Given the transformation matrix, calculate the new
                 // coordinates
                 int32_t xn = (((x * T[0]) + (y * T[1]) + T[2]) /
-                              ((x * T[6]) + (y * T[7]) + T[8])) + 0.5f;
+                              ((x * T[6]) + (y * T[7]) + T[8])) +
+                             0.5f;
                 int32_t yn = (((x * T[3]) + (y * T[4]) + T[5]) /
-                              ((x * T[6]) + (y * T[7]) + T[8])) + 0.5f;
+                              ((x * T[6]) + (y * T[7]) + T[8])) +
+                             0.5f;
 
-                if((xn >= 0) &&
-                   (yn >= 0) &&
-                   (xn <  dst->cols) &&
-                   (yn <  dst->rows))
+                if ((xn >= 0) &&
+                    (yn >= 0) &&
+                    (xn < dst->cols) &&
+                    (yn < dst->rows))
                 {
                     // Forward transformation: for all coordinates in src, find the
                     // closest matching coordinate in dst
-                    setUint8Pixel(dst, xn, yn, getUint8Pixel(src,x,y));
+                    setUint8Pixel(dst, xn, yn, getUint8Pixel(src, x, y));
                 }
             }
         }
@@ -1128,18 +1140,18 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
     else
     {
         // Inverse B^-1
-        float factor = 1.0f/((B[0] * B[4]       ) -
+        float factor = 1.0f / ((B[0] * B[4]) -
                                (B[0] * B[5] * B[7]) -
-                               (B[1] * B[3]       ) +
+                               (B[1] * B[3]) +
                                (B[1] * B[5] * B[6]) +
                                (B[2] * B[3] * B[7]) -
                                (B[2] * B[4] * B[6]));
         float BI[N];
-        BI[0] = factor * ((B[4]       ) - (B[5] * B[7]));
-        BI[1] = factor * ((B[2] * B[7]) - (B[1]       ));
+        BI[0] = factor * ((B[4]) - (B[5] * B[7]));
+        BI[1] = factor * ((B[2] * B[7]) - (B[1]));
         BI[2] = factor * ((B[1] * B[5]) - (B[2] * B[4]));
-        BI[3] = factor * ((B[5] * B[6]) - (B[3]       ));
-        BI[4] = factor * ((B[0]       ) - (B[2] * B[6]));
+        BI[3] = factor * ((B[5] * B[6]) - (B[3]));
+        BI[4] = factor * ((B[0]) - (B[2] * B[6]));
         BI[5] = factor * ((B[2] * B[3]) - (B[0] * B[5]));
         BI[6] = factor * ((B[3] * B[7]) - (B[4] * B[6]));
         BI[7] = factor * ((B[1] * B[6]) - (B[0] * B[7]));
@@ -1158,21 +1170,23 @@ void warpPerspectiveFast(const image_t *src, image_t *dst,
         TI[8] = (A[6] * BI[2]) + (A[7] * BI[5]) + (A[8] * BI[8]);
 
         // Loop all pixels
-        for(int32_t y=0; y<dst->rows; y++)
+        for (int32_t y = 0; y < dst->rows; y++)
         {
-            for(int32_t x=0; x<dst->cols; x++)
+            for (int32_t x = 0; x < dst->cols; x++)
             {
                 // Given the transformation matrix, calculate the new
                 // coordinates
                 int32_t xs = (((x * TI[0]) + (y * TI[1]) + TI[2]) /
-                              ((x * TI[6]) + (y * TI[7]) + TI[8])) + 0.5f;
+                              ((x * TI[6]) + (y * TI[7]) + TI[8])) +
+                             0.5f;
                 int32_t ys = (((x * TI[3]) + (y * TI[4]) + TI[5]) /
-                              ((x * TI[6]) + (y * TI[7]) + TI[8])) + 0.5f;
+                              ((x * TI[6]) + (y * TI[7]) + TI[8])) +
+                             0.5f;
 
-                if((xs >= 0) &&
-                   (ys >= 0) &&
-                   (xs <  src->cols) &&
-                   (ys <  src->rows))
+                if ((xs >= 0) &&
+                    (ys >= 0) &&
+                    (xs < src->cols) &&
+                    (ys < src->rows))
                 {
                     // Backward transformation: for all coordinates in dst, find
                     // the closest matching coordinate in src
@@ -1218,26 +1232,26 @@ void zoom(const image_t *src, image_t *dst,
     ASSERT(x + hor > src->cols, "zooming out of src cols range");
     ASSERT(y + ver > src->rows, "zooming out of src rows range");
 
-    int32_t m=0, n=0;
+    int32_t m = 0, n = 0;
 
     // Zoom
-    if(zd == ZOOM_IN)
+    if (zd == ZOOM_IN)
     {
         // Verify parameters
-        ASSERT(dst->cols < hor*2, "the zoomed image will not fit in dst");
-        ASSERT(dst->rows < ver*2, "the zoomed image will not fit in dst");
+        ASSERT(dst->cols < hor * 2, "the zoomed image will not fit in dst");
+        ASSERT(dst->rows < ver * 2, "the zoomed image will not fit in dst");
 
         // Loop all pixels
-        for(int32_t i=y; i<ver; i++)
+        for (int32_t i = y; i < ver; i++)
         {
-            for(int32_t j=x; j<hor; j++)
+            for (int32_t j = x; j < hor; j++)
             {
                 uint8_pixel_t p = getUint8Pixel(src, j, i);
 
-                setUint8Pixel(dst,   m,   n, p);
-                setUint8Pixel(dst, m+1,   n, p);
-                setUint8Pixel(dst,   m, n+1, p);
-                setUint8Pixel(dst, m+1, n+1, p);
+                setUint8Pixel(dst, m, n, p);
+                setUint8Pixel(dst, m + 1, n, p);
+                setUint8Pixel(dst, m, n + 1, p);
+                setUint8Pixel(dst, m + 1, n + 1, p);
 
                 m += 2;
             }
@@ -1249,13 +1263,13 @@ void zoom(const image_t *src, image_t *dst,
     else // Dezoom
     {
         // Verify parameters
-        ASSERT(dst->cols < hor/2, "the zoomed image will not fit in dst");
-        ASSERT(dst->rows < ver/2, "the zoomed image will not fit in dst");
+        ASSERT(dst->cols < hor / 2, "the zoomed image will not fit in dst");
+        ASSERT(dst->rows < ver / 2, "the zoomed image will not fit in dst");
 
         // Loop all pixels
-        for(int32_t i=y; i<ver; i+=2)
+        for (int32_t i = y; i < ver; i += 2)
         {
-            for(int32_t j=x; j<hor; j+=2)
+            for (int32_t j = x; j < hor; j += 2)
             {
                 setUint8Pixel(dst, m, n, getUint8Pixel(src, j, i));
                 ++m;
@@ -1284,35 +1298,35 @@ void zoom(const image_t *src, image_t *dst,
  * \param[in]  factor Zooming factor
  */
 void zoomFactor(const image_t *src, image_t *dst,
-          const int32_t x, const int32_t y,
-          const int32_t hor, const int32_t ver,
-          const eZoom zd, const int16_t factor)
+                const int32_t x, const int32_t y,
+                const int32_t hor, const int32_t ver,
+                const eZoom zd, const int16_t factor)
 {
-    int32_t m=0, n=0;
+    int32_t m = 0, n = 0;
 
     // Zoom
-    if(zd == ZOOM_IN)
+    if (zd == ZOOM_IN)
     {
-      //ASSERT(dst->cols < hor*2, "the zoomed image does not fit in dst");
-      //ASSERT(dst->rows < ver*2, "the zoomed image does not fit in dst");
+        // ASSERT(dst->cols < hor*2, "the zoomed image does not fit in dst");
+        // ASSERT(dst->rows < ver*2, "the zoomed image does not fit in dst");
 
         // Loop all pixels
-        for(int32_t i=y; i<ver; i++)
+        for (int32_t i = y; i < ver; i++)
         {
-            for(int32_t j=x; j<hor; j++)
+            for (int32_t j = x; j < hor; j++)
             {
                 uint8_pixel_t p = getUint8Pixel(src, j, i);
 
-                for(int32_t k=0; k<factor; k++)
+                for (int32_t k = 0; k < factor; k++)
                 {
-                    for(int32_t l=0; l<factor; l++)
+                    for (int32_t l = 0; l < factor; l++)
                     {
-                        if((m+k >= 0) &&
-                           (n+l >= 0) &&
-                           (m+k <  dst->cols) &&
-                           (n+l <  dst->rows))
+                        if ((m + k >= 0) &&
+                            (n + l >= 0) &&
+                            (m + k < dst->cols) &&
+                            (n + l < dst->rows))
                         {
-                            setUint8Pixel(dst, m+k, n+l, p);
+                            setUint8Pixel(dst, m + k, n + l, p);
                         }
                     }
                 }
@@ -1326,18 +1340,18 @@ void zoomFactor(const image_t *src, image_t *dst,
     }
     else // Dezoom
     {
-      //ASSERT(dst->cols < hor/factor, "the zoomed image does not fit in dst");
-      //ASSERT(dst->rows < ver/factor, "the zoomed image does not fit in dst");
+        // ASSERT(dst->cols < hor/factor, "the zoomed image does not fit in dst");
+        // ASSERT(dst->rows < ver/factor, "the zoomed image does not fit in dst");
 
         // Loop all pixels
-        for(int32_t i=y; i<ver; i+=factor)
+        for (int32_t i = y; i < ver; i += factor)
         {
-            for(int32_t j=x; j<hor; j+=factor)
+            for (int32_t j = x; j < hor; j += factor)
             {
-                if((m >= 0) &&
-                   (n >= 0) &&
-                   (m <  dst->cols) &&
-                   (n <  dst->rows))
+                if ((m >= 0) &&
+                    (n >= 0) &&
+                    (m < dst->cols) &&
+                    (n < dst->rows))
                 {
                     setUint8Pixel(dst, m, n, getUint8Pixel(src, j, i));
                 }
