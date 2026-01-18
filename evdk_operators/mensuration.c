@@ -641,17 +641,17 @@ void huInvariantMoments(const image_t *img, blobinfo_t *blobinfo, const uint32_t
     // Calculate normalized central moments
     float ncm_20 = ncm(img, blobnr, 2, 0);
     float ncm_02 = ncm(img, blobnr, 0, 2);
-    float ncm_11 = ncm(img, blobnr, 1, 1);
-    float ncm_30 = ncm(img, blobnr, 3, 0);
-    float ncm_12 = ncm(img, blobnr, 1, 2);
-    float ncm_21 = ncm(img, blobnr, 2, 1);
-    float ncm_03 = ncm(img, blobnr, 0, 3);
+    // float ncm_11 = ncm(img, blobnr, 1, 1);
+    // float ncm_30 = ncm(img, blobnr, 3, 0);
+    // float ncm_12 = ncm(img, blobnr, 1, 2);
+    // float ncm_21 = ncm(img, blobnr, 2, 1);
+    // float ncm_03 = ncm(img, blobnr, 0, 3);
 
     // Calculate the Hu invariant moments
     blobinfo->hu_moments[0] = ncm_20 + ncm_02;
-    blobinfo->hu_moments[1] = powf(ncm_20 - ncm_02, 2) + (4 * powf(ncm_11, 2));
-    blobinfo->hu_moments[2] = powf(ncm_30 - (3 * ncm_12), 2) + powf((3 * ncm_21) - ncm_03, 2);
-    blobinfo->hu_moments[3] = powf(ncm_30 + ncm_12, 2) + powf(ncm_21 + ncm_03, 2);
+    // blobinfo->hu_moments[1] = powf(ncm_20 - ncm_02, 2) + (4 * powf(ncm_11, 2));
+    // blobinfo->hu_moments[2] = powf(ncm_30 - (3 * ncm_12), 2) + powf((3 * ncm_21) - ncm_03, 2);
+    // blobinfo->hu_moments[3] = powf(ncm_30 + ncm_12, 2) + powf(ncm_21 + ncm_03, 2);
 
     // Add more Hu invariant moments here if required by the application
 }

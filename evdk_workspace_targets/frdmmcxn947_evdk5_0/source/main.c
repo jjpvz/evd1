@@ -941,16 +941,16 @@ void exampleFinalAssignment(void)
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
     image_t *src_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
-    image_t *thr_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
     image_t *ero_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
+    image_t *thr_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
     image_t *rbb_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
     image_t *lbl_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
 
     clearUint8Image(src);
     clearUint8Image(dst);
     clearUint8Image(src_small);
-    clearUint8Image(thr_small);
     clearUint8Image(ero_small);
+    clearUint8Image(thr_small);
     clearUint8Image(rbb_small);
     clearUint8Image(lbl_small);
 
@@ -965,7 +965,6 @@ void exampleFinalAssignment(void)
     // Flip the characters in the y-axis
     textSetFlipCharacters(1);
 
-    // Place this at the top of your function or as a global
     const uint8_t mask3x3[9] = {
         1, 1, 1,
         1, 1, 1,
@@ -976,8 +975,6 @@ void exampleFinalAssignment(void)
     bgr888_pixel_t BLUE = {255, 0, 0};
     bgr888_pixel_t YELLOW = {0, 255, 255};
     bgr888_pixel_t RED = {0, 0, 255};
-
-    // textSetBgr888Colors(red, white);
 
     while (1U)
     {
@@ -1011,7 +1008,7 @@ void exampleFinalAssignment(void)
         memset(&firstBlob, 0, sizeof(blobinfo_t));
         int32_t usb_x = -1;
         int32_t usb_y = -1;
-        bgr888_pixel_t crosshairColor = {0, 0, 255}; // Default Red (Unknown)
+        bgr888_pixel_t crosshairColor = RED;
 
         if (numBlobs > 0)
         {
@@ -1028,19 +1025,19 @@ void exampleFinalAssignment(void)
 
             if (phi1 < 0.163f)
             {
-                crosshairColor = (bgr888_pixel_t){0, 255, 0}; // Green: Circle
+                crosshairColor = GREEN; // Circle
             }
             else if (phi1 < 0.178f)
             {
-                crosshairColor = (bgr888_pixel_t){255, 0, 0}; // Blue: Square
+                crosshairColor = BLUE; // Square
             }
             else if (phi1 < 0.220f)
             {
-                crosshairColor = (bgr888_pixel_t){0, 255, 255}; // Yellow: Triangle
+                crosshairColor = YELLOW; // Triangle
             }
             else
             {
-                crosshairColor = (bgr888_pixel_t){0, 0, 255}; // Red: Unknown
+                crosshairColor = RED; // Unknown
             }
         }
 
