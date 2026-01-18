@@ -192,8 +192,8 @@ int main(void)
     // exampleThreshold();
     // exampleRotate();
     // exampleTemplate();
-    // exampleFinalAssignment();
-    exampleHuffman();
+    exampleFinalAssignment();
+    // exampleHuffman();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -956,27 +956,49 @@ detection_result_t processBlobAnalysis(image_t *lbl_small, uint32_t numBlobs)
         blobinfo_t firstBlob;
         memset(&firstBlob, 0, sizeof(blobinfo_t));
 
-        // 1. Feature Extraction
         centroid(lbl_small, &firstBlob, 1);
+        circularity(lbl_small, &firstBlob, 1);
         huInvariantMoments(lbl_small, &firstBlob, 1);
 
-        // 2. Coordinate Scaling (Small -> Large)
         result.x = (int32_t)(firstBlob.centroid.x * 2.0f);
         result.y = (int32_t)(firstBlob.centroid.y * 2.0f);
         result.detected = true;
 
-        // 3. Shape Classification via Hu Moments
+        // PRINTF("------- BLOB ANALYSIS -------\n");
+        // PRINTF("Circularity    : %.4f\n", firstBlob.circularity);
+        // PRINTF("-----------------------------\n");
+
+        // for (int i = 0; i < 4; i++)
+        // {
+        //     PRINTF("Hu Moment phi%d : %.6f\n", i + 1, firstBlob.hu_moments[i]);
+        // }
+
+        // PRINTF("-----------------------------\n\n");
+
+        /*
+         * SHAPE CLASSIFICATION REFERENCE TABLE
+         * ---------------------------------------------------------------------------
+         * Feature          | Circle (Green)   | Square (Blue)    | Triangle (Yellow)
+         * ---------------------------------------------------------------------------
+         * Circularity      | 0.995 - 1.016    | 0.797 - 0.836    | 0.635 - 0.674
+         * Hu Moment phi1   | 0.1591 - 0.1592  | 0.1657 - 0.1669  | 0.1890 - 0.1933
+         * Hu Moment phi2   | ~0.000001        | ~0.000004        | ~0.000030
+         * Hu Moment phi3   | ~0.000000        | ~0.000003        | 0.0039 - 0.0047
+         * Hu Moment phi4   | 0.000000         | 0.000000         | ~0.000001
+         * ---------------------------------------------------------------------------
+         */
+
         float phi1 = firstBlob.hu_moments[0];
 
-        if (phi1 < 0.163f)
+        if (phi1 < 0.16f && firstBlob.circularity > 0.900f)
         {
             result.color = GREEN; // Circle
         }
-        else if (phi1 < 0.178f)
+        else if (phi1 < 0.18f && firstBlob.circularity > 0.750f)
         {
             result.color = BLUE; // Square
         }
-        else if (phi1 < 0.220f)
+        else if (phi1 < 0.20f && firstBlob.circularity > 0.600f)
         {
             result.color = YELLOW; // Triangle
         }
