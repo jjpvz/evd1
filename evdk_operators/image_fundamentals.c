@@ -1013,8 +1013,6 @@ void clearFloatImage(image_t *img)
     }
 }
 
-/// \}
-
 /*!
  * \brief Converts an uyvy_pixel_t image to an uint8_pixel_t image
  *
@@ -1039,31 +1037,18 @@ void convertUyvyToUint8(image_t *src, image_t *dst)
     // 0000 0000 1100 0100 -> shifting (>> 8)
     // 1100 0100           -> casten naar uint_8
 
-    // 1011 = 11 = A
-    // 1100 = 12 = B
-    // 1111 = 15 = F
-    // 0000
-
-    // 0000 0100
-    //
-
     uint16_t *src_uyvy = (uint16_t *)src->data;
 
-    // Compiler kan beter omgaan met 32 bits
-    // ondanks dat we niet zo'n groot getal nodig hebben
+    // Compiler kan beter omgaan met 32 bits ondanks dat we niet zo'n groot getal nodig hebben
     uint32_t total_pixels = src->cols * src->rows;
-    // printf("Total pixels: %d\n", total_pixels);
 
     uint8_t *dst_y_only = (uint8_t *)dst->data;
 
     for (int i = 0; i < total_pixels; ++i)
     {
         uint16_t uyvy_element = src_uyvy[i];
-        // printf("Index: %4d, Value: 0x%04X \n", i, uyvy_element);
 
-        // This uses bit shiting??
         uint8_t y_value = (uint8_t)(uyvy_element >> 8);
-        // printf("Index: %4d, Value: 0x%04X \n", i, y_value);
 
         dst_y_only[i] = y_value;
     }
@@ -2366,6 +2351,7 @@ void scaleFast(const image_t *src, image_t *dst)
     {
         float scale_factor = 255.0f / (float)(max - min);
 
+        // Calculate new value for each possible pixel value
         for (int idx = 0; idx < 256; ++idx)
         {
             if (idx <= min)
@@ -2378,6 +2364,7 @@ void scaleFast(const image_t *src, image_t *dst)
             }
             else
             {
+                // 0.5f -> ensures rounding
                 LUT[idx] = (uint8_pixel_t)(scale_factor * (idx - min) + 0.5f);
             }
         }

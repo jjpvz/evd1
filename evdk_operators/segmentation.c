@@ -208,6 +208,7 @@ void threshold2Means(const image_t *src, image_t *dst, const eBrightness b)
         uint32_t sum_right = 0;
         uint32_t count_right = 0;
 
+        // Split into two groups based on current threshold T
         for (uint32_t i = 0; i < 256; i++)
         {
             if (i <= T)
@@ -266,19 +267,19 @@ void threshold2Means(const image_t *src, image_t *dst, const eBrightness b)
  */
 void thresholdOtsu(const image_t *src, image_t *dst, const eBrightness b)
 {
-    // check worstcase for otsu and check met welk datatype bcv opgeslafen moet worden
     uint32_t hist[256] = {0};
     histogram(src, hist);
 
     uint32_t total = src->rows * src->cols;
 
+    // Calculate the sum of intensity of the entire image
     uint32_t sum_total = 0;
     for (int i = 0; i < 256; i++)
     {
         sum_total += i * hist[i];
     }
 
-    // At start, all pixels are in the right and are iteratively moved to the left
+    // All pixels are in the right and are iteratively moved to the left
     uint32_t sum_left = 0;
     uint32_t count_left = 0;
 

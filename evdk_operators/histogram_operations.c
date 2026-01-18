@@ -167,22 +167,24 @@ void contrast(const image_t *src, image_t *dst, const float contrast)
     uint8_t *dst_data = (uint8_t *)dst->data;
     uint32_t total_pixels = src->cols * src->rows;
 
+    // Accumulate sum of all pixels
     for (uint32_t i = 0; i < total_pixels; ++i)
     {
         sum += src_data[i];
     }
 
-    // calculate average
+    // Calculate average
     float average = (float)sum / (float)total_pixels;
 
+    // Apply contrast to each pixel
     for (uint32_t i = 0; i < total_pixels; ++i)
     {
         uint8_t current_value = src_data[i];
 
-        // calculate new value
+        // Calculate new value
         float new_value = (contrast * (current_value - average)) + average;
 
-        // clipping
+        // Clipping
         if (new_value < 0.0f)
         {
             new_value = 0.0f;
