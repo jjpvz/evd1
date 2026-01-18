@@ -69,7 +69,7 @@ LinkedListNode *pq_enqueue(LinkedListNode **a_head, void *a_value, int (*cmp_fn)
     new_node->value = a_value;
     new_node->next = NULL;
 
-    // list is empty or new value is < the current head
+    // List is empty or new value is < the current head
     if (*a_head == NULL || cmp_fn(a_value, (*a_head)->value) <= 0)
     {
         new_node->next = *a_head;
@@ -84,7 +84,7 @@ LinkedListNode *pq_enqueue(LinkedListNode **a_head, void *a_value, int (*cmp_fn)
             curr = curr->next;
         }
 
-        // insert new_node just after curr
+        // Insert new_node just after curr
         new_node->next = curr->next;
         curr->next = new_node;
     }
@@ -259,21 +259,30 @@ uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size)
     size_t byte_index = 0;
     int bits_filled = 0;
 
+    // Loop through each pixel
     for (size_t i = 0; i < image->rows * image->cols; i++)
     {
+        // Get pixel value and corresponding code
         uint8_t pixel = image->data[i];
         HuffmanCode *code = &table[pixel];
 
+        // Loop through each bit in code
         for (int b = code->length - 1; b >= 0; b--)
         {
+            // Get one bit from the code
             uint8_t bit = (code->code >> b) & 1;
 
+            // Shift existing bits to the left
             encoded_data[byte_index] <<= 1;
+
+            // Add new bit to the end
             encoded_data[byte_index] |= bit;
             bits_filled++;
 
+            // If the byte is full
             if (bits_filled == 8)
             {
+                // Move to the next byte
                 bits_filled = 0;
                 byte_index++;
                 encoded_data[byte_index] = 0;
@@ -281,7 +290,7 @@ uint8_t *encode_image(image_t *image, TreeNode *root, size_t *out_size)
         }
     }
 
-    // pad last byte with zeros if not full
+    // Pad last byte with zeros if not full
     if (bits_filled > 0)
     {
         encoded_data[byte_index] <<= (8 - bits_filled);

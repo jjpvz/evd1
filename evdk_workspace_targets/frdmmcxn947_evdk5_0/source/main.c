@@ -192,8 +192,8 @@ int main(void)
     // exampleThreshold();
     // exampleRotate();
     // exampleTemplate();
-    exampleFinalAssignment();
-    // exampleHuffman();
+    // exampleFinalAssignment();
+    exampleHuffman();
 
     // -------------------------------------------------------------------------
     // Should never reach this
@@ -930,6 +930,65 @@ void upscale2x_fast(const image_t *src, image_t *dst)
     }
 }
 
+typedef struct
+{
+    int32_t x;
+    int32_t y;
+    bgr888_pixel_t color;
+    bool detected;
+} detection_result_t;
+
+detection_result_t processBlobAnalysis(image_t *lbl_small, uint32_t numBlobs)
+{
+    bgr888_pixel_t GREEN = {0, 255, 0};
+    bgr888_pixel_t BLUE = {255, 0, 0};
+    bgr888_pixel_t YELLOW = {0, 255, 255};
+    bgr888_pixel_t RED = {0, 0, 255};
+
+    detection_result_t result;
+    result.x = -1;
+    result.y = -1;
+    result.color = RED;
+    result.detected = false;
+
+    if (numBlobs > 0)
+    {
+        blobinfo_t firstBlob;
+        memset(&firstBlob, 0, sizeof(blobinfo_t));
+
+        // 1. Feature Extraction
+        centroid(lbl_small, &firstBlob, 1);
+        huInvariantMoments(lbl_small, &firstBlob, 1);
+
+        // 2. Coordinate Scaling (Small -> Large)
+        result.x = (int32_t)(firstBlob.centroid.x * 2.0f);
+        result.y = (int32_t)(firstBlob.centroid.y * 2.0f);
+        result.detected = true;
+
+        // 3. Shape Classification via Hu Moments
+        float phi1 = firstBlob.hu_moments[0];
+
+        if (phi1 < 0.163f)
+        {
+            result.color = GREEN; // Circle
+        }
+        else if (phi1 < 0.178f)
+        {
+            result.color = BLUE; // Square
+        }
+        else if (phi1 < 0.220f)
+        {
+            result.color = YELLOW; // Triangle
+        }
+        else
+        {
+            result.color = RED; // Unknown
+        }
+    }
+
+    return result;
+}
+
 void exampleFinalAssignment(void)
 {
     PRINTF("%s\r\n", __func__);
@@ -941,7 +1000,6 @@ void exampleFinalAssignment(void)
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
 
     image_t *src_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
-    image_t *ero_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
     image_t *thr_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
     image_t *rbb_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
     image_t *lbl_small = newUint8Image(EVDK5_WIDTH / 2, EVDK5_HEIGHT / 2);
@@ -949,7 +1007,6 @@ void exampleFinalAssignment(void)
     clearUint8Image(src);
     clearUint8Image(dst);
     clearUint8Image(src_small);
-    clearUint8Image(ero_small);
     clearUint8Image(thr_small);
     clearUint8Image(rbb_small);
     clearUint8Image(lbl_small);
@@ -961,20 +1018,6 @@ void exampleFinalAssignment(void)
         {
         }
     }
-
-    // Flip the characters in the y-axis
-    textSetFlipCharacters(1);
-
-    const uint8_t mask3x3[9] = {
-        1, 1, 1,
-        1, 1, 1,
-        1, 1, 1};
-    const uint8_t maskSize = 3;
-
-    bgr888_pixel_t GREEN = {0, 255, 0};
-    bgr888_pixel_t BLUE = {255, 0, 0};
-    bgr888_pixel_t YELLOW = {0, 255, 255};
-    bgr888_pixel_t RED = {0, 0, 255};
 
     while (1U)
     {
@@ -990,57 +1033,25 @@ void exampleFinalAssignment(void)
         // ---------------------------------------------------------------------
         ms1 = ms;
 
-        // Convert uyvy_pixel_t camera image to uint8_pixel_t image
+        // TIMING: 1ms
         convertUyvyToUint8(cam, src);
 
+        // TIMING: 0-1ms
         downscale2x_fast(src, src_small);
 
+        // TIMING: 0-1ms
         threshold(src_small, thr_small, 0, 60);
 
-        erosion(thr_small, ero_small, mask3x3, maskSize);
+        // TIMING: 2ms
+        removeBorderBlobsTwoPass(thr_small, rbb_small, CONNECTED_FOUR, 100);
 
-        removeBorderBlobsTwoPass(ero_small, rbb_small, CONNECTED_FOUR, 100);
-
+        // TIMING: 2ms
         uint32_t numBlobs = labelTwoPass(rbb_small, lbl_small, CONNECTED_FOUR, 100);
 
-        // Prepare variables for the display phase
-        blobinfo_t firstBlob;
-        memset(&firstBlob, 0, sizeof(blobinfo_t));
-        int32_t usb_x = -1;
-        int32_t usb_y = -1;
-        bgr888_pixel_t crosshairColor = RED;
+        // TIMING: 3-4ms
+        detection_result_t result = processBlobAnalysis(lbl_small, numBlobs);
 
-        if (numBlobs > 0)
-        {
-            // Calculate Centroid and Hu Moments for the first blob (Label 1)
-            centroid(lbl_small, &firstBlob, 1);
-            huInvariantMoments(lbl_small, &firstBlob, 1);
-
-            // Scale coordinates: small image (e.g. 160x120) to USB image (e.g. 320x240)
-            usb_x = (int32_t)(firstBlob.centroid.x * 2);
-            usb_y = (int32_t)(firstBlob.centroid.y * 2);
-
-            // Determine Shape based on Hu Moment 1 (phi1)
-            float phi1 = firstBlob.hu_moments[0];
-
-            if (phi1 < 0.163f)
-            {
-                crosshairColor = GREEN; // Circle
-            }
-            else if (phi1 < 0.178f)
-            {
-                crosshairColor = BLUE; // Square
-            }
-            else if (phi1 < 0.220f)
-            {
-                crosshairColor = YELLOW; // Triangle
-            }
-            else
-            {
-                crosshairColor = RED; // Unknown
-            }
-        }
-
+        // TIMING: 0-1ms
         uint8_t *d_data = (uint8_t *)rbb_small->data;
 
         for (int i = 0; i < (rbb_small->rows * rbb_small->cols); i++)
@@ -1051,25 +1062,28 @@ void exampleFinalAssignment(void)
             }
         }
 
+        // TIMING: 0-1ms
         upscale2x_fast(rbb_small, dst);
+
+        // TIMING: 1-2ms
         convertUint8ToBgr888(dst, usb);
 
-        if (numBlobs > 0 && usb_x >= 0 && usb_x < usb->cols && usb_y >= 0 && usb_y < usb->rows)
+        // TIMING: 0-1ms
+        if (result.detected && result.x >= 0 && result.x < usb->cols && result.y >= 0 && result.y < usb->rows)
         {
-            int size = 12; // Length of crosshair arms
+            int size = 12;
+            point_t h_start = {result.x - size, result.y};
+            point_t h_end = {result.x + size, result.y};
+            point_t v_start = {result.x, result.y - size};
+            point_t v_end = {result.x, result.y + size};
 
-            point_t h_start = {usb_x - size, usb_y};
-            point_t h_end = {usb_x + size, usb_y};
-            point_t v_start = {usb_x, usb_y - size};
-            point_t v_end = {usb_x, usb_y + size};
-
-            // Draw horizontal line
-            drawLineBgr888(usb, h_start, h_end, crosshairColor);
-            // Draw vertical line
-            drawLineBgr888(usb, v_start, v_end, crosshairColor);
+            drawLineBgr888(usb, h_start, h_end, result.color);
+            drawLineBgr888(usb, v_start, v_end, result.color);
         }
 
         ms2 = ms;
+
+        // TOTAL TIMING: 10-12ms
 
         // ---------------------------------------------------------------------
         // Set flag for USB interface that a new frame is available
@@ -1090,16 +1104,11 @@ void exampleHuffman(void)
     // -------------------------------------------------------------------------
     // Local image memory allocation
     // -------------------------------------------------------------------------
-    // Create additional int16_pixel_t images
-    image_t *src_int16 = newInt16Image(EVDK5_WIDTH, EVDK5_HEIGHT);
-    image_t *dst_int16 = newInt16Image(EVDK5_WIDTH, EVDK5_HEIGHT);
-
-    // Prepare images
-    clearInt16Image(src_int16);
-    clearInt16Image(dst_int16);
-
     image_t *src = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
     image_t *dst = newUint8Image(EVDK5_WIDTH, EVDK5_HEIGHT);
+
+    clearUint8Image(src);
+    clearUint8Image(dst);
 
     if (dst == NULL)
     {
@@ -1115,7 +1124,7 @@ void exampleHuffman(void)
         ;
     smartdma_camera_image_complete = 0;
 
-    convertToUint8(cam, src);
+    convertUyvyToUint8(cam, src);
 
     uint32_t hist[256] = {0};
     histogram(src, hist);
@@ -1131,6 +1140,10 @@ void exampleHuffman(void)
     size_t original_size = src->rows * src->cols;
     PRINTF("Huffman Results: Original: %u bytes | Encoded: %u bytes\r\n", original_size, (uint32_t)encoded_size);
     PRINTF("Compression Ratio: %d%%\r\n", (int)((encoded_size * 100) / original_size));
+
+    PRINTF("Original [0]:  0x%02X\r\n", src->data[0]);
+    PRINTF("Encoded [0]:   0x%02X\r\n", encoded_data[0]);
+    PRINTF("Decoded [0]:   0x%02X\r\n", dst->data[0]);
 
     destroy_huffman_tree(&huffman_root);
     free(encoded_data);
